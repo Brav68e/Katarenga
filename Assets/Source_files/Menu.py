@@ -6,7 +6,7 @@ class Menu:
         self.screen = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption("Menu")
 
-        self.BG = pygame.image.load("Assets/imgs/Background.png")
+        self.BG = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
         self.BLACK = (0, 0, 0)
         self.WHITE = (255, 255, 255)
 
@@ -16,28 +16,28 @@ class Menu:
         self.setup_buttons()
 
     def get_font(self, size):
-        return pygame.font.Font("Assets/fonts/font.ttf", size)
+        return pygame.font.Font(r"Assets/Source_files/fonts/font.ttf", size)
 
     def setup_buttons(self):
         # Boutons principaux
         if self.current_page != "Settings":  # Ne pas afficher ces boutons dans les Settings
             self.buttons = [
-                Button(None, (640, 300), "Solo", self.get_font(65), "#FFFFFF", "#888888"),
-                Button(None, (640, 400), "Local Multiplayer", self.get_font(65), "#FFFFFF", "#888888"),
-                Button(None, (640, 500), "Online Multiplayer", self.get_font(65), "#FFFFFF", "#888888")
+                Button(None, (640, 300), "Solo", self.get_font(65), "#514b4b", "#888888"),
+                Button(None, (640, 400), "Local Multiplayer", self.get_font(65), "#514b4b", "#888888"),
+                Button(None, (640, 500), "Online Multiplayer", self.get_font(65), "#514b4b", "#888888")
             ]
         else:
             self.buttons = [
-                Button(None, (640, 300), "Option", self.get_font(65), "#FFFFFF", "#888888"),
-                Button(None, (640, 400), "Create Tiles", self.get_font(65), "#FFFFFF", "#888888"),
+                Button(None, (640, 300), "Option", self.get_font(65), "#514b4b", "#888888"),
+                Button(None, (640, 400), "Create Tiles", self.get_font(65), "#514b4b", "#888888"),
             ]
 
         # Chemins vers les images des icônes
         icon_images = [
-            "Assets/icons/tour.png",
-            "Assets/icons/plateau.png",
-            "Assets/icons/I.png",
-            "Assets/icons/settings.png"
+            "Assets/Source_files/Images/menu/icons/tour.png",
+            "Assets/Source_files/Images/menu/icons/plateau.png",
+            "Assets/Source_files/Images/menu/icons/I.png",
+            "Assets/Source_files/Images/menu/icons/settings.png"
         ]
 
         # Création des boutons d'icônes avec des images
@@ -65,7 +65,7 @@ class Menu:
 
     def draw_title(self):
         # Afficher le titre basé sur la page active
-        title_text = self.get_font(120).render(self.current_page, True, "#FFFFFF")
+        title_text = self.get_font(120).render(self.current_page, True, "#514b4b")
         title_rect = title_text.get_rect(center=(640, 120))
         self.screen.blit(title_text, title_rect)
 
