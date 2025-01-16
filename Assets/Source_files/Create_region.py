@@ -123,11 +123,11 @@ class Create_region():
     def load_backgrounds(self):
         '''Load all the backgrounds img with specific size'''
 
-        self.background_img = pygame.transform.scale(self.background_img, (self.screen_width, self.screen_height))
+        self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
 
         self.rules_y = int(self.screen_height * 0.075)
         self.rules_x = int(self.screen_width * 0.075)
-        self.rules_img = pygame.transform.scale(self.rules_img, (self.screen_width * 0.85, self.screen_height * 0.85))
+        self.rules_img = pygame.transform.smoothscale(self.rules_img, (self.screen_width * 0.85, self.screen_height * 0.85))
 
 
 
@@ -141,10 +141,10 @@ class Create_region():
         self.tiles_side = self.region_side/4
 
         for key in self.tiles_aside_img:
-            self.tiles_aside_img[key] = pygame.transform.scale(self.tiles_aside_img[key], (self.tile_aside_side, self.tile_aside_side))
+            self.tiles_aside_img[key] = pygame.transform.smoothscale(self.tiles_aside_img[key], (self.tile_aside_side, self.tile_aside_side))
 
         for key in self.tiles_img:
-            self.tiles_img[key] = pygame.transform.scale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
+            self.tiles_img[key] = pygame.transform.smoothscale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
 
 
 ###################################################################################################
@@ -157,7 +157,7 @@ class Create_region():
         self.region_side = int(self.screen_height * 0.6)                # Sides are based on screen height
         self.region_x = (self.screen_width * 0.19)                      # Top-Left Corner   
         self.region_y = (self.screen_height * 0.1)
-        self.region_img = pygame.transform.scale(self.region_img, (self.region_side, self.region_side))
+        self.region_img = pygame.transform.smoothscale(self.region_img, (self.region_side, self.region_side))
  
         #Collision rectangle to detect click on the region
         self.region_collision = pygame.Rect(self.region_x, self.region_y, self.region_side, self.region_side)
@@ -172,8 +172,8 @@ class Create_region():
         self.button_height = int(self.screen_height * 0.10)
         self.button_width = int(self.screen_width * 0.20)
 
-        self.button_save_img = pygame.transform.scale(self.button_img, (self.button_width, self.button_height))
-        self.button_back_edit_img =  pygame.transform.scale(self.button_back_edit_img, (self.button_height, self.button_height))
+        self.button_save_img = pygame.transform.smoothscale(self.button_img, (self.button_width, self.button_height))
+        self.button_back_edit_img =  pygame.transform.smoothscale(self.button_back_edit_img, (self.button_height, self.button_height))
 
 
 #########################################################################################################################################################################################################################################################################################################
