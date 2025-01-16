@@ -354,7 +354,7 @@ class Create_region():
 ###################################################################################################
 
 
-    def region_complete(self):
+    def region_fulfilled(self):
         '''Return a boolean that indicate if the current region is completly filled with Tile'''
 
         complete = True
@@ -363,6 +363,34 @@ class Create_region():
                 complete = complete and isinstance(ele, Tile)
 
         return complete
+
+
+###################################################################################################
+
+
+    def region_complete(self):
+        '''Return a boolean that indicate if the current region match the rules conditions to be save'''
+
+        result = True
+
+        if self.region_fulfilled():
+            # Let's count every type of tile
+            amount = {"rook": 0, "bishop": 0, "horse": 0, "king": 0, "queen": 0}
+            for row in self.region:
+                for tile in row:
+                    amount[tile.get_deplacement()] += 1
+            
+            # Check that each type is either 0 or 4
+            for type in amount:
+                if amount[type] == 0 or amount[type] == 4:
+                    result = result and True
+                else:
+                    result = result and False
+
+        else:
+            result = False
+
+        return result
 
 
 ###################################################################################################
