@@ -61,6 +61,7 @@ class Create_region():
 
                     if self.button_back_menu.checkInput((x,y)):
                         print("back")
+                        running = False
 
                     elif self.button_database.checkInput((x,y)):
                         print("data")
@@ -234,11 +235,9 @@ class Create_region():
 
         if self.selected_tile:
             surface = self.selected_tile.get_collision()
-            topleft = surface.topleft
-            add = int(self.screen_height * 0.01)
-
-            highlight = pygame.Rect(topleft[0]-add, topleft[1]-add, self.tiles_side+add*2, self.tiles_side+add*2)
-            pygame.draw.rect(self.screen, "green", highlight)
+            center = (surface.topleft[0] + self.tiles_side/2, surface.topleft[1] + self.tiles_side/2)
+            pygame.draw.circle(self.screen, (178, 158, 135), center, self.tiles_side/1.4, 0)                # Fullfilled circle
+            pygame.draw.circle(self.screen, (0, 0, 0), center, self.tiles_side/1.4, 2)                # Outline
 
 
 ###################################################################################################
@@ -249,8 +248,8 @@ class Create_region():
 
         if self.selected_tile and self.region_collision.collidepoint(x,y):
             top_left_corner = self.region_collision.topleft
-            column = int((x - top_left_corner[0]) / (self.region_side / 4))
-            line = int((y - top_left_corner[1]) / (self.region_side / 4))
+            column = int((x - top_left_corner[0]) / (self.tiles_side))
+            line = int((y - top_left_corner[1]) / (self.tiles_side))
 
             self.region[line][column] = Tile(self.selected_tile.get_deplacement())
 
