@@ -45,7 +45,7 @@ class Create_region():
             self.blit_aside_tiles()                                                                     # Display Aside Tiles
             self.blit_tiles()                                                                           # OnBoard tiles
             self.button_save.update(self.screen)                                                        # Refreshing all buttons
-            self.button_rules.update(self.screen)
+            self.button_database.update(self.screen)
             self.button_back_menu.update(self.screen)
 
             pygame.display.flip()
@@ -60,12 +60,13 @@ class Create_region():
                     self.place_tile(x, y)
 
                     if self.button_back_menu.checkInput((x,y)):
-                        pass
+                        print("back")
 
-                    elif self.button_rules.checkInput((x,y)):
-                        self.show_rules()
+                    elif self.button_database.checkInput((x,y)):
+                        print("data")
 
                     elif self.button_save.checkInput((x,y)):
+                        print("save")
                         # Check if the current region is fulfilled with Tile
                         if self.region_complete():
                             region = Region(self.region)
@@ -78,8 +79,7 @@ class Create_region():
 
 
                 # Handle hovering animation
-                self.button_back_menu.changeColor((x,y))
-                self.button_rules.changeColor((x,y))
+                self.button_database.changeColor((x,y))
                 self.button_save.changeColor((x,y))
                 
 
@@ -102,9 +102,8 @@ class Create_region():
         
         self.region_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png").convert()
         self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
-        self.rules_img = pygame.image.load("Assets/Source_files/Images/Create_region/rules.png").convert()
         self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
-        self.button_back_edit_img = pygame.image.load("Assets/Source_files/Images/Create_region/close_rules.png").convert()
+        self.back_img = pygame.image.load("Assets/Source_files/Images/Create_region/left_arrow.png").convert_alpha()
 
 
 
@@ -116,10 +115,6 @@ class Create_region():
 
         self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
 
-        self.rules_y = int(self.screen_height * 0.075)
-        self.rules_x = int(self.screen_width * 0.075)
-        self.rules_img = pygame.transform.smoothscale(self.rules_img, (self.screen_width * 0.85, self.screen_height * 0.85))
-
 
 
 ###################################################################################################
@@ -128,7 +123,6 @@ class Create_region():
     def load_tiles(self):
         '''Load all the tiles img with specific size'''
 
-        # self.tile_aside_side = int(self.screen_height * 0.125)                      # 12.5% of screen height
         self.tiles_side = self.region_side/4
 
         for key in self.tiles_img:
@@ -142,7 +136,7 @@ class Create_region():
         '''Load the current region img with specific size'''
 
         # Set up the region dimensions relative to the screen size
-        self.region_side = int(self.screen_height * 0.72)                 # Sides are based on screen height
+        self.region_side = int(self.screen_width * 0.40)
         self.region_x = (self.screen_width * 0.0625)                      # Top-Left Corner   
         self.region_y = (self.screen_height * 0.083)
         self.region_img = pygame.transform.smoothscale(self.region_img, (self.region_side, self.region_side))
@@ -160,8 +154,8 @@ class Create_region():
         self.button_height = int(self.screen_height * 0.22)
         self.button_width = int(self.screen_width * 0.1875)
 
-        self.button_save_img = pygame.transform.smoothscale(self.button_img, (self.button_width, self.button_height))
-        self.button_back_edit_img =  pygame.transform.smoothscale(self.button_back_edit_img, (self.button_height, self.button_height))
+        self.button_img = pygame.transform.smoothscale(self.button_img, (self.button_width, self.button_height))
+        self.back_img =  pygame.transform.smoothscale(self.back_img, (100/720 * self.screen_height, 100/720 * self.screen_height))
 
 
 #########################################################################################################################################################################################################################################################################################################
@@ -267,52 +261,15 @@ class Create_region():
     def create_buttons(self):
         '''Initialize all buttons needed with their respective coordinates'''
 
+        self.button_back_menu = Button((self.screen_width * 0.03, self.screen_height * 0.82), self.back_img)
+
         # Starting topleft corner
-        y = self.screen_height * 0.8
-        x = self.screen_width * 0.15
-
-        self.button_back_menu = Button((x,y), self.button_img, text_input="Back to Menu", base_color="white", font= "Assets/Source_files/fonts/font.ttf", font_size= 64, hovering_color="green")
-        x += self.button_width
-        self.button_rules = Button((x,y), self.button_img, text_input="Show Rules", base_color="white", font= "Assets/Source_files/fonts/font.ttf", font_size= int(self.screen_height*0.03), hovering_color="green")
-        x += self.button_width
-        self.button_save = Button((x,y), self.button_img, text_input="Save Region", base_color="white", font= "Assets/Source_files/fonts/font.ttf", font_size= int(self.screen_height*0.03), hovering_color="green")
-
-        # Rules interface button
-        x, y = (self.screen_width * 0.75, self.screen_height * 0.25)
-        self.button_back_edit = Button((x,y), self.button_back_edit_img, font= "Assets/Source_files/fonts/font.ttf")
-
-
-###################################################################################################
-
-
-    def show_rules(self):
-        '''Create a overlapping menu that handle a rules interface'''
-
-        # Basically a secondary mainloop
-        rules = True
-
-        while rules:
-
-            self.screen.blit(self.rules_img, (self.rules_x, self.rules_y))
-            self.button_back_edit.update(self.screen)
-
-            pygame.display.flip()
-            x, y = pygame.mouse.get_pos()
-
-            for event in pygame.event.get():
-                
-                if event.type == pygame.QUIT:
-                    rules = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.button_back_edit.checkInput((x,y)):
-                        rules = False
-                
-                # Handle hovering animation
-                self.button_back_edit.changeColor((x,y))
-                
-
-            # Limit framerate
-            self.clock.tick(self.fps)
+        y = self.screen_height * 0.65
+        x = self.screen_width * 0.52
+          
+        self.button_save = Button((x,y), self.button_img, text="Save\nCurrent", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
+        x += self.screen_width * 0.06 + self.button_width
+        self.button_database = Button((x,y), self.button_img, text="Your\nRegions", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
 
 
 ###################################################################################################
@@ -363,5 +320,6 @@ class Create_region():
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))                          # Another commune resolution is 1280 x 720
+    # screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((1720, 1080))
     Create_region(screen)
