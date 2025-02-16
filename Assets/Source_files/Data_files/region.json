@@ -3,7 +3,12 @@
         "region": [
             [
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "queen",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
                     "pawn_on": null,
                     "collision": null
                 },
@@ -13,7 +18,24 @@
                     "collision": null
                 },
                 {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
                     "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
                     "pawn_on": null,
                     "collision": null
                 },
@@ -30,159 +52,43 @@
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "horse",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "queen",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "king",
                     "pawn_on": null,
                     "collision": null
                 }
             ],
             [
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "horse",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "king",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "queen",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
+                    "deplacement_pattern": "queen",
                     "pawn_on": null,
                     "collision": null
                 }
             ]
-        ],
-        "region_img": "Assets/Source_files/Images/Regions/region_20250104_201556.png"
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "bishop",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ],
-        "region_img": "Assets/Source_files/Images/Regions/region_20250104_201601.png"
+        ]
     }
 ]

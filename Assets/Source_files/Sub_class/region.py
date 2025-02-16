@@ -6,25 +6,14 @@ class Region():
 
     total_region = 0
 
-    def __init__(self, board, img = None):
+    def __init__(self, board):
         
         self.region = board
-        self.region_img = img
 
 #######################################
 
     def get_region(self):
         return self.region
-
-#######################################
-
-    def get_region_img(self):
-        return self.region_img
-
-#######################################
-
-    def set_region_img(self, img):
-        self.region_img = img
 
 #######################################
 
@@ -56,8 +45,7 @@ class Region():
         '''Return a transformed version of the current object in a dictionnary (JSON handling)'''
 
         region_dict = {
-            "region": [[tile.to_dict() for tile in row] for row in region.region],
-            "region_img": region.region_img
+            "region": [[tile.to_dict() for tile in row] for row in region.region]
         }
 
         return region_dict
@@ -67,8 +55,7 @@ class Region():
     def from_dict(dict):
         '''Return a Region object based on the given dictionnary (JSON handling)'''
 
-        region = Region(dict["region"],
-                        dict["region_img"])
+        region = Region(dict["region"])
 
         return region
     
