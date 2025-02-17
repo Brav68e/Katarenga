@@ -3,7 +3,6 @@ from Sub_class.button import *
 from Sub_class.region import *
 import pygame
 import json
-import os
 
 
 
