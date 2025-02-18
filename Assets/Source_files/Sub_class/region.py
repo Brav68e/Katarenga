@@ -1,5 +1,5 @@
 import json
-from Sub_class.tile import *
+from .tile import *
 
 
 class Region():
@@ -9,7 +9,7 @@ class Region():
     def __init__(self, board):
         
         self.region = board
-        Region.total_region += 1
+
 
 #######################################
 
@@ -112,8 +112,8 @@ class Region():
     def from_dict(dict):
         '''Return a Region object based on the given dictionnary (JSON handling)'''
 
-        region = Region(dict["region"])
-
+        grid = dict["region"]
+        region = Region([[Tile.from_dict(tile) for tile in row] for row in grid])
         return region
     
 
@@ -159,3 +159,20 @@ def search_region(target):
             exist = True
 
     return exist
+
+
+###################################################################################################
+
+
+def region_amount():
+    '''Return a int that indicate how many regions are available in your own datas'''
+
+    try:
+        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+            regions = json.load(f)          # Lecture du fichier
+
+    # Problème de lecture si le fichier est vide
+    except(FileNotFoundError, json.JSONDecodeError):
+        regions = []
+
+    return len(regions)
