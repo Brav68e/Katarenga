@@ -14,7 +14,7 @@ class Create_region():
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
-        self.region = [[0 for i in range(4)] for j in range(4)]
+        self.region = Region([[0 for i in range(4)] for j in range(4)])
         self.selected_tile = None
 
         self.clock = pygame.time.Clock()
@@ -38,12 +38,12 @@ class Create_region():
         #Mainloop for this menu
         while running:
 
-            self.screen.blit(self.background_img, (0,0))                                                # Display background
-            self.screen.blit(self.region_img, (self.region_x, self.region_y))                           # Display region
-            self.highlight_selected()                                                                   # Add a visual for the selected_tile
-            self.blit_aside_tiles()                                                                     # Display Aside Tiles
-            self.blit_tiles()                                                                           # OnBoard tiles
-            self.button_save.update(self.screen)                                                        # Refreshing all buttons
+            self.screen.blit(self.background_img, (0,0))                                                                     # Display background
+            self.screen.blit(self.region_img, (self.region_x, self.region_y))                                                # Display region
+            self.highlight_selected()                                                                                        # Add a visual for the selected_tile
+            self.blit_aside_tiles()                                                                                          # Display Aside Tiles
+            self.region.display(self.screen, self.tiles_img, (self.region_x, self.region_y), self.tiles_side)                # OnBoard tiles
+            self.button_save.update(self.screen)                                                                             # Refreshing all buttons
             self.button_database.update(self.screen)
             self.button_back_menu.update(self.screen)
 
@@ -68,8 +68,7 @@ class Create_region():
                     elif self.button_save.checkInput((x,y)):
                         print("save")
                         # Check if the current region is fulfilled with Tile
-                        if self.region_complete():
-                            region = Region(self.region)
+                        if self.region.complete():
                             region = Region.to_dict(region)
 
                             # Check if the region isn't already register
@@ -203,19 +202,6 @@ class Create_region():
 ###################################################################################################
 
 
-    def blit_tiles(self):
-        '''Blit all the currently placed tiles on the edit board'''
-
-        for i in range(len(self.region)):
-            for j in range(len(self.region)):
-                if tile := self.region[i][j]:
-                    x, y = self.region_collision.topleft
-                    self.screen.blit(self.tiles_img[tile.get_deplacement()], (x+(j*self.region_side/4), y+(i*self.region_side/4)))
-
-
-###################################################################################################
-
-
     def select_tile(self, x, y):
         '''Update the "selected_tile" attribut'''
 
@@ -250,7 +236,7 @@ class Create_region():
             column = int((x - top_left_corner[0]) / (self.tiles_side))
             line = int((y - top_left_corner[1]) / (self.tiles_side))
 
-            self.region[line][column] = Tile(self.selected_tile.get_deplacement())
+            self.region.set(line, column, Tile(self.selected_tile.get_deplacement()))
 
 
 ###################################################################################################
@@ -270,49 +256,7 @@ class Create_region():
         self.button_database = Button((x,y), self.button_img, text="Your\nRegions", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
 
 
-###################################################################################################
-
-
-    def region_fulfilled(self):
-        '''Return a boolean that indicate if the current region is completly filled with Tile'''
-
-        complete = True
-        for row in self.region:
-            for ele in row:
-                complete = complete and isinstance(ele, Tile)
-
-        return complete
-
-
-###################################################################################################
-
-
-    def region_complete(self):
-        '''Return a boolean that indicate if the current region match the rules conditions to be save'''
-
-        result = True
-
-        if self.region_fulfilled():
-            # Let's count every type of tile
-            amount = {"rook": 0, "bishop": 0, "horse": 0, "king": 0, "queen": 0}
-            for row in self.region:
-                for tile in row:
-                    amount[tile.get_deplacement()] += 1
-            
-            # Check that each type is either 0 or 4
-            for type in amount:
-                if amount[type] == 0 or amount[type] == 4:
-                    result = result and True
-                else:
-                    result = result and False
-
-        else:
-            result = False
-
-        return result
-
-
-###################################################################################################
+######################################################################################################################################################################################################
 
 
 if __name__ == "__main__":

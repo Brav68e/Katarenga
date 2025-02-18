@@ -1,5 +1,5 @@
 import json
-
+from Sub_class.tile import *
 
 
 class Region():
@@ -9,10 +9,16 @@ class Region():
     def __init__(self, board):
         
         self.region = board
+        Region.total_region += 1
 
 #######################################
 
-    def get_region(self):
+    def set(self, line, column, value):
+        self.region[line][column] = value
+    
+#######################################
+
+    def get(self):
         return self.region
 
 #######################################
@@ -41,6 +47,57 @@ class Region():
 
 #######################################
 
+    def display(self, screen, imgs, pos, tile_size):
+        '''Display a region at the pos coordinates and need the main screen and a dict with all img associate to their movement'''
+
+        # Blit all the currently placed tiles on the edit board
+        for i in range(len(self.region)):
+            for j in range(len(self.region)):
+                if tile := self.region[i][j]:
+                    x, y = pos
+                    screen.blit(imgs[tile.get_deplacement()], (x+(j*tile_size), y+(i*tile_size)))
+        
+#######################################
+
+    def fulfilled(self):
+        '''Return a boolean that indicate if the current region is completly filled with Tile'''
+
+        complete = True
+        for row in self.region:
+            for ele in row:
+                complete = complete and isinstance(ele, Tile)
+
+        return complete
+
+#######################################
+
+
+    def complete(self):
+        '''Return a boolean that indicate if the current region match the rules conditions to be save'''
+
+        result = True
+
+        if self.fulfilled():
+            # Let's count every type of tile
+            amount = {"rook": 0, "bishop": 0, "horse": 0, "king": 0, "queen": 0}
+            for row in self.region:
+                for tile in row:
+                    amount[tile.get_deplacement()] += 1
+            
+            # Check that each type is either 0 or 4
+            for type in amount:
+                if amount[type] == 0 or amount[type] == 4:
+                    result = result and True
+                else:
+                    result = result and False
+
+        else:
+            result = False
+
+        return result
+
+#######################################
+
     def to_dict(region):
         '''Return a transformed version of the current object in a dictionnary (JSON handling)'''
 
@@ -59,6 +116,11 @@ class Region():
 
         return region
     
+
+
+
+
+
 
 ###################################################################################################
 # JSON file handling about region
