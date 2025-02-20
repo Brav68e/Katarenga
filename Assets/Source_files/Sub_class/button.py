@@ -3,10 +3,10 @@ import pygame
 class Button:
     '''A flexible button class for pygame that supports images, text, or both with multi-line text support.'''
     
-    def __init__(self, pos, image=None, text='', font_path="Assets/Source_files/fonts/font.ttf", font_size=10, base_color="black", hovering_color="black"):
+    def __init__(self, pos, image=None, text='', font_path="Assets/Source_files/fonts/font.ttf", font_size=10, base_color="black"):
         self.image = image
         self.x_pos, self.y_pos = pos
-        self.base_color, self.hovering_color = base_color, hovering_color
+        self.base_color = base_color
         self.text_input = text.split('\n')  # Split text into multiple lines
         self.font = pygame.font.Font(font_path, font_size)
         
@@ -42,9 +42,9 @@ class Button:
         return self.rect.collidepoint(position)
     
 
-    def changeColor(self, position):
+    def changeColor(self, position, color):
         '''Change the text color if hovered.'''
         if self.checkInput(position):
-            self.text_surfaces = [self.font.render(line, True, self.hovering_color) for line in self.text_input]
+            self.text_surfaces = [self.font.render(line, True, color) for line in self.text_input]
         else:
             self.text_surfaces = [self.font.render(line, True, self.base_color) for line in self.text_input]

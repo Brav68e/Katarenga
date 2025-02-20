@@ -78,8 +78,8 @@ class Create_region():
 
 
                 # Handle hovering animation
-                self.button_database.changeColor((x,y))
-                self.button_save.changeColor((x,y))
+                self.button_database.changeColor((x,y), "green")
+                self.button_save.changeColor((x,y), "green")
                 
 
             # Limit framerate
@@ -251,9 +251,9 @@ class Create_region():
         y = self.screen_height * 0.65
         x = self.screen_width * 0.52
           
-        self.button_save = Button((x,y), self.button_img, text="Save\nCurrent", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
+        self.button_save = Button((x,y), self.button_img, text="Save\nCurrent", base_color="white", font_size= int(self.screen_height/720 * 64))
         x += self.screen_width * 0.06 + self.button_width
-        self.button_database = Button((x,y), self.button_img, text="Your\nRegions", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
+        self.button_database = Button((x,y), self.button_img, text="Your\nRegions", base_color="white", font_size= int(self.screen_height/720 * 64))
 
 
 ######################################################################################################################################################################################################

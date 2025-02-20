@@ -20,21 +20,32 @@ class Delete_region():
 
         self.region_amount = region_amount()
         self.current_page = 0
+        self.selected_region = None                         # Store an integer that correspond to the region_index in the currently loaded regions
         self.max_page = ceil(self.region_amount / 4)        # Displaying 4 by 4, if region_amount % 4 != 0 we got an extra page for up to 3 regions
-        self.initialize_regions_pos()
 
-        self.load_regions(0)
+        self.load_regions(0)                                # Load first regions
         self.load_assets()
         self.resize_assets()
 
         self.create_buttons()
+        self.initialize_regions_pos()
 
         #Mainloop
         while running:
+           
+            x, y = pygame.mouse.get_pos()
+
+            # Handle hovering animation
+            if self.selected_region:
+                self.button_delete.changeColor((x,y), "green")
+            else:
+                self.button_delete.changeColor((x,y), "red")
 
             # Display background
             self.screen.blit(self.background_img, (0,0))
-            # Refreshing all current regions
+
+            # Refreshing all current regions and display potential overlay
+            self.region_overlay()
             self.refresh_regions()
 
             # Refreshing all buttons
@@ -44,7 +55,6 @@ class Delete_region():
             self.button_back.update(self.screen)
 
             pygame.display.flip()
-            x, y = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
                 
@@ -53,11 +63,8 @@ class Delete_region():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if(self.button_back.checkInput((x,y))):
                         running = False
-                
-
-
-                # Handle hovering animation
-                self.button_delete.changeColor((x,y))
+                    # Check if a region was clicked
+                    self.select_region((x,y))
                 
 
             # Limit framerate
@@ -99,6 +106,7 @@ class Delete_region():
         
         # Tiles rescale
         self.tiles_side = self.screen_width * 0.05
+        self.region_side = self.tiles_side * 4
 
         for key in self.tiles_img:
             self.tiles_img[key] = pygame.transform.smoothscale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
@@ -128,7 +136,7 @@ class Delete_region():
           
         self.button_up = Button((x,y), self.up_img)
         y += self.screen_height * 0.065 + self.button_height
-        self.button_delete = Button((x,y), self.button_img, text="Delete\nRegion", base_color="white", font_size= int(self.screen_height/720 * 64), hovering_color="green")
+        self.button_delete = Button((x,y), self.button_img, text="Delete\nRegion", base_color="white", font_size= int(self.screen_height/720 * 64))
         y += self.screen_height * 0.065 + self.button_height
         self.button_down = Button((x,y), self.down_img)
 
@@ -156,7 +164,11 @@ class Delete_region():
         with open("Assets/Source_files/Data_files/region.json", 'r') as f:
             regions_list = json.load(f)
 
-            for i in range(self.current_page * 4, self.max_page * 4):
+            # Check if we can read 4 regions
+            maxi = self.current_page * 4 + 4
+            maxi = maxi if maxi < self.region_amount else self.region_amount
+            
+            for i in range(self.current_page * 4, maxi):
                 self.current_regions.append(Region.from_dict(regions_list[i]))
 
 
@@ -171,6 +183,38 @@ class Delete_region():
         self.regions_pos[1] = (self.screen_width * 0.46, self.screen_height * 0.11)
         self.regions_pos[2] = (self.screen_width * 0.2, self.screen_height * 0.53)
         self.regions_pos[3] = (self.screen_width * 0.46, self.screen_height * 0.53)
+
+        #Collision rectangle to detect click on the region (using Topleft-corner)
+        self.region_collision = []
+        self.region_collision.append(pygame.Rect(self.screen_width * 0.2, self.screen_height * 0.11, self.region_side, self.region_side))
+        self.region_collision.append(pygame.Rect(self.screen_width * 0.46, self.screen_height * 0.11, self.region_side, self.region_side))
+        self.region_collision.append(pygame.Rect(self.screen_width * 0.2, self.screen_height * 0.53, self.region_side, self.region_side))
+        self.region_collision.append(pygame.Rect(self.screen_width * 0.46, self.screen_height * 0.53, self.region_side, self.region_side))
+
+
+###################################################################################################
+
+
+    def select_region(self, pos):
+        '''Check if you are in a region and update the selected_region'''
+
+        self.selected_region = None  # Reset selection first
+
+        for i in range(len(self.current_regions)):              # Iterate over existing regions (prevent issues when fewer are loaded)
+            if self.region_collision[i].collidepoint(pos):
+                self.selected_region = i
+            
+
+###################################################################################################
+
+
+    def region_overlay(self):
+        '''Add a visual outline to the selected_region'''
+
+        if self.selected_region is not None:
+            topleft = self.region_collision[self.selected_region].topleft
+            new_topleft = (topleft[0] - 10, topleft[1] - 10)
+            pygame.draw.rect(self.screen, (178, 158, 135), pygame.Rect(new_topleft[0], new_topleft[1], self.region_side + 20, self.region_side + 20))
 
 
 ######################################################################################################################################################################################################
