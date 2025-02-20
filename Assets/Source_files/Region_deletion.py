@@ -215,6 +215,7 @@ class Delete_region():
             topleft = self.region_collision[self.selected_region].topleft
             new_topleft = (topleft[0] - 10, topleft[1] - 10)
             pygame.draw.rect(self.screen, (178, 158, 135), pygame.Rect(new_topleft[0], new_topleft[1], self.region_side + 20, self.region_side + 20))
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(new_topleft[0], new_topleft[1], self.region_side + 20, self.region_side + 20), 2)
 
 
 ######################################################################################################################################################################################################
