@@ -62,11 +62,17 @@ class Delete_region():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Check if a region was clicked
-                    self.select_region((x,y))
                     # Exit
                     if(self.button_back.checkInput((x,y))):
                         running = False
+
+                    # Check for deletion
+                    elif self.button_delete.checkInput((x, y)) and self.selected_region is not None:
+                        delete_region(self.current_page * 4 + self.selected_region)
+                        self.region_amount = region_amount()
+                        self.max_page = ceil(self.region_amount / 4)
+                        self.load_regions(self.current_page)
+
                     # Check for Up/Down buttons
                     elif self.button_up.checkInput((x, y)) and self.current_page > 0:
                         old_regions = self.current_regions
@@ -80,7 +86,8 @@ class Delete_region():
                         self.load_regions(self.current_page)  
                         self.animate_page_switch(old_regions, self.current_regions, direction=1)
 
-
+                    # Check if a region was clicked
+                    self.select_region((x,y))
                                     
 
             # Limit framerate
@@ -135,7 +142,7 @@ class Delete_region():
         self.down_img = pygame.transform.smoothscale(self.down_img, (self.button_width, self.button_height))
 
         # Back_icon rescale
-        self.back_img =  pygame.transform.smoothscale(self.back_img, (100/720 * self.screen_height, 100/720 * self.screen_height))
+        self.back_img = pygame.transform.smoothscale(self.back_img, (100/720 * self.screen_height, 100/720 * self.screen_height))
 
 
 ###################################################################################################
@@ -165,7 +172,8 @@ class Delete_region():
 
         i = 0
         for region in self.current_regions:
-            region.display(self.screen, self.tiles_img, self.regions_pos[i], self.tiles_side)
+            if region is not None:
+                region.display(self.screen, self.tiles_img, self.regions_pos[i], self.tiles_side)
             i += 1
         
 

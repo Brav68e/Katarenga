@@ -176,3 +176,27 @@ def region_amount():
         regions = []
 
     return len(regions)
+
+
+###################################################################################################
+
+
+def delete_region(index):
+    '''Delete a region based on his index'''
+
+    try:
+        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+            regions = json.load(f)          # Lecture du fichier
+
+    # Problème de lecture si le fichier est vide
+    except(FileNotFoundError, json.JSONDecodeError):
+        regions = []
+
+    # Suppresion de la région
+    regions.pop(index)
+
+    # Réécrire tout le fichier
+    with open("Assets/Source_files/Data_files/region.json", 'w') as f:
+        json.dump(regions, f, indent=4)
+
+

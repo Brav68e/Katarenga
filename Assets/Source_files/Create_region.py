@@ -69,7 +69,7 @@ class Create_region():
                         print("save")
                         # Check if the current region is fulfilled with Tile
                         if self.region.complete():
-                            region = Region.to_dict(region)
+                            region = Region.to_dict(self.region)
 
                             # Check if the region isn't already register
                             if not search_region(region):
