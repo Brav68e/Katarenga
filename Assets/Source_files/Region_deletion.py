@@ -21,14 +21,15 @@ class Delete_region():
         self.region_amount = region_amount()
         self.current_page = 0
         self.selected_region = None                         # Store an integer that correspond to the region_index in the currently loaded regions
+        self.current_regions = []                           # List of the Region object actually represented
         self.max_page = ceil(self.region_amount / 4)        # Displaying 4 by 4, if region_amount % 4 != 0 we got an extra page for up to 3 regions
 
-        self.load_regions(0)                                # Load first regions
         self.load_assets()
         self.resize_assets()
+        self.initialize_regions_pos()
+        self.load_regions(0)                                # Load first regions
 
         self.create_buttons()
-        self.initialize_regions_pos()
 
         #Mainloop
         while running:
@@ -36,7 +37,7 @@ class Delete_region():
             x, y = pygame.mouse.get_pos()
 
             # Handle hovering animation
-            if self.selected_region:
+            if self.selected_region is not None:
                 self.button_delete.changeColor((x,y), "green")
             else:
                 self.button_delete.changeColor((x,y), "red")
@@ -61,11 +62,26 @@ class Delete_region():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if(self.button_back.checkInput((x,y))):
-                        running = False
                     # Check if a region was clicked
                     self.select_region((x,y))
-                
+                    # Exit
+                    if(self.button_back.checkInput((x,y))):
+                        running = False
+                    # Check for Up/Down buttons
+                    elif self.button_up.checkInput((x, y)) and self.current_page > 0:
+                        old_regions = self.current_regions
+                        self.current_page -= 1
+                        self.load_regions(self.current_page)  
+                        self.animate_page_switch(old_regions, self.current_regions, direction=-1)
+
+                    elif self.button_down.checkInput((x, y)) and self.current_page < self.max_page - 1:
+                        old_regions = self.current_regions
+                        self.current_page += 1
+                        self.load_regions(self.current_page)  
+                        self.animate_page_switch(old_regions, self.current_regions, direction=1)
+
+
+                                    
 
             # Limit framerate
             self.clock.tick(self.fps)
@@ -156,21 +172,52 @@ class Delete_region():
 ###################################################################################################
 
 
-    def load_regions(self, page):
-        '''Store in a list, all the currently displayed regions depending on the "page" to load (the page°n group of 4 regions)'''
+    def load_regions(self, new_page):
+        '''Smoothly transition between region pages'''
 
         self.current_regions = []
 
         with open("Assets/Source_files/Data_files/region.json", 'r') as f:
             regions_list = json.load(f)
 
-            # Check if we can read 4 regions
-            maxi = self.current_page * 4 + 4
-            maxi = maxi if maxi < self.region_amount else self.region_amount
-            
-            for i in range(self.current_page * 4, maxi):
+            # Load new regions
+            start_idx = new_page * 4
+            end_idx = min(start_idx + 4, self.region_amount)
+            for i in range(start_idx, end_idx):
                 self.current_regions.append(Region.from_dict(regions_list[i]))
 
+
+###################################################################################################
+
+
+    def animate_page_switch(self, old_regions, new_regions, direction):
+        '''Animates transition between pages (slide Up/Down)'''
+
+        anim_duration = 500  # Milliseconds
+        start_time = pygame.time.get_ticks()
+        
+        while True:
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration:
+                break
+
+            progress = current_time / anim_duration                      # 0 to 1 (percentage)
+            offset = int(self.screen_height * progress * direction)      # Slide effect
+
+            self.screen.blit(self.background_img, (0, 0))               # Refresh background
+
+            # Draw old regions sliding out
+            for i, region in enumerate(old_regions):
+                x, y = self.regions_pos[i]
+                region.display(self.screen, self.tiles_img, (x, y - offset), self.tiles_side)
+
+            # Draw new regions sliding in
+            for i, region in enumerate(new_regions):
+                x, y = self.regions_pos[i]
+                region.display(self.screen, self.tiles_img, (x, y + self.screen_height * direction - offset), self.tiles_side)
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)  # Maintain frame rate
 
 ###################################################################################################
 
