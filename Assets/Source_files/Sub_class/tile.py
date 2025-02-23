@@ -38,3 +38,10 @@ class Tile():
         }
         
         return tile_dict
+    
+#######################################
+
+    def from_dict(dict):
+        '''Return a Tile object based on the dictionnary version given (JSON handling)'''
+
+        return Tile(dict["deplacement_pattern"], dict["pawn_on"], dict["collision"])

@@ -1,50 +1,50 @@
 import pygame
 
-
-
-class Button():
-    '''A button class for pygame usage'''
-
-    def __init__(self, pos, image, base_color = "black", hovering_color = "black", text_input = "", font = "Arial", font_size = 10):
-        
+class Button:
+    '''A flexible button class for pygame that supports images, text, or both with multi-line text support.'''
+    
+    def __init__(self, pos, image=None, text='', font_path="Assets/Source_files/fonts/font.ttf", font_size=10, base_color="black"):
         self.image = image
-        self.x_pos = pos[0]
-        self.y_pos = pos[1]
-        self.font = pygame.font.Font(pygame.font.match_font(font), font_size)
-        self.base_color, self.hovering_color = base_color, hovering_color
-        self.text_input = text_input
-        self.text = self.font.render(self.text_input, True, self.base_color)
-
-        if self.image is None:
-            self.image = self.text
-
-        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
-        self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
-
-
-####################################################################################
-
+        self.x_pos, self.y_pos = pos
+        self.base_color = base_color
+        self.text_input = text.split('\n')  # Split text into multiple lines
+        self.font = pygame.font.Font(font_path, font_size)
+        
+        # Render text lines
+        self.text_surfaces = [self.font.render(line, True, self.base_color) for line in self.text_input]
+        self.text_rects = [surf.get_rect() for surf in self.text_surfaces]
+        
+        # If an image is provided, use its dimensions; otherwise, use text dimensions
+        if self.image:
+            self.rect = self.image.get_rect(topleft=(self.x_pos, self.y_pos))
+        else:
+            width = max(rect.width for rect in self.text_rects)
+            height = sum(rect.height for rect in self.text_rects)
+            self.rect = pygame.Rect(self.x_pos, self.y_pos, width, height)
+        
+        # Adjust text positions
+        y_offset = self.rect.top
+        for rect in self.text_rects:
+            rect.midtop = (self.rect.centerx, y_offset)
+            y_offset += rect.height
+    
 
     def update(self, screen):
-        if self.image is not None:
+        '''Draw the button (image + text if both are provided).'''
+        if self.image:
             screen.blit(self.image, self.rect)
-        screen.blit(self.text, self.text_rect)
-
-
-####################################################################################
-
+        for surf, rect in zip(self.text_surfaces, self.text_rects):
+            screen.blit(surf, rect)
+    
 
     def checkInput(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-            return True
-        return False
+        '''Check if the given position is within the button's bounds.'''
+        return self.rect.collidepoint(position)
+    
 
-
-####################################################################################
-
-
-    def changeColor(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-            self.text = self.font.render(self.text_input, True, self.hovering_color)
+    def changeColor(self, position, color):
+        '''Change the text color if hovered.'''
+        if self.checkInput(position):
+            self.text_surfaces = [self.font.render(line, True, color) for line in self.text_input]
         else:
-            self.text = self.font.render(self.text_input, True, self.base_color)
+            self.text_surfaces = [self.font.render(line, True, self.base_color) for line in self.text_input]

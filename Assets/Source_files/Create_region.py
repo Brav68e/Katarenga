@@ -1,14 +1,13 @@
 from Sub_class.tile import *
 from Sub_class.button import *
 from Sub_class.region import *
+from Region_deletion import Delete_region
 import pygame
-from datetime import datetime
 import json
-import os
 
 
 
-
+ 
 
 class Create_region():
 
@@ -16,7 +15,7 @@ class Create_region():
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
-        self.region = [[0 for i in range(4)] for j in range(4)]
+        self.region = Region([[0 for i in range(4)] for j in range(4)])
         self.selected_tile = None
 
         self.clock = pygame.time.Clock()
@@ -40,13 +39,13 @@ class Create_region():
         #Mainloop for this menu
         while running:
 
-            self.screen.blit(self.background_img, (0,0))                                                # Display background
-            self.screen.blit(self.region_img, (self.region_x, self.region_y))                           # Display region
-            self.highlight_selected()                                                                   # Add a visual for the selected_tile
-            self.blit_aside_tiles()                                                                     # Display Aside Tiles
-            self.blit_tiles()                                                                           # OnBoard tiles
-            self.button_save.update(self.screen)                                                        # Refreshing all buttons
-            self.button_rules.update(self.screen)
+            self.screen.blit(self.background_img, (0,0))                                                                     # Display background
+            self.screen.blit(self.region_img, (self.region_x, self.region_y))                                                # Display region
+            self.highlight_selected()                                                                                        # Add a visual for the selected_tile
+            self.blit_aside_tiles()                                                                                          # Display Aside Tiles
+            self.region.display(self.screen, self.tiles_img, (self.region_x, self.region_y), self.tiles_side)                # OnBoard tiles
+            self.button_save.update(self.screen)                                                                             # Refreshing all buttons
+            self.button_database.update(self.screen)
             self.button_back_menu.update(self.screen)
 
             pygame.display.flip()
@@ -56,33 +55,44 @@ class Create_region():
                 
                 if event.type == pygame.QUIT:
                     running = False
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.select_tile(x, y)
-                    self.place_tile(x, y)
-
+                    # Leave this menu
                     if self.button_back_menu.checkInput((x,y)):
-                        pass
+                        running = False
 
-                    elif self.button_rules.checkInput((x,y)):
-                        self.show_rules()
+                    # Go check the available regions
+                    elif self.button_database.checkInput((x,y)):
+                        Delete_region(self.screen)
 
+                    # State if the current region can be saved
                     elif self.button_save.checkInput((x,y)):
                         # Check if the current region is fulfilled with Tile
-                        if self.region_complete():
-                            region = Region(self.region)
-                            region = Region.to_dict(region)
+                        if self.region.complete():
+                            region = Region.to_dict(self.region)
 
                             # Check if the region isn't already register
                             if not search_region(region):
-                                region["region_img"] = self.get_region_img()
                                 save_region(region)
+
+                    # Place a Tile on the editor
+                    elif self.region_collision.collidepoint(x,y):
+                        self.place_tile(x, y)
+
+                    # Reset / select a tile
+                    else:
+                        self.select_tile(x, y)
+
                 
 
 
                 # Handle hovering animation
-                self.button_back_menu.changeColor((x,y))
-                self.button_rules.changeColor((x,y))
-                self.button_save.changeColor((x,y))
+                if self.button_save.checkInput((x,y)) and self.region.complete() and not search_region(Region.to_dict(self.region)):
+                    self.button_save.changeColor((x,y), "green")
+                else:
+                    self.button_save.changeColor((x,y), "red")
+                            
+                self.button_database.changeColor((x,y), "green")
                 
 
             # Limit framerate
@@ -94,13 +104,6 @@ class Create_region():
 
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
-
-        self.tiles_aside_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
-                                "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
-                                "bishop": pygame.image.load("Assets/Source_files/Images/Create_region/bishop.png").convert(),
-                                "king": pygame.image.load("Assets/Source_files/Images/Create_region/king.png").convert(),
-                                "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert()
-                                }
         
         self.tiles_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
                           "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
@@ -109,11 +112,10 @@ class Create_region():
                           "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert()
                           }
         
-        self.region_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png")
-        self.background_img = pygame.image.load("Assets/Source_files/Images/Create_region/background.png")
-        self.rules_img = pygame.image.load("Assets/Source_files/Images/Create_region/rules.png")
-        self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png")
-        self.button_back_edit_img = pygame.image.load("Assets/Source_files/Images/Create_region/close_rules.png")
+        self.region_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png").convert()
+        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
+        self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
+        self.back_img = pygame.image.load("Assets/Source_files/Images/Create_region/left_arrow.png").convert_alpha()
 
 
 
@@ -123,11 +125,7 @@ class Create_region():
     def load_backgrounds(self):
         '''Load all the backgrounds img with specific size'''
 
-        self.background_img = pygame.transform.scale(self.background_img, (self.screen_width, self.screen_height))
-
-        self.rules_y = int(self.screen_height * 0.075)
-        self.rules_x = int(self.screen_width * 0.075)
-        self.rules_img = pygame.transform.scale(self.rules_img, (self.screen_width * 0.85, self.screen_height * 0.85))
+        self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
 
 
 
@@ -137,14 +135,10 @@ class Create_region():
     def load_tiles(self):
         '''Load all the tiles img with specific size'''
 
-        self.tile_aside_side = int(self.screen_height * 0.125)                      # 12.5% of screen height
         self.tiles_side = self.region_side/4
 
-        for key in self.tiles_aside_img:
-            self.tiles_aside_img[key] = pygame.transform.scale(self.tiles_aside_img[key], (self.tile_aside_side, self.tile_aside_side))
-
         for key in self.tiles_img:
-            self.tiles_img[key] = pygame.transform.scale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
+            self.tiles_img[key] = pygame.transform.smoothscale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
 
 
 ###################################################################################################
@@ -154,10 +148,10 @@ class Create_region():
         '''Load the current region img with specific size'''
 
         # Set up the region dimensions relative to the screen size
-        self.region_side = int(self.screen_height * 0.6)                # Sides are based on screen height
-        self.region_x = (self.screen_width * 0.19)                      # Top-Left Corner   
-        self.region_y = (self.screen_height * 0.1)
-        self.region_img = pygame.transform.scale(self.region_img, (self.region_side, self.region_side))
+        self.region_side = int(self.screen_width * 0.40)
+        self.region_x = (self.screen_width * 0.0625)                      # Top-Left Corner   
+        self.region_y = (self.screen_height * 0.083)
+        self.region_img = pygame.transform.smoothscale(self.region_img, (self.region_side, self.region_side))
  
         #Collision rectangle to detect click on the region
         self.region_collision = pygame.Rect(self.region_x, self.region_y, self.region_side, self.region_side)
@@ -169,11 +163,11 @@ class Create_region():
     def load_buttons(self):
         '''Load all the buttons's img with proper dimension'''
 
-        self.button_height = int(self.screen_height * 0.10)
-        self.button_width = int(self.screen_width * 0.20)
+        self.button_height = int(self.screen_height * 0.22)
+        self.button_width = int(self.screen_width * 0.1875)
 
-        self.button_save_img = pygame.transform.scale(self.button_img, (self.button_width, self.button_height))
-        self.button_back_edit_img =  pygame.transform.scale(self.button_back_edit_img, (self.button_height, self.button_height))
+        self.button_img = pygame.transform.smoothscale(self.button_img, (self.button_width, self.button_height))
+        self.back_img =  pygame.transform.smoothscale(self.back_img, (100/720 * self.screen_height, 100/720 * self.screen_height))
 
 
 #########################################################################################################################################################################################################################################################################################################
@@ -184,28 +178,28 @@ class Create_region():
 
         self.tiles_aside = []
         patterns = ["horse", "rook", "bishop", "king", "queen"]
-        tile_x = int(self.screen_width * 0.7)                          # Tiles first "column axe"
-        tile_y = int(self.screen_height * 0.2)                        # Starting Y
+        tile_x = int(self.screen_width * 0.55)                          # Tiles first "row axe"
+        tile_y = int(self.screen_height * 0.083)                        # Starting Y
 
         for i in range(3):
-            collision_rect = pygame.Rect(tile_x, tile_y, self.tile_aside_side, self.tile_aside_side)                    # Create a collision surfaces -> detect click later on
+            collision_rect = pygame.Rect(tile_x, tile_y, self.tiles_side, self.tiles_side)                    # Create a collision surfaces -> detect click later on
             current = Tile(patterns[i], collision=collision_rect)                                                       # Create a tile object
             self.tiles_aside.append(current)
 
-            # Determine the next Y
-            tile_y += self.tile_aside_side + int(self.screen_height * 0.025)                                            # 2.5% screen height interval
+            # Determine the next X
+            tile_x += self.tiles_side + int(self.screen_width * 0.06)                                            # 6% screen width interval
 
-        # Setting a new "column axe"
-        tile_x = int(self.screen_width * 0.85)
-        tile_y = int(self.screen_height * 0.2)
+        # Setting a new "row axe"
+        tile_x = int(self.screen_width * 0.61)
+        tile_y = int(self.screen_height * 0.36)
 
         for j in range(3,5):
-            collision_rect = pygame.Rect(tile_x, tile_y, self.tile_aside_side, self.tile_aside_side)                    # Create a collision surfaces -> detect click later on
+            collision_rect = pygame.Rect(tile_x, tile_y, self.tiles_side, self.tiles_side)                    # Create a collision surfaces -> detect click later on
             current = Tile(patterns[j], collision=collision_rect)                                                       # Create a tile object
             self.tiles_aside.append(current)
 
-            # Determine the next Y
-            tile_y += self.tile_aside_side + int(self.screen_height * 0.025)                                            # 2.5% screen height interval
+            # Determine the next X
+            tile_x += self.tiles_side + int(self.screen_width * 0.06)                                            # 6% screen height interval
 
 
 ###################################################################################################
@@ -215,20 +209,7 @@ class Create_region():
         '''Blit on screen all the aside tiles used for selection'''
 
         for tile in self.tiles_aside:
-            self.screen.blit(self.tiles_aside_img[tile.get_deplacement()], tile.get_collision().topleft)
-
-
-###################################################################################################
-
-
-    def blit_tiles(self):
-        '''Blit all the currently placed tiles on the edit board'''
-
-        for i in range(len(self.region)):
-            for j in range(len(self.region)):
-                if tile := self.region[i][j]:
-                    x, y = self.region_collision.topleft
-                    self.screen.blit(self.tiles_img[tile.get_deplacement()], (x+(j*self.region_side/4), y+(i*self.region_side/4)))
+            self.screen.blit(self.tiles_img[tile.get_deplacement()], tile.get_collision().topleft)
 
 
 ###################################################################################################
@@ -236,6 +217,8 @@ class Create_region():
 
     def select_tile(self, x, y):
         '''Update the "selected_tile" attribut'''
+
+        self.selected_tile = None
 
         # For every tiles aside
         for tile in self.tiles_aside:
@@ -251,12 +234,10 @@ class Create_region():
         '''Add a visual background to the current selected tile'''
 
         if self.selected_tile:
-            surface = self.selected_tile.get_collision()
-            topleft = surface.topleft
-            add = int(self.screen_height * 0.01)
-
-            highlight = pygame.Rect(topleft[0]-add, topleft[1]-add, self.tile_aside_side+add*2, self.tile_aside_side+add*2)
-            pygame.draw.rect(self.screen, "green", highlight)
+            topleft = self.selected_tile.get_collision().topleft
+            new_topleft = (topleft[0] - 10, topleft[1] - 10)
+            pygame.draw.rect(self.screen, (178, 158, 135), pygame.Rect(new_topleft[0], new_topleft[1], self.tiles_side + 20,  self.tiles_side + 20))
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(new_topleft[0], new_topleft[1], self.tiles_side + 20,  self.tiles_side + 20), 2)
 
 
 ###################################################################################################
@@ -267,10 +248,10 @@ class Create_region():
 
         if self.selected_tile and self.region_collision.collidepoint(x,y):
             top_left_corner = self.region_collision.topleft
-            column = int((x - top_left_corner[0]) / (self.region_side / 4))
-            line = int((y - top_left_corner[1]) / (self.region_side / 4))
+            column = int((x - top_left_corner[0]) / (self.tiles_side))
+            line = int((y - top_left_corner[1]) / (self.tiles_side))
 
-            self.region[line][column] = Tile(self.selected_tile.get_deplacement())
+            self.region.set(line, column, Tile(self.selected_tile.get_deplacement()))
 
 
 ###################################################################################################
@@ -279,97 +260,23 @@ class Create_region():
     def create_buttons(self):
         '''Initialize all buttons needed with their respective coordinates'''
 
+        self.button_back_menu = Button((self.screen_width * 0.03, self.screen_height * 0.82), self.back_img)
+
         # Starting topleft corner
-        y = self.screen_height * 0.8
-        x = self.screen_width * 0.15
-
-        self.button_back_menu = Button((x,y), self.button_img, text_input="Back to Menu", base_color="white", font_size= int(self.screen_height*0.03), hovering_color="green")
-        x += self.button_width
-        self.button_rules = Button((x,y), self.button_img, text_input="Show Rules", base_color="white", font_size= int(self.screen_height*0.03), hovering_color="green")
-        x += self.button_width
-        self.button_save = Button((x,y), self.button_img, text_input="Save Region", base_color="white", font_size= int(self.screen_height*0.03), hovering_color="green")
-
-        # Rules interface button
-        x, y = (self.screen_width * 0.75, self.screen_height * 0.25)
-        self.button_back_edit = Button((x,y), self.button_back_edit_img)
-
-
-###################################################################################################
-
-
-    def show_rules(self):
-        '''Create a overlapping menu that handle a rules interface'''
-
-        # Basically a secondary mainloop
-        rules = True
-
-        while rules:
-
-            self.screen.blit(self.rules_img, (self.rules_x, self.rules_y))
-            self.button_back_edit.update(self.screen)
-
-            pygame.display.flip()
-            x, y = pygame.mouse.get_pos()
-
-            for event in pygame.event.get():
-                
-                if event.type == pygame.QUIT:
-                    rules = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.button_back_edit.checkInput((x,y)):
-                        rules = False
-                
-                # Handle hovering animation
-                self.button_back_edit.changeColor((x,y))
-                
-
-            # Limit framerate
-            self.clock.tick(self.fps)
+        y = self.screen_height * 0.65
+        x = self.screen_width * 0.52
+          
+        self.button_save = Button((x,y), self.button_img, text="Save\nCurrent", base_color="white", font_size= int(self.screen_height/720 * 64))
+        x += self.screen_width * 0.06 + self.button_width
+        self.button_database = Button((x,y), self.button_img, text="Your\nRegions", base_color="white", font_size= int(self.screen_height/720 * 64))
 
 
 ######################################################################################################################################################################################################
 
 
-    def get_region_img(self):
-        '''Create a new img file based on the current region created and return the path of the file'''
-
-        # Creating a new surface that represent the region
-        region_img = pygame.Surface((self.region_side, self.region_side))
-
-        for y, row in enumerate(self.region):
-            for x, col in enumerate(row):
-                tile_img = self.tiles_img[self.region[x][y].get_deplacement()]
-                region_img.blit(tile_img, (x * self.tiles_side, y * self.tiles_side))
-
-
-        # Then save it with a datetime id for unicity
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path = f"Assets/Source_files/Images/Regions/region_{timestamp}.png"
-
-        pygame.image.save(region_img, file_path)
-
-        return file_path
-
-
-###################################################################################################
-
-
-    def region_complete(self):
-        '''Return a boolean that indicate if the current region is completly filled with Tile'''
-
-        complete = True
-        for row in self.region:
-            for ele in row:
-                complete = complete and isinstance(ele, Tile)
-
-        return complete
-
-
-###################################################################################################
-
-
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))                          # Another commune resolution is 1280 x 720
+    # screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Create_region(screen)
