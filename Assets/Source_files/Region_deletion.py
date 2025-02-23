@@ -212,7 +212,12 @@ class Delete_region():
             progress = current_time / anim_duration                      # 0 to 1 (percentage)
             offset = int(self.screen_height * progress * direction)      # Slide effect
 
-            self.screen.blit(self.background_img, (0, 0))               # Refresh background
+            # Refresh static elements
+            self.screen.blit(self.background_img, (0, 0))
+            self.button_up.update(self.screen)
+            self.button_delete.update(self.screen)
+            self.button_down.update(self.screen)
+            self.button_back.update(self.screen)
 
             # Draw old regions sliding out
             for i, region in enumerate(old_regions):
@@ -280,5 +285,5 @@ if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
     # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((1720, 1080))
+    screen = pygame.display.set_mode((1920, 1080))
     Delete_region(screen)

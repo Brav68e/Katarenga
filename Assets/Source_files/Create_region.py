@@ -219,10 +219,10 @@ class Create_region():
         '''Add a visual background to the current selected tile'''
 
         if self.selected_tile:
-            surface = self.selected_tile.get_collision()
-            center = (surface.topleft[0] + self.tiles_side/2, surface.topleft[1] + self.tiles_side/2)
-            pygame.draw.circle(self.screen, (178, 158, 135), center, self.tiles_side/1.4, 0)                # Fullfilled circle
-            pygame.draw.circle(self.screen, (0, 0, 0), center, self.tiles_side/1.4, 2)                # Outline
+            topleft = self.selected_tile.get_collision().topleft
+            new_topleft = (topleft[0] - 10, topleft[1] - 10)
+            pygame.draw.rect(self.screen, (178, 158, 135), pygame.Rect(new_topleft[0], new_topleft[1], self.tiles_side + 20,  self.tiles_side + 20))
+            pygame.draw.rect(self.screen, (0, 0, 0), pygame.Rect(new_topleft[0], new_topleft[1], self.tiles_side + 20,  self.tiles_side + 20), 2)
 
 
 ###################################################################################################
@@ -263,5 +263,5 @@ if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
     # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((1720, 1080))
+    screen = pygame.display.set_mode((1920, 1080))
     Create_region(screen)
