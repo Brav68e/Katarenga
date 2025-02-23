@@ -285,5 +285,5 @@ if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
     # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((1920, 1080))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Delete_region(screen)

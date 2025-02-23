@@ -1,6 +1,7 @@
 from Sub_class.tile import *
 from Sub_class.button import *
 from Sub_class.region import *
+from Region_deletion import Delete_region
 import pygame
 import json
 
@@ -54,19 +55,18 @@ class Create_region():
                 
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.select_tile(x, y)
-                    self.place_tile(x, y)
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Leave this menu
                     if self.button_back_menu.checkInput((x,y)):
-                        print("back")
                         running = False
 
+                    # Go check the available regions
                     elif self.button_database.checkInput((x,y)):
-                        print("data")
+                        Delete_region(self.screen)
 
+                    # State if the current region can be saved
                     elif self.button_save.checkInput((x,y)):
-                        print("save")
                         # Check if the current region is fulfilled with Tile
                         if self.region.complete():
                             region = Region.to_dict(self.region)
@@ -74,12 +74,25 @@ class Create_region():
                             # Check if the region isn't already register
                             if not search_region(region):
                                 save_region(region)
+
+                    # Place a Tile on the editor
+                    elif self.region_collision.collidepoint(x,y):
+                        self.place_tile(x, y)
+
+                    # Reset / select a tile
+                    else:
+                        self.select_tile(x, y)
+
                 
 
 
                 # Handle hovering animation
+                if self.button_save.checkInput((x,y)) and self.region.complete() and not search_region(Region.to_dict(self.region)):
+                    self.button_save.changeColor((x,y), "green")
+                else:
+                    self.button_save.changeColor((x,y), "red")
+                            
                 self.button_database.changeColor((x,y), "green")
-                self.button_save.changeColor((x,y), "green")
                 
 
             # Limit framerate
@@ -205,6 +218,8 @@ class Create_region():
     def select_tile(self, x, y):
         '''Update the "selected_tile" attribut'''
 
+        self.selected_tile = None
+
         # For every tiles aside
         for tile in self.tiles_aside:
             # Check if the click is inside the tile 'collision'
@@ -263,5 +278,5 @@ if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
     # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((1920, 1080))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Create_region(screen)
