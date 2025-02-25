@@ -43,7 +43,7 @@ class Delete_region():
 
             # Display the aside_region and the board
             self.display_region()
-            # self.display_board()
+            self.display_board()
 
             # Refreshing all buttons
             self.button_up.update(self.screen)                                                        
@@ -96,6 +96,7 @@ class Delete_region():
                           }
         
         self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
+        self.board_background_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png").convert()
         self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
         self.back_img = pygame.image.load("Assets/Source_files/Images/Delete_region/left_arrow.png").convert_alpha()
         self.up_img = pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png").convert_alpha()
@@ -113,11 +114,14 @@ class Delete_region():
         self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
         
         # Tiles rescale
-        self.tiles_side = self.screen_width * 0.05
+        self.tiles_side = int(self.screen_width * 0.039)              # int prevent float number which create space between tiles
         self.region_side = self.tiles_side * 4
 
         for key in self.tiles_img:
             self.tiles_img[key] = pygame.transform.smoothscale(self.tiles_img[key], (self.tiles_side, self.tiles_side))
+
+        # Board background
+        self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.region_side * 2, self.region_side * 2))
 
         # Buttons_icons rescale
         self.button_height = int(self.screen_height * 0.15)
@@ -137,10 +141,10 @@ class Delete_region():
     def create_buttons(self):
         '''Initialize all buttons needed with their respective coordinates'''
 
-        self.button_back = Button((self.screen_width * 0.03, self.screen_height * 0.78), self.back_img)
+        self.button_back = Button((self.screen_width * 0.03, self.screen_height * 0.80), self.back_img)
         self.button_up = Button((self.screen_width * 0.72, self.screen_height * 0.19), self.up_img)
         self.button_down = Button((self.screen_width * 0.72, self.screen_height * 0.67), self.down_img)
-        self.button_next = Button((self.screen_width * 0.3, self.screen_height * 0.75), self.next_img, "Next", base_color="black", font_size= int(self.screen_height/720 * 64))
+        self.button_next = Button((self.screen_width * 0.3, self.screen_height * 0.80), self.next_img, "Next", base_color="black", font_size= int(self.screen_height/720 * 64))
 
 
 ###################################################################################################
@@ -161,9 +165,21 @@ class Delete_region():
         '''Used to blit the current_region aside, between the 2 buttons'''
 
         x = self.screen_width * 0.72
-        y = self.screen_height * 0.33
+        y = self.screen_height * 0.365
         self.current_region.display(self.screen, self.tiles_img, (x,y), self.tiles_side)
 
+
+###################################################################################################
+
+
+    def display_board(self):
+        '''Display the board itself and regions placed on him'''
+
+        # Topleft corner
+        x = self.screen_width * 0.21875
+        y = self.screen_height * 0.21
+
+        self.screen.blit(self.board_background_img, (x,y))
 
 
 
@@ -173,6 +189,6 @@ class Delete_region():
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
-    #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    #screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Delete_region(screen)
