@@ -185,14 +185,11 @@ class Delete_region():
 
         self.current_regions = []
 
-        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
-            regions_list = json.load(f)
-
-            # Load new regions
-            start_idx = new_page * 4
-            end_idx = min(start_idx + 4, self.region_amount)
-            for i in range(start_idx, end_idx):
-                self.current_regions.append(Region.from_dict(regions_list[i]))
+        # Load new regions
+        start_idx = new_page * 4
+        end_idx = min(start_idx + 4, self.region_amount)
+        for i in range(start_idx, end_idx):
+            self.current_regions.append(load_region(i))
 
 
 ###################################################################################################
