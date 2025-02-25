@@ -550,5 +550,97 @@
                 }
             ]
         ]
+    },
+    {
+        "region": [
+            [
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "queen",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "queen",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "queen",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "queen",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ]
+        ]
     }
 ]
