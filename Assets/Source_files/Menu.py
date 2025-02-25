@@ -54,7 +54,8 @@ class Menu:
         elif self.current_page == "Settings":
             self.buttons = [
                 Button(None, (640, 300), "Option", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 400), "Create Tiles", self.get_font(65), "#514b4b", "#888888"),
+                Button(None, (640, 400), "Rules", self.get_font(65), "#514b4b", "#888888"),
+                Button(None, (640, 500), "Create Tiles", self.get_font(65), "#514b4b", "#888888"),
             ]
         elif self.current_page == "Options":
             # Pas de boutons standard sur la page des options
