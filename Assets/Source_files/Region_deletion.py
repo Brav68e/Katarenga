@@ -125,7 +125,7 @@ class Delete_region():
         '''Resize all assets used in this menu'''
 
         # Background rescale
-        self.background = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
+        self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
         
         # Tiles rescale
         self.tiles_side = self.screen_width * 0.05
@@ -181,7 +181,7 @@ class Delete_region():
 
 
     def load_regions(self, new_page):
-        '''Smoothly transition between region pages'''
+        '''Update the current regions available'''
 
         self.current_regions = []
 

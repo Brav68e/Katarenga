@@ -200,3 +200,14 @@ def delete_region(index):
         json.dump(regions, f, indent=4)
 
 
+###################################################################################################
+
+
+def load_region(index):
+    '''Return a Region object based on his index'''
+
+    with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+        regions_list = json.load(f)
+
+        # Load new regions
+        return Region.from_dict(regions_list[index])

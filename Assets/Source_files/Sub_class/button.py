@@ -22,11 +22,15 @@ class Button:
             height = sum(rect.height for rect in self.text_rects)
             self.rect = pygame.Rect(self.x_pos, self.y_pos, width, height)
         
-        # Adjust text positions
-        y_offset = self.rect.top
-        for rect in self.text_rects:
-            rect.midtop = (self.rect.centerx, y_offset)
-            y_offset += rect.height
+        if len(self.text_rects) == 1:
+            # If there's only one line, center it inside the button
+            self.text_rects[0].center = self.rect.center
+        
+        else:
+            y_offset = self.rect.top
+            for rect in self.text_rects:
+                rect.midtop = (self.rect.centerx, y_offset)
+                y_offset += rect.height
     
 
     def update(self, screen):
