@@ -3,8 +3,8 @@ from Sub_class.tile import *
 from Sub_class.button import *
 from Sub_class.region import *
 import json
-from math import ceil
-
+from math import ceil, pow, cos, pi, sin
+import copy
 
 
 
@@ -77,10 +77,13 @@ class Delete_region():
 
                     # Check for Region selection
                     elif self.region_collision.collidepoint((x, y)):
-                        self.selected_region = self.current_region
+                        self.selected_region = copy.deepcopy(self.current_region)
 
-
-                                    
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r and self.selected_region:
+                        self.animate_rotation()
+                    elif event.key == pygame.K_t and self.selected_region:
+                        self.animate_flip()             
 
             # Limit framerate
             self.clock.tick(self.fps)
@@ -206,12 +209,152 @@ class Delete_region():
             self.screen.blit(transparent_surface, (x - self.region_side // 2, y - self.region_side // 2))
 
 
+###################################################################################################
+
+
+    def animate_rotation(self):
+        '''Animation rotating the selected region smoothly.'''
+           
+        anim_duration = 500                                 # Animation duration in milliseconds
+        start_time = pygame.time.get_ticks()
+
+        original_image = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+        self.selected_region.display(original_image, self.tiles_img, (0, 0), self.tiles_side)
+        original_image.set_alpha(150)
+
+        while True:
+            pygame.event.pump()                             # Needed since there is no pygame.event.get()
+            x, y = pygame.mouse.get_pos()
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration:
+                break
+
+            progress = current_time / anim_duration                         # 0 to 1 (percentage of animation completed)
+            eased_progress = 1 - pow(1 - progress, 3)                       # Ease-in cubic function   f(progress) = 1 - (1-progress)³
+            angle = -eased_progress * 90
+
+            rotated_image = pygame.transform.rotate(original_image, angle)
+            rect = rotated_image.get_rect(center=(x, y))
+
+            # Refresh static elements and blit the region
+            self.redraw_static_elements()
+            self.screen.blit(rotated_image, rect.topleft)
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)  # Maintain frame rate
+
+        # Apply the actual rotation after animation
+        self.selected_region.rotate()
+
+
+
+###################################################################################################
+
+
+    def animate_flip(self):
+        '''Animation that shrinks the selected region to zero height, flips it, then expands it back.'''
+        
+        anim_duration = 800                                         # Animation duration in milliseconds
+        start_time = pygame.time.get_ticks()
+
+        # Create a surface with the original image
+        original_image = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+        self.selected_region.display(original_image, self.tiles_img, (0, 0), self.tiles_side)
+        original_image.set_alpha(150) 
+        
+        # First phase: Shrink to zero height
+        while True:
+            pygame.event.pump()                                     # Needed since there is no pygame.event.get()
+            x, y = pygame.mouse.get_pos()
+            
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration / 2:
+                break
+                
+            progress = current_time / (anim_duration / 2)
+            
+            # Smooth easing function (ease-in)
+            eased_progress = 1 - cos(progress * pi / 2)             # 0 to 1, starts slow, ends fast
+            scale_factor = 1 - eased_progress
+            
+            # Scale the image vertically
+            if scale_factor > 0:                                    # Prevent zero height which would cause errors
+                scaled_image = pygame.transform.smoothscale(
+                    original_image, (self.region_side, int(self.region_side * scale_factor))
+                )
+                rect = scaled_image.get_rect(center=(x, y))
+                
+                self.redraw_static_elements()
+                
+                # Overlay the scaled image
+                self.screen.blit(scaled_image, rect.topleft)
+                
+            pygame.display.flip()
+            self.clock.tick(self.fps)
+        
+        # Apply the flip at the invisible point
+        self.selected_region.flip()
+        
+        # Create a new surface with the flipped image
+        flipped_image = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+        self.selected_region.display(flipped_image, self.tiles_img, (0, 0), self.tiles_side)
+        flipped_image.set_alpha(150)
+        
+        # Second phase: Expand from zero back to full height
+        start_time = pygame.time.get_ticks()
+        while True:
+            pygame.event.pump()
+            x, y = pygame.mouse.get_pos()
+            
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration / 2:
+                break
+                
+            progress = current_time / (anim_duration / 2)
+            
+            # Smooth easing function (ease-out)
+            eased_progress = sin(progress * pi / 2)
+            scale_factor = eased_progress
+            
+            # Scale the image vertically
+            if scale_factor > 0:                                    # Prevent zero height which would cause errors
+                scaled_image = pygame.transform.smoothscale(
+                    flipped_image, (self.region_side, int(self.region_side * scale_factor))
+                )
+                rect = scaled_image.get_rect(center=(x, y))
+                
+                self.redraw_static_elements()
+                
+                # Overlay the scaled image
+                self.screen.blit(scaled_image, rect.topleft)
+                
+            pygame.display.flip()
+            self.clock.tick(self.fps)
+
+
+
+###################################################################################################
+
+
+    def redraw_static_elements(self):
+        '''Often used to refresh in animation function'''
+        
+        self.screen.blit(self.background_img, (0, 0))
+        self.display_title("Board Creation", self.font)
+        self.display_region()
+        self.display_board()
+        self.button_up.update(self.screen)
+        self.button_next.update(self.screen)
+        self.button_down.update(self.screen)
+        self.button_back.update(self.screen)
+
+
 ######################################################################################################################################################################################################
 
 
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    #screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((1280, 720))
+    #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Delete_region(screen)
