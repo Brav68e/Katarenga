@@ -68,12 +68,18 @@ class Delete_region():
                     
                     # Check for Up/Down buttons
                     elif self.button_up.checkInput((x, y)) and self.current_region_index > 0:
+                        self.selected_region = None
                         self.current_region_index -= 1
+                        old_region = self.current_region
                         self.current_region = load_region(self.current_region_index)
+                        self.animate_slide(old_region, -1)
 
                     elif self.button_down.checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
+                        self.selected_region = None
                         self.current_region_index += 1
+                        old_region = self.current_region
                         self.current_region = load_region(self.current_region_index)
+                        self.animate_slide(old_region, 1)
 
                     # Check for Region selection
                     elif self.region_collision.collidepoint((x, y)):
@@ -238,6 +244,7 @@ class Delete_region():
 
             # Refresh static elements and blit the region
             self.redraw_static_elements()
+            self.display_region()
             self.screen.blit(rotated_image, rect.topleft)
 
             pygame.display.flip()
@@ -245,6 +252,7 @@ class Delete_region():
 
         # Apply the actual rotation after animation
         self.selected_region.rotate()
+        pygame.event.clear()
 
 
 
@@ -284,6 +292,7 @@ class Delete_region():
                 rect = scaled_image.get_rect(center=(x, y))
                 
                 self.redraw_static_elements()
+                self.display_region()
                 
                 # Overlay the scaled image
                 self.screen.blit(scaled_image, rect.topleft)
@@ -322,12 +331,66 @@ class Delete_region():
                 rect = scaled_image.get_rect(center=(x, y))
                 
                 self.redraw_static_elements()
+                self.display_region()
                 
                 # Overlay the scaled image
                 self.screen.blit(scaled_image, rect.topleft)
                 
             pygame.display.flip()
             self.clock.tick(self.fps)
+        pygame.event.clear()
+
+
+
+###################################################################################################
+
+
+    def animate_slide(self, old_region, direction):
+        '''Animation that slides the old region up/down while shrinking and the new region slides in while growing.'''
+
+        anim_duration = 500  # Animation duration in milliseconds
+        start_time = pygame.time.get_ticks()
+
+        # Load the old and new region images
+        old_image = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+        old_region.display(old_image, self.tiles_img, (0, 0), self.tiles_side)
+
+        new_image = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+        self.current_region.display(new_image, self.tiles_img, (0, 0), self.tiles_side)
+
+        x_center = self.screen_width * 0.72 + self.region_side // 2
+        y_start = self.screen_height * 0.365 if direction == 1 else self.screen_height * 0.365 + self.region_side
+        y_center = self.screen_height * 0.365 + self.region_side // 2
+        y_movement = self.region_side // 2 * direction
+
+        while True:
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration:
+                break
+            
+            progress = current_time / anim_duration  # Progress (0 to 1)
+            eased_progress = 1 - pow(1 - progress, 3)  # Smooth ease-in
+            self.redraw_static_elements()
+
+            # Shrinking old region while moving it
+            old_scale = 1 - eased_progress
+            if old_scale > 0:
+                old_scaled = pygame.transform.smoothscale(
+                    old_image, (int(self.region_side * old_scale), int(self.region_side * old_scale))
+                )
+                old_rect = old_scaled.get_rect(center=(x_center, y_center + y_movement * eased_progress))
+                self.screen.blit(old_scaled, old_rect.topleft)
+
+            # Growing new region while moving it
+            new_scaled = pygame.transform.smoothscale(
+                new_image, (int(self.region_side * eased_progress), int(self.region_side * eased_progress))
+            )
+            new_rect = new_scaled.get_rect(center=(x_center, y_start + y_movement * eased_progress))
+            self.screen.blit(new_scaled, new_rect.topleft)
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)
+        pygame.event.clear()
 
 
 
@@ -339,7 +402,6 @@ class Delete_region():
         
         self.screen.blit(self.background_img, (0, 0))
         self.display_title("Board Creation", self.font)
-        self.display_region()
         self.display_board()
         self.button_up.update(self.screen)
         self.button_next.update(self.screen)
