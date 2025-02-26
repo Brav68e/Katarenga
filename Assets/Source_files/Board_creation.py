@@ -21,6 +21,7 @@ class Delete_region():
         self.region_amount = region_amount()
         self.current_region_index = 0
         self.current_region = load_region(0)
+        self.region_collision = None
         self.selected_region = None                         # Store a Region object
         self.board = [None, None, None, None]               # Contain all 4 regions that make a board. 0 : Top_left, 1 : Top_right, 2 : Bottom_left, 3 : Bottom_right
 
@@ -51,6 +52,9 @@ class Delete_region():
             self.button_down.update(self.screen)
             self.button_back.update(self.screen)
 
+            # Display the selected region following the mouse
+            self.display_selected_region((x, y))
+
             pygame.display.flip()
 
             for event in pygame.event.get():
@@ -70,6 +74,10 @@ class Delete_region():
                     elif self.button_down.checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
                         self.current_region_index += 1
                         self.current_region = load_region(self.current_region_index)
+
+                    # Check for Region selection
+                    elif self.region_collision.collidepoint((x, y)):
+                        self.selected_region = self.current_region
 
 
                                     
@@ -167,6 +175,8 @@ class Delete_region():
         x = self.screen_width * 0.72
         y = self.screen_height * 0.365
         self.current_region.display(self.screen, self.tiles_img, (x,y), self.tiles_side)
+        if self.region_collision is None:
+            self.region_collision = pygame.Rect(x, y, self.region_side, self.region_side)
 
 
 ###################################################################################################
@@ -181,6 +191,19 @@ class Delete_region():
 
         self.screen.blit(self.board_background_img, (x,y))
 
+
+###################################################################################################
+
+
+    def display_selected_region(self, mouse_pos):
+        '''Display the selected region at the mouse position with transparency.'''
+
+        if self.selected_region:
+            x, y = mouse_pos
+            transparent_surface = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+            self.selected_region.display(transparent_surface, self.tiles_img, (0, 0), self.tiles_side)
+            transparent_surface.set_alpha(150)                 
+            self.screen.blit(transparent_surface, (x - self.region_side // 2, y - self.region_side // 2))
 
 
 ######################################################################################################################################################################################################
