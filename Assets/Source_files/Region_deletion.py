@@ -201,7 +201,7 @@ class Delete_region():
     def animate_page_switch(self, old_regions, new_regions, direction):
         '''Animates transition between pages (slide Up/Down)'''
 
-        anim_duration = 500  # Milliseconds
+        anim_duration = 800  # Milliseconds
         start_time = pygame.time.get_ticks()
         
         while True:
@@ -210,7 +210,8 @@ class Delete_region():
                 break
 
             progress = current_time / anim_duration                      # 0 to 1 (percentage)
-            offset = int(self.screen_height * progress * direction)      # Slide effect
+            eased_progress = 1 - pow(1 - progress, 3)                       # Ease-in cubic function   f(progress) = 1 - (1-progress)³
+            offset = int(self.screen_height * eased_progress * direction)      # Slide effect
 
             # Refresh static elements
             self.screen.blit(self.background_img, (0, 0))

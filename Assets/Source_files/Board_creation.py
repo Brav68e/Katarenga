@@ -274,8 +274,7 @@ class Delete_region():
             progress = current_time / (anim_duration / 2)
             
             # Smooth easing function (ease-in)
-            eased_progress = 1 - cos(progress * pi / 2)             # 0 to 1, starts slow, ends fast
-            scale_factor = 1 - eased_progress
+            scale_factor = cos(progress * pi / 2)
             
             # Scale the image vertically
             if scale_factor > 0:                                    # Prevent zero height which would cause errors
@@ -313,8 +312,7 @@ class Delete_region():
             progress = current_time / (anim_duration / 2)
             
             # Smooth easing function (ease-out)
-            eased_progress = sin(progress * pi / 2)
-            scale_factor = eased_progress
+            scale_factor = sin(progress * pi / 2)
             
             # Scale the image vertically
             if scale_factor > 0:                                    # Prevent zero height which would cause errors
