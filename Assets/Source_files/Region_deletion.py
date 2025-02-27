@@ -209,9 +209,9 @@ class Delete_region():
             if current_time >= anim_duration:
                 break
 
-            progress = current_time / anim_duration                      # 0 to 1 (percentage)
-            eased_progress = 1 - pow(1 - progress, 3)                       # Ease-in cubic function   f(progress) = 1 - (1-progress)³
-            offset = int(self.screen_height * eased_progress * direction)      # Slide effect
+            progress = current_time / anim_duration                                 # 0 to 1 (percentage)
+            eased_progress = 1 - pow(1 - progress, 3)                               # Ease-in cubic function   f(progress) = 1 - (1-progress)³
+            offset = int(self.screen_height * eased_progress * direction)           # Slide effect
 
             # Refresh static elements
             self.screen.blit(self.background_img, (0, 0))

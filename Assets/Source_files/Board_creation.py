@@ -21,9 +21,11 @@ class Delete_region():
         self.region_amount = region_amount()
         self.current_region_index = 0
         self.current_region = load_region(0)
-        self.region_collision = None
         self.selected_region = None                         # Store a Region object
         self.board = [None, None, None, None]               # Contain all 4 regions that make a board. 0 : Top_left, 1 : Top_right, 2 : Bottom_left, 3 : Bottom_right
+
+        self.region_collision = None
+        self.board_collision = None
 
         self.load_assets()
         self.resize_assets()
@@ -85,6 +87,12 @@ class Delete_region():
                     elif self.region_collision.collidepoint((x, y)):
                         self.selected_region = copy.deepcopy(self.current_region)
 
+                    # Check for Region placement
+                    elif index := self.board_region((x,y)):
+                        self.board[index-1] = self.selected_region
+                        self.selected_region = None
+
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r and self.selected_region:
                         self.animate_rotation()
@@ -119,6 +127,7 @@ class Delete_region():
         self.up_img = pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png").convert_alpha()
         self.down_img = pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png").convert_alpha()
         self.next_img = pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha()
+        self.next_img.set_alpha(250)
 
 
 ###################################################################################################
@@ -194,11 +203,34 @@ class Delete_region():
     def display_board(self):
         '''Display the board itself and regions placed on him'''
 
-        # Topleft corner
+        # Topleft corner of the board
         x = self.screen_width * 0.21875
         y = self.screen_height * 0.21
 
+        # Place board collision if they don't exist
+        if self.board_collision is None:
+            self.board_collision = [0, 0, 0, 0]
+            self.board_collision[0] = pygame.Rect(x, y, self.region_side, self.region_side)                                                # Topleft
+            self.board_collision[1] = pygame.Rect(x + self.region_side, y, self.region_side, self.region_side)                             # Topright
+            self.board_collision[2] = pygame.Rect(x, y + self.region_side, self.region_side, self.region_side)                             # Bottomleft
+            self.board_collision[3] = pygame.Rect(x + self.region_side, y + self.region_side, self.region_side, self.region_side)          # Bottomright
+
         self.screen.blit(self.board_background_img, (x,y))
+        for i in range(4):
+            if self.board[i] is not None:
+                self.board[i].display(self.screen, self.tiles_img, self.board_collision[i].topleft, self.tiles_side) 
+
+
+###################################################################################################
+
+
+    def board_region(self, pos):
+        '''Return the INDEX+1 of the board region where the mouse is currently at'''
+
+        for i in range(4):
+            if self.board_collision[i].collidepoint(pos):
+                return i+1
+        return 0
 
 
 ###################################################################################################
@@ -208,11 +240,23 @@ class Delete_region():
         '''Display the selected region at the mouse position with transparency.'''
 
         if self.selected_region:
-            x, y = mouse_pos
-            transparent_surface = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
-            self.selected_region.display(transparent_surface, self.tiles_img, (0, 0), self.tiles_side)
-            transparent_surface.set_alpha(150)                 
-            self.screen.blit(transparent_surface, (x - self.region_side // 2, y - self.region_side // 2))
+            # First check for placeholder
+            placeholder = False
+
+            if index := self.board_region(mouse_pos):
+                    placeholder = True
+                    transparent_surface = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+                    self.selected_region.display(transparent_surface, self.tiles_img, (0, 0), self.tiles_side)
+                    transparent_surface.set_alpha(150)                 
+                    self.screen.blit(transparent_surface, self.board_collision[index-1].topleft)
+
+            # Else, check for default mouse pos
+            if not placeholder:
+                x, y = mouse_pos
+                transparent_surface = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
+                self.selected_region.display(transparent_surface, self.tiles_img, (0, 0), self.tiles_side)
+                transparent_surface.set_alpha(150)                 
+                self.screen.blit(transparent_surface, (x - self.region_side // 2, y - self.region_side // 2))
 
 
 ###################################################################################################
