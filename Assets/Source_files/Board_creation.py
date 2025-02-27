@@ -22,10 +22,17 @@ class Delete_region():
         self.current_region_index = 0
         self.current_region = load_region(0)
         self.selected_region = None                         # Store a Region object
-        self.board = [None, None, None, None]               # Contain all 4 regions that make a board. 0 : Top_left, 1 : Top_right, 2 : Bottom_left, 3 : Bottom_right
+
+        # Contain all regions that the board contain
+        self.board = {
+            "top_left": None,
+            "top_right": None,
+            "bottom_left": None,
+            "bottom_right": None
+        }
 
         self.region_collision = None
-        self.board_collision = None
+        self.board_positions = None
 
         self.load_assets()
         self.resize_assets()
@@ -35,79 +42,105 @@ class Delete_region():
         self.create_buttons()
 
 
-        #Mainloop
-        while running:
-           
-            x, y = pygame.mouse.get_pos()
+###################################################################################################
 
-            # Display background
-            self.screen.blit(self.background_img, (0,0))
-            self.display_title("Board Creation", self.font)
 
-            # Display the aside_region and the board
-            self.display_region()
-            self.display_board()
+    def run(self):
+        '''"Mainloop for this class'''
 
-            # Refreshing all buttons
-            self.button_up.update(self.screen)                                                        
-            self.button_next.update(self.screen)
-            self.button_down.update(self.screen)
-            self.button_back.update(self.screen)
+        self.running = True
 
-            # Display the selected region following the mouse
-            self.display_selected_region((x, y))
-
+        while self.running:
+            self.handle_events()
+            self.render_screen()
             pygame.display.flip()
-
-            for event in pygame.event.get():
-                
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Exit
-                    if(self.button_back.checkInput((x,y))):
-                        running = False
-                    
-                    # Check for Up/Down buttons
-                    elif self.button_up.checkInput((x, y)) and self.current_region_index > 0:
-                        self.selected_region = None
-                        self.current_region_index -= 1
-                        old_region = self.current_region
-                        self.current_region = load_region(self.current_region_index)
-                        self.animate_slide(old_region, -1)
-
-                    elif self.button_down.checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
-                        self.selected_region = None
-                        self.current_region_index += 1
-                        old_region = self.current_region
-                        self.current_region = load_region(self.current_region_index)
-                        self.animate_slide(old_region, 1)
-
-                    # Check for Region selection
-                    elif self.region_collision.collidepoint((x, y)):
-                        self.selected_region = copy.deepcopy(self.current_region)
-
-                    # Check for Region placement
-                    elif index := self.board_region((x,y)):
-                        self.board[index-1] = self.selected_region
-                        self.selected_region = None
-
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r and self.selected_region:
-                        self.animate_rotation()
-                    elif event.key == pygame.K_t and self.selected_region:
-                        self.animate_flip()             
-
-            # Limit framerate
             self.clock.tick(self.fps)
-
-
 
 
 ###################################################################################################
 
 
+    def render_screen(self):
+        '''Renders all UI elements on the screen.'''
+
+        self.screen.blit(self.background_img, (0,0))
+        self.display_title("Board Creation", self.font)
+        self.display_region()
+        self.display_board()
+        self.display_selected_region(pygame.mouse.get_pos())
+
+        # Update buttons
+        for button in self.buttons.values():
+            button.update(self.screen)
+
+
+###################################################################################################
+
+
+    def handle_events(self):
+        '''Handles all pygame events.'''
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_mouse_click()
+            elif event.type == pygame.KEYDOWN:
+                self.handle_key_press(event)
+
+
+###################################################################################################
+
+
+    def handle_mouse_click(self):
+        '''Handles mouse click events.'''
+        x, y = pygame.mouse.get_pos()
+
+        if self.buttons["back"].checkInput((x,y)):
+            self.running = False
+
+        elif self.buttons["up"].checkInput((x, y)) and self.current_region_index > 0:
+            self.switch_region(-1)
+
+        elif self.buttons["down"].checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
+            self.switch_region(1)
+
+        elif self.region_collision.collidepoint((x, y)):
+            self.selected_region = copy.deepcopy(self.current_region)
+
+        elif index := self.board_region((x,y)):
+            self.board[index] = self.selected_region
+            self.selected_region = None
+
+        else:
+            self.selected_region = None
+
+
+###################################################################################################
+
+
+    def handle_key_press(self, event):
+        '''Handles keypress events.'''
+        if event.key == pygame.K_r and self.selected_region:
+            self.animate_rotation()
+        elif event.key == pygame.K_t and self.selected_region:
+            self.animate_flip()
+
+
+###################################################################################################
+
+
+    def switch_region(self, direction):
+        '''Switches the currently displayed region.'''
+
+        self.selected_region = None
+        old_region = self.current_region
+        self.current_region_index += direction
+        self.current_region = load_region(self.current_region_index)
+        self.animate_slide(old_region, direction)
+
+
+###################################################################################################
 
 
     def load_assets(self):
@@ -167,10 +200,13 @@ class Delete_region():
     def create_buttons(self):
         '''Initialize all buttons needed with their respective coordinates'''
 
-        self.button_back = Button((self.screen_width * 0.03, self.screen_height * 0.80), self.back_img)
-        self.button_up = Button((self.screen_width * 0.72, self.screen_height * 0.19), self.up_img)
-        self.button_down = Button((self.screen_width * 0.72, self.screen_height * 0.67), self.down_img)
-        self.button_next = Button((self.screen_width * 0.3, self.screen_height * 0.80), self.next_img, "Next", base_color="black", font_size= int(self.screen_height/720 * 64))
+        self.buttons = {
+            "back": Button((self.screen_width * 0.03, self.screen_height * 0.80), self.back_img),
+            "up": Button((self.screen_width * 0.72, self.screen_height * 0.19), self.up_img),
+            "down": Button((self.screen_width * 0.72, self.screen_height * 0.67), self.down_img),
+            "next": Button((self.screen_width * 0.3, self.screen_height * 0.80), self.next_img, "Next", base_color="black", font_size=int(self.screen_height/720 * 64)),
+        }
+
 
 
 ###################################################################################################
@@ -208,28 +244,31 @@ class Delete_region():
         y = self.screen_height * 0.21
 
         # Place board collision if they don't exist
-        if self.board_collision is None:
-            self.board_collision = [0, 0, 0, 0]
-            self.board_collision[0] = pygame.Rect(x, y, self.region_side, self.region_side)                                                # Topleft
-            self.board_collision[1] = pygame.Rect(x + self.region_side, y, self.region_side, self.region_side)                             # Topright
-            self.board_collision[2] = pygame.Rect(x, y + self.region_side, self.region_side, self.region_side)                             # Bottomleft
-            self.board_collision[3] = pygame.Rect(x + self.region_side, y + self.region_side, self.region_side, self.region_side)          # Bottomright
+        if self.board_positions is None:
+            self.board_positions = {
+                "top_left": pygame.Rect(x, y, self.region_side, self.region_side),
+                "top_right": pygame.Rect(x + self.region_side, y, self.region_side, self.region_side),
+                "bottom_left": pygame.Rect(x, y + self.region_side, self.region_side, self.region_side),
+                "bottom_right": pygame.Rect(x + self.region_side, y + self.region_side, self.region_side, self.region_side)
+            }
 
-        self.screen.blit(self.board_background_img, (x,y))
-        for i in range(4):
-            if self.board[i] is not None:
-                self.board[i].display(self.screen, self.tiles_img, self.board_collision[i].topleft, self.tiles_side) 
+        self.screen.blit(self.board_background_img, (x, y))
+
+        for position, region in self.board.items():
+            if region:
+                region.display(self.screen, self.tiles_img, self.board_positions[position].topleft, self.tiles_side)
+
 
 
 ###################################################################################################
 
 
     def board_region(self, pos):
-        '''Return the INDEX+1 of the board region where the mouse is currently at'''
+        '''Return the name of the board region where the mouse is currently at'''
 
-        for i in range(4):
-            if self.board_collision[i].collidepoint(pos):
-                return i+1
+        for (key, value) in self.board_positions.items():
+            if value.collidepoint(pos):
+                return key
         return 0
 
 
@@ -248,7 +287,7 @@ class Delete_region():
                     transparent_surface = pygame.Surface((self.region_side, self.region_side), pygame.SRCALPHA)
                     self.selected_region.display(transparent_surface, self.tiles_img, (0, 0), self.tiles_side)
                     transparent_surface.set_alpha(150)                 
-                    self.screen.blit(transparent_surface, self.board_collision[index-1].topleft)
+                    self.screen.blit(transparent_surface, self.board_positions[index].topleft)
 
             # Else, check for default mouse pos
             if not placeholder:
@@ -447,10 +486,8 @@ class Delete_region():
         self.screen.blit(self.background_img, (0, 0))
         self.display_title("Board Creation", self.font)
         self.display_board()
-        self.button_up.update(self.screen)
-        self.button_next.update(self.screen)
-        self.button_down.update(self.screen)
-        self.button_back.update(self.screen)
+        for button in self.buttons.values():
+            button.update(self.screen)
 
 
 ######################################################################################################################################################################################################
@@ -461,4 +498,4 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    Delete_region(screen)
+    Delete_region(screen).run()
