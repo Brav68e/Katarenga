@@ -80,6 +80,8 @@ class Delete_region():
     def handle_events(self):
         '''Handles all pygame events.'''
 
+        self.handle_hovering()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -87,6 +89,30 @@ class Delete_region():
                 self.handle_mouse_click()
             elif event.type == pygame.KEYDOWN:
                 self.handle_key_press(event)
+
+
+###################################################################################################
+
+
+    def handle_hovering(self):
+        '''Allow the next button to change style'''
+
+        if self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
+            self.next_img.set_alpha(400)
+        else:
+            self.next_img.set_alpha(200)
+
+
+###################################################################################################
+
+
+    def board_full(self):
+        '''Return a boolean that indicate if every board's region is fulfilled'''
+
+        full = True
+        for region in self.board.values():
+            full = full and region
+        return full
 
 
 ###################################################################################################
@@ -111,6 +137,10 @@ class Delete_region():
         elif index := self.board_region((x,y)):
             self.board[index] = self.selected_region
             self.selected_region = None
+
+        elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
+            # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
+            pass
 
         else:
             self.selected_region = None
@@ -160,7 +190,7 @@ class Delete_region():
         self.up_img = pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png").convert_alpha()
         self.down_img = pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png").convert_alpha()
         self.next_img = pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha()
-        self.next_img.set_alpha(250)
+        self.next_img.set_alpha(200)
 
 
 ###################################################################################################
@@ -488,6 +518,22 @@ class Delete_region():
         self.display_board()
         for button in self.buttons.values():
             button.update(self.screen)
+
+
+###################################################################################################
+
+
+    def combine_regions(self):
+        '''Return the board itself (bidimensional list), combining all Regions specified in the current board dictionnary'''
+
+        # First, combine top_left and top_right
+        top = [self.board["top_left"].get()[i] + self.board["top_right"].get()[i] for i in range(4)]
+
+        # Same for bottom
+        bot = [self.board["bottom_left"].get()[i] + self.board["bottom_right"].get()[i] for i in range(4)]
+
+        # Finnaly combine top and bottom part
+        print(top + bot)
 
 
 ######################################################################################################################################################################################################
