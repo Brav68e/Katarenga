@@ -24,8 +24,6 @@ class Client:
         self.ip = ip
         try:
             self.client_socket.connect((self.ip, self.port))
-            # Envoyer le nom d'utilisateur
-            self.client_socket.send(json.dumps({"username": self.username}).encode('utf-8'))
             self.connected = True
             self.listening = False
 
@@ -91,12 +89,12 @@ class Client:
             data, addr = udp_socket.recvfrom(1024)
             server_info = json.loads(data.decode("utf-8"))
             server_host, server_port = server_info["private_ip"], server_info["port"]
-            self.available_server.append((server_host, server_port))
             
             if (server_host, server_port) not in self.available_server:
                 self.available_server.append((server_host, server_port))
                 print(f"Discovered server at {server_host}:{server_port}")
 
+        self.available_server = []
         udp_socket.close()
 
 

@@ -11,14 +11,15 @@ class Server:
         self.port = port
         self.broadcast_port = broadcast_port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clients = {}                                                                   # Key : Socket / Value : Username
+        self.clients = {}                                                                   # Key : Username / Value : socket
         self.running = False
         self.thread = None
+        self.client_amount = 0
 
 
     def start(self):
         try:
-            self.server_socket.bind((self.get_private_ip(), self.port))
+            self.server_socket.bind((self.ip, self.port))
             self.server_socket.listen(2)
             self.running = True
 
@@ -60,16 +61,9 @@ class Server:
 
 
     def handle_client(self, client_socket: socket.socket):
-        try:
-            # Recevoir le nom d'utilisateur
-            username_data = client_socket.recv(1024).decode('utf-8')
-            data = json.loads(username_data)
-            username = data.get("username", f"User{len(self.clients)}")
+        try: 
             
-            self.clients[client_socket] = username
-            
-            # Informer tout le monde de la nouvelle connexion
-            self.broadcast({"type": "system", "message": f"{username} a rejoint le chat"})
+            self.clients[self.client_amount] = client_socket
             
             while self.running:
                 try:
@@ -86,11 +80,9 @@ class Server:
         except Exception as e:
             print(f"Erreur client: {e}")
         finally:
-            if client_socket in self.clients:
-                username = self.clients[client_socket]
-                del self.clients[client_socket]
+            if key := self.clients.keys()[self.clients.values().index(client_socket)]:
+                del self.clients[key]
                 client_socket.close()
-                self.broadcast({"type": "system", "message": f"{username} a quitté le chat"})
     
 
     def broadcast(self, data):
