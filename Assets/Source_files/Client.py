@@ -1,12 +1,12 @@
 import socket
 import threading
 import json
-import server
+import Server
 
 
 class Client:
 
-    def __init__(self, ip: None, port: None, username: None, broadcast_port = 50000):
+    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000):
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
@@ -17,10 +17,11 @@ class Client:
         self.listening = True
         self.messages = None
         self.thread = None
-        print(f"Socket de communication : {ip},{port}")
 
 
-    def connect(self) -> bool:
+    def connect(self, ip, port) -> bool:
+        self.port = port
+        self.ip = ip
         try:
             self.client_socket.connect((self.ip, self.port))
             # Envoyer le nom d'utilisateur
@@ -88,7 +89,12 @@ class Client:
         while self.listening:
             data, addr = udp_socket.recvfrom(1024)
             server_info = json.loads(data.decode("utf-8"))
-            self.server_host, self.server_port = server_info["private_ip"], server_info["port"]
-            print(f"Discovered server at {self.server_host}:{self.server_port}")
+            server_host, server_port = server_info["private_ip"], server_info["port"]
+            self.available_server.append((server_host, server_port))
+            print(f"Discovered server at {server_host}:{server_port}")
 
         udp_socket.close()
+
+
+    def get_server(self):
+        return self.available_server

@@ -18,7 +18,7 @@ class Server:
 
     def start(self):
         try:
-            self.server_socket.bind((self.host, self.port))
+            self.server_socket.bind((self.ip, self.port))
             self.server_socket.listen(2)
             self.running = True
 
@@ -94,6 +94,8 @@ class Server:
     
 
     def broadcast(self, data):
+        '''Send a specific message to all clients connected to the server'''
+
         message = json.dumps(data)
         for client in list(self.clients.keys()):
             try:
@@ -114,11 +116,10 @@ class Server:
 
         while True:
             udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-            print("Broadcasting presence...")
             time.sleep(5)                                   # Broadcast every 5 seconds
 
 
-    def get_private_ip():
+    def get_private_ip(self):
         try:
             # Create a dummy socket to find the real local IP
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
