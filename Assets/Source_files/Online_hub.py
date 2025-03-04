@@ -44,6 +44,7 @@ class Online_hub():
             self.handle_event()
             self.clock.tick(self.fps)
 
+        self.client.stop()
         if self.server:
             self.server.stop()
 

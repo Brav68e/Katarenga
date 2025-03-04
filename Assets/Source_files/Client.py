@@ -38,12 +38,10 @@ class Client:
             return False
 
 
-    def disconnect(self):
-        self.connected = False
-        try:
-            self.client_socket.close()
-        except:
-            pass
+    def stop(self):
+
+        self.client_socket.close()
+        self.listening = False
 
 
     def send_message(self, message: str) -> bool:
