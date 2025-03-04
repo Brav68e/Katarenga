@@ -18,11 +18,11 @@ class Server:
 
     def start(self):
         try:
-            self.server_socket.bind((self.ip, self.port))
+            self.server_socket.bind((self.get_private_ip(), self.port))
             self.server_socket.listen(2)
             self.running = True
 
-            # Seperate thread to handle connection
+            # Seperate thread to show presence
             self.thread = threading.Thread(target=self.broadcast_presence)
             self.thread.daemon = True
             self.thread.start()
@@ -114,9 +114,11 @@ class Server:
 
         message = json.dumps({"private_ip": self.get_private_ip(), "port": self.port})
 
-        while True:
+        while self.running:
             udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
             time.sleep(5)                                   # Broadcast every 5 seconds
+
+        udp_socket.close()
 
 
     def get_private_ip(self):

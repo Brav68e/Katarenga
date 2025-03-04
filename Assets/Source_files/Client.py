@@ -80,6 +80,7 @@ class Client:
         '''Listens for server broadcasts and stores the first discovered server'''
 
         # Socket UDP to track servers
+        self.available_server = []
         self.listening = True
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -91,7 +92,10 @@ class Client:
             server_info = json.loads(data.decode("utf-8"))
             server_host, server_port = server_info["private_ip"], server_info["port"]
             self.available_server.append((server_host, server_port))
-            print(f"Discovered server at {server_host}:{server_port}")
+            
+            if (server_host, server_port) not in self.available_server:
+                self.available_server.append((server_host, server_port))
+                print(f"Discovered server at {server_host}:{server_port}")
 
         udp_socket.close()
 
