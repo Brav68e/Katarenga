@@ -40,6 +40,12 @@ class Server:
 
     def stop(self):
         self.running = False
+        
+        # Send a broadcast to tell other than we no longer host
+        message = json.dumps({"hosting": 0 , "private_ip": self.get_private_ip(), "port": self.port})
+        self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+        self.udp_socket.close()
+
         for client in list(self.clients.keys()):
             try:
                 client.close()
@@ -101,18 +107,14 @@ class Server:
     def broadcast_presence(self):
         '''Periodically broadcasts server presence via UDP.'''
 
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
+        self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
 
         message = json.dumps({"hosting": 1 , "private_ip": self.get_private_ip(), "port": self.port})
 
         while self.running and self.client_amount < 2:
-            udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+            self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
             time.sleep(5)                                   # Broadcast every 5 
-
-        # Send a broadcast to tell other than we no longer host
-        message = json.dumps({"hosting": 0 , "private_ip": self.get_private_ip(), "port": self.port})
-        udp_socket.close()
 
 
     def get_private_ip(self):

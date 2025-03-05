@@ -93,8 +93,8 @@ class Client:
 
             elif not hosting:
                 # Delete the specific server info
-                for i, ip, port in enumerate(self.available_server):
-                    if ip==server_host and port==server_port:
+                for i, info in enumerate(self.available_server):
+                    if info[0]==str(server_host) and info[1]==server_port:
                         self.available_server.pop(i)
 
         self.available_server = []
