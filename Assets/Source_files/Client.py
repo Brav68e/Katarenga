@@ -79,8 +79,7 @@ class Client:
         self.available_server = []
         self.listening = True
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        udp_socket.bind(("", self.broadcast_port))
+        udp_socket.bind(("0.0.0.0", self.broadcast_port))
 
         print("Listening for server broadcasts...")
         while self.listening:

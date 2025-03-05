@@ -102,12 +102,14 @@ class Server:
         '''Periodically broadcasts server presence via UDP.'''
 
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
 
         message = json.dumps({"private_ip": self.get_private_ip(), "port": self.port})
 
+        local_ip = self.get_private_ip()
+        broadcast_addr = '.'.join(local_ip.split('.')[:-1] + ['255'])
         while self.running:
-            udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+            udp_socket.sendto(message.encode("utf-8"), (broadcast_addr, self.broadcast_port))
             time.sleep(5)                                   # Broadcast every 5 seconds
 
         udp_socket.close()
