@@ -85,11 +85,17 @@ class Client:
         while self.listening:
             data, addr = udp_socket.recvfrom(1024)
             server_info = json.loads(data.decode("utf-8"))
-            server_host, server_port = server_info["private_ip"], server_info["port"]
+            server_host, server_port, hosting= server_info["private_ip"], server_info["port"], server_info["hosting"]
             
-            if (server_host, server_port) not in self.available_server:
+            if (server_host, server_port) not in self.available_server and hosting:
                 self.available_server.append((server_host, server_port))
                 print(f"Discovered server at {server_host}:{server_port}")
+
+            elif not hosting:
+                # Delete the specific server info
+                for i, ip, port in enumerate(self.available_server):
+                    if ip==server_host and port==server_port:
+                        self.available_server.pop(i)
 
         self.available_server = []
         udp_socket.close()

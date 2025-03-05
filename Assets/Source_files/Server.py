@@ -104,12 +104,14 @@ class Server:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
 
-        message = json.dumps({"private_ip": self.get_private_ip(), "port": self.port})
+        message = json.dumps({"hosting": 1 , "private_ip": self.get_private_ip(), "port": self.port})
 
-        while self.running:
+        while self.running and self.client_amount < 2:
             udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-            time.sleep(5)                                   # Broadcast every 5 seconds
+            time.sleep(5)                                   # Broadcast every 5 
 
+        # Send a broadcast to tell other than we no longer host
+        message = json.dumps({"hosting": 0 , "private_ip": self.get_private_ip(), "port": self.port})
         udp_socket.close()
 
 
