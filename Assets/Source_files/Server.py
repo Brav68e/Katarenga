@@ -11,7 +11,7 @@ class Server:
         self.port = port
         self.broadcast_port = broadcast_port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clients = {}                                                                   # Key : Username / Value : socket
+        self.clients = {}                                                                   # Key : Socket / Value : Name
         self.running = False
         self.thread = None
         self.client_amount = 0
@@ -62,8 +62,8 @@ class Server:
 
     def handle_client(self, client_socket: socket.socket):
         try: 
-            
-            self.clients[self.client_amount] = client_socket
+            self.client_amount += 1
+            self.clients[client_socket] = self.client_amount
             
             while self.running:
                 try:
@@ -80,8 +80,8 @@ class Server:
         except Exception as e:
             print(f"Erreur client: {e}")
         finally:
-            if key := self.clients.keys()[self.clients.values().index(client_socket)]:
-                del self.clients[key]
+            if client_socket in self.clients:
+                del self.clients[client_socket]
                 client_socket.close()
     
 
