@@ -79,26 +79,21 @@ class Client:
         self.available_server = []
         self.listening = True
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         udp_socket.bind(("0.0.0.0", self.broadcast_port))
 
         print("Listening for server broadcasts...")
-        try:
-            while self.listening:
-                udp_socket.settimeout(1.0)  # Add a timeout to allow breaking the loop
-                try:
-                    data, addr = udp_socket.recvfrom(1024)
-                    server_info = json.loads(data.decode("utf-8"))
-                    server_host, server_port = server_info["private_ip"], server_info["port"]
-                    
-                    if (server_host, server_port) not in self.available_server:
-                        self.available_server.append((server_host, server_port))
-                        print(f"Discovered server at {server_host}:{server_port}")
-                except socket.timeout:
-                    continue
+        while self.listening:
+            data, addr = udp_socket.recvfrom(1024)
+            server_info = json.loads(data.decode("utf-8"))
+            server_host, server_port = server_info["private_ip"], server_info["port"]
+            
+            if (server_host, server_port) not in self.available_server:
+                self.available_server.append((server_host, server_port))
+                print(f"Discovered server at {server_host}:{server_port}")
 
-        except Exception as e:
-            print(f"Discovery error: {e}")
-        finally:
-            self.available_server = []
-            udp_socket.close()
+        self.available_server = []
+        udp_socket.close()
+
+
+    def get_server(self):
+        return self.available_server

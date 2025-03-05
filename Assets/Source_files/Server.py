@@ -102,32 +102,15 @@ class Server:
         '''Periodically broadcasts server presence via UDP.'''
 
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        
-        # Get the actual local IP and network interface
-        try:
-            # Create a dummy socket to determine the correct network interface
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("8.8.8.8", 80))  # Connect to an external server
-            local_ip = s.getsockname()[0]
-            s.close()
+        udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
 
-            # Explicitly set broadcast address based on local IP
-            broadcast_addr = '.'.join(local_ip.split('.')[:-1] + ['255'])
-            
-            message = json.dumps({"private_ip": local_ip, "port": self.port})
+        message = json.dumps({"private_ip": self.get_private_ip(), "port": self.port})
 
-            # Bind to a specific interface if needed
-            udp_socket.bind((local_ip, 0))
+        while self.running:
+            udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+            time.sleep(5)                                   # Broadcast every 5 seconds
 
-            while self.running:
-                udp_socket.sendto(message.encode("utf-8"), (broadcast_addr, self.broadcast_port))
-                time.sleep(5)  # Broadcast every 5 seconds
-
-        except Exception as e:
-            print(f"Broadcast error: {e}")
-        finally:
-            udp_socket.close()
+        udp_socket.close()
 
 
     def get_private_ip(self):
