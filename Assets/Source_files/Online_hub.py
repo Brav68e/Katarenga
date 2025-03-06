@@ -14,12 +14,15 @@ class Online_hub():
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
         self.client = Client()
+
         self.server = None                  # Current hosting server
+        self.hosting = False
+
         self.servers = []                   # List all servers available
         self.servers_amount = 0
         self.page_amount = 1
         self.current_page = 0
-        self.hosting = False
+        self.selected_server = None
 
         self.clock = pygame.time.Clock()
         self.fps = 60
@@ -29,8 +32,9 @@ class Online_hub():
         self.load_assets()
         self.resize_assets()
 
-        # Button creation
-        self.create_buttons()                                       
+        # Button creation & Server selection collision
+        self.create_buttons()                         
+        self.create_server_collision()              
 
         # Creation of a thread to refresh the server's list
         threading.Thread(target = self.client.discover_server, daemon=True).start()
@@ -43,6 +47,7 @@ class Online_hub():
     def run(self):
 
         while self.running:
+            print(self.selected_server)
             self.refresh_screen()
             self.handle_event()
             self.clock.tick(self.fps)
@@ -93,6 +98,12 @@ class Online_hub():
             self.current_page -= 1
         elif self.buttons["down"].checkInput((x,y)) and self.current_page < self.page_amount-1:
             self.current_page += 1
+        
+        # Check for server selection
+        index = self.check_server_selection((x,y))
+        if index != -1:
+            self.selected_server = self.current_page * 4 + index
+
 
 
 ###################################################################################################
@@ -146,6 +157,34 @@ class Online_hub():
                         "join" : Button((self.screen_width * 0.3, self.screen_height * 0.75), self.buttons_img["up"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "host" : Button((self.screen_width * 0.51, self.screen_height * 0.75), self.buttons_img["down"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
+
+
+###################################################################################################
+
+
+    def create_server_collision(self):
+        '''Store in a list Rect item that correspond to server's selection'''      
+
+        self.servers_collision = []
+        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.10, self.screen_width * 0.54, self.screen_height * 0.10))
+        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.25, self.screen_width * 0.54, self.screen_height * 0.10))
+        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.40, self.screen_width * 0.54, self.screen_height * 0.10))
+        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.55, self.screen_width * 0.54, self.screen_height * 0.10))
+
+
+###################################################################################################
+
+
+    def check_server_selection(self, pos):
+        '''Return the a integer depending on which server was selected (1,2,3 or 4. It's not index based)'''
+
+        for i, collision in enumerate(self.servers_collision):
+            if collision.collidepoint(pos):
+                return i
+            
+        return -1        # No server was selected
+
+
 
 
 ###################################################################################################
