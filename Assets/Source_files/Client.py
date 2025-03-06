@@ -76,7 +76,7 @@ class Client:
         '''Listens for server broadcasts and stores the first discovered server'''
 
         # Socket UDP to track servers
-        self.available_server = []
+        self.available_server = [1,1,1,1,1,1]
         self.listening = True
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.bind(("0.0.0.0", self.broadcast_port))

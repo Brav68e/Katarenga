@@ -16,6 +16,9 @@ class Online_hub():
         self.client = Client()
         self.server = None                  # Current hosting server
         self.servers = []                   # List all servers available
+        self.servers_amount = 0
+        self.page_amount = 1
+        self.current_page = 0
         self.hosting = False
 
         self.clock = pygame.time.Clock()
@@ -57,6 +60,7 @@ class Online_hub():
         self.screen.blit(self.background_img, (0,0))
         for button in self.buttons.keys():
             self.buttons[button].update(self.screen)
+        self.display_servers()
         pygame.display.flip()
 
 
@@ -85,6 +89,10 @@ class Online_hub():
             pass
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
             self.host_server()
+        elif self.buttons["up"].checkInput((x,y)) and self.current_page > 0:
+            self.current_page -= 1
+        elif self.buttons["down"].checkInput((x,y)) and self.current_page < self.page_amount-1:
+            self.current_page += 1
 
 
 ###################################################################################################
@@ -148,8 +156,27 @@ class Online_hub():
 
         while self.running:
             self.servers = self.client.get_server()
+            self.servers_amount = len(self.servers)
+            self.page_amount = self.servers_amount//4 + 1
             time.sleep(5)
             print(self.servers)
+
+
+###################################################################################################
+
+
+    def display_servers(self):
+        '''Used to blit at max 4 availables servers, based on current page'''
+
+        x, y = self.screen_width * 0.17, self.screen_height * 0.10
+        for i in range(self.current_page * 4, self.current_page*4+4):
+            if i < self.servers_amount and self.servers[i]:
+                font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
+                text_surface = font.render("Server", True, "red")
+                text_rect = text_surface.get_rect()
+                text_rect.topleft = (x, y)
+                self.screen.blit(text_surface, text_rect)
+            y += self.screen_height * 0.15
 
 
 ######################################################################################################################################################################################################
