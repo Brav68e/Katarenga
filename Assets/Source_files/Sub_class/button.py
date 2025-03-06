@@ -1,8 +1,6 @@
 import pygame
 
 
-
-
 class Button:
     '''A flexible button class for pygame that supports images, text, or both with multi-line text support.'''
     
