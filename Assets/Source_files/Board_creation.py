@@ -8,7 +8,7 @@ import copy
 
 
 
-class Delete_region():
+class Board_creation():
 
     def __init__(self, screen, controller = None):
         
