@@ -11,12 +11,16 @@ class Client:
         self.port = port
         self.broadcast_port = broadcast_port
         self.username = username
+
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
         self.available_server = []
+
         self.connected = False
         self.listening = True
         self.messages = None
+
         self.thread = None
+        self.lock = threading.Lock()
 
 
     def connect(self, ip, port) -> bool:
@@ -88,19 +92,24 @@ class Client:
             server_info = json.loads(data.decode("utf-8"))
             server_host, server_port, hosting= server_info["private_ip"], server_info["port"], server_info["hosting"]
             
-            if (server_host, server_port) not in self.available_server and hosting:
-                self.available_server.append((server_host, server_port))
-                print(f"Discovered server at {server_host}:{server_port}")
+            with self.lock:
+                if (server_host, server_port) not in self.available_server and hosting:
+                    self.available_server.append((server_host, server_port))
+                    print(f"Discovered server at {server_host}:{server_port}")
 
-            elif not hosting:
-                # Delete the specific server info
-                for i, info in enumerate(self.available_server):
-                    if info[0]==str(server_host) and info[1]==server_port:
-                        self.available_server.pop(i)
+                elif not hosting:
+                    # Delete the specific server info
+                    for i, info in enumerate(self.available_server):
+                        if info[0]==str(server_host) and info[1]==server_port:
+                            self.available_server.pop(i)
 
-        self.available_server = []
+        with self.lock:
+            self.available_server = []
         udp_socket.close()
 
 
     def get_server(self):
-        return self.available_server
+        '''Return the current list of available server'''
+
+        with self.lock:
+            return self.available_server

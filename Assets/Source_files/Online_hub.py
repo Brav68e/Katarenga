@@ -24,6 +24,8 @@ class Online_hub():
         self.current_page = 0
         self.selected_server = None
 
+        self.lock = threading.Lock()        # Create a Lock to handle critical data
+
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.running = True
@@ -193,9 +195,12 @@ class Online_hub():
         '''Refresh the current list of server every 5s'''
 
         while self.running:
-            self.servers = self.client.get_server()
-            self.servers_amount = len(self.servers)
-            self.page_amount = self.servers_amount//4 + 1
+
+            with self.lock:                             # Lock before modifying shared resources (Same as self.lock.acquire() + self.lock.release())
+                self.servers = self.client.get_server()
+                self.servers_amount = len(self.servers)
+                self.page_amount = self.servers_amount//4 + 1
+
             time.sleep(5)
             print(self.servers)
 
@@ -207,13 +212,16 @@ class Online_hub():
         '''Used to blit at max 4 availables servers, based on current page'''
 
         x, y = self.screen_width * 0.17, self.screen_height * 0.10
-        for i in range(self.current_page * 4, self.current_page*4+4):
-            if i < self.servers_amount and self.servers[i]:
-                font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
-                text_surface = font.render("Server", True, "red")
-                text_rect = text_surface.get_rect()
-                text_rect.topleft = (x, y)
-                self.screen.blit(text_surface, text_rect)
+        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
+
+        with self.lock:                                 # Lock before reading shared data
+            servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
+
+        for i, server in enumerate(servers_to_display):
+            text_surface = font.render(f"Server {i+1}", True, "red")
+            text_rect = text_surface.get_rect()
+            text_rect.topleft = (x, y)
+            self.screen.blit(text_surface, text_rect)
             y += self.screen_height * 0.15
 
 
