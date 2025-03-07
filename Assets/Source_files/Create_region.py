@@ -277,6 +277,6 @@ class Create_region():
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+    screen = pygame.display.set_mode((1280, 720))
+    #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
     Create_region(screen)
