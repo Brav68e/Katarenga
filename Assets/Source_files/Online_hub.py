@@ -145,6 +145,7 @@ class Online_hub():
         for button in self.buttons_img.keys():
             self.buttons_img[button] = pygame.transform.smoothscale(self.buttons_img[button], (self.screen_width * 200/1280, self.screen_height * 120/780))
 
+        self.buttons_img["back"] = pygame.transform.smoothscale(self.buttons_img["back"], (self.screen_height * 100/780, self.screen_height * 100/780))
 
 ###################################################################################################
 
@@ -152,11 +153,11 @@ class Online_hub():
     def create_buttons(self):
         '''Initialize all buttons needed with their respective coordinates'''
 
-        self.buttons = {"back" : Button((self.screen_width * 0.03, self.screen_height * 0.78), self.buttons_img["back"]),
-                        "up" : Button((self.screen_width * 0.76 ,self.screen_height * 0.09), self.buttons_img["up"]),
-                        "down" : Button((self.screen_width * 0.76, self.screen_height * 0.38), self.buttons_img["down"]),
-                        "join" : Button((self.screen_width * 0.3, self.screen_height * 0.75), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "host" : Button((self.screen_width * 0.51, self.screen_height * 0.75), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64))
+        self.buttons = {"back" : Button((self.screen_width * 0.03, self.screen_height * 650/780), self.buttons_img["back"]),
+                        "up" : Button((self.screen_width * 0.76 ,self.screen_height * 216/780), self.buttons_img["up"]),
+                        "down" : Button((self.screen_width * 0.76, self.screen_height * 386/780), self.buttons_img["down"]),
+                        "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
 
 
