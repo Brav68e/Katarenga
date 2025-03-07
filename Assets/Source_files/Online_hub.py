@@ -47,7 +47,6 @@ class Online_hub():
     def run(self):
 
         while self.running:
-            print(self.selected_server)
             self.refresh_screen()
             self.handle_event()
             self.clock.tick(self.fps)

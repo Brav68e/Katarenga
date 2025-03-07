@@ -108,14 +108,27 @@ class Server:
         '''Periodically broadcasts server presence via UDP.'''
 
         self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)            # Used to allow broadcast and prevent system restriction
-
-        message = json.dumps({"hosting": 1 , "private_ip": self.get_private_ip(), "port": self.port})
-
-        while self.running and self.client_amount < 2:
-            self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-            time.sleep(5)                                   # Broadcast every 5 
-
+        self.udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        
+        # Try broadcasting to specific broadcast address instead of <broadcast>
+        local_ip = self.get_private_ip()
+        if local_ip:
+            # Calculate broadcast address based on local IP (ASSUMING WE GOT A 24bits Mask)
+            ip_parts = local_ip.split('.')
+            broadcast_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.255"
+            
+            message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port})
+            
+            while self.running and self.client_amount < 2:
+                try:
+                    # Try specific broadcast address first
+                    self.udp_socket.sendto(message.encode("utf-8"), (broadcast_ip, self.broadcast_port))
+                    # Also try the general broadcast as fallback
+                    self.udp_socket.sendto(message.encode("utf-8"), ("255.255.255.255", self.broadcast_port))
+                except Exception as e:
+                    print(f"Broadcast error: {e}")
+                time.sleep(5)
+                
 
     def get_private_ip(self):
         try:
