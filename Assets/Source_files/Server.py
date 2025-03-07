@@ -14,6 +14,7 @@ class Server:
         self.clients = {}                                                                   # Key : Socket / Value : Name
         self.running = False
         self.thread = None
+        self.lock = threading.Lock()
         self.client_amount = 0
 
 
@@ -41,10 +42,12 @@ class Server:
     def stop(self):
         self.running = False
         
-        # Send a broadcast to tell other than we no longer host
-        message = json.dumps({"hosting": 0 , "private_ip": self.get_private_ip(), "port": self.port})
-        self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-        self.udp_socket.close()
+        with self.lock:  # Lock before modifying or closing the socket
+            if self.udp_socket:
+                message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port})
+                self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+                self.udp_socket.close()
+                self.udp_socket = None
 
         for client in list(self.clients.keys()):
             try:
@@ -82,7 +85,7 @@ class Server:
 
                 except:
                     break
-                
+                    
         except Exception as e:
             print(f"Erreur client: {e}")
         finally:
@@ -107,8 +110,9 @@ class Server:
     def broadcast_presence(self):
         '''Periodically broadcasts server presence via UDP.'''
 
-        self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        with self.lock:
+            self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         
         # Try broadcasting to specific broadcast address instead of <broadcast>
         local_ip = self.get_private_ip()
@@ -116,15 +120,16 @@ class Server:
             # Calculate broadcast address based on local IP (ASSUMING WE GOT A 24bits Mask)
             ip_parts = local_ip.split('.')
             broadcast_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.255"
-            
             message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port})
             
             while self.running and self.client_amount < 2:
                 try:
-                    # Try specific broadcast address first
-                    self.udp_socket.sendto(message.encode("utf-8"), (broadcast_ip, self.broadcast_port))
-                    # Also try the general broadcast as fallback
-                    self.udp_socket.sendto(message.encode("utf-8"), ("255.255.255.255", self.broadcast_port))
+                    with self.lock:  # Lock before using the UDP socket
+                        if self.udp_socket:
+                            self.udp_socket.sendto(message.encode("utf-8"), (broadcast_ip, self.broadcast_port))
+                            self.udp_socket.sendto(message.encode("utf-8"), ("255.255.255.255", self.broadcast_port))
+                        else:
+                            break
                 except Exception as e:
                     print(f"Broadcast error: {e}")
                 time.sleep(5)
