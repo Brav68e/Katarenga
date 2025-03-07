@@ -50,12 +50,6 @@ class Online_hub():
 
         while self.running:
             self.refresh_screen()
-            self.handle_event()
-            self.clock.tick(self.fps)
-
-        self.client.stop()
-        if self.server:
-            self.server.stop()
 
 
 ###################################################################################################

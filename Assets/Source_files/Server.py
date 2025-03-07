@@ -11,6 +11,7 @@ class Server:
         self.port = port
         self.broadcast_port = broadcast_port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.clients = {}                                                                   # Key : Socket / Value : Name
         self.running = False
         self.thread = None
@@ -44,10 +45,13 @@ class Server:
         
         with self.lock:  # Lock before modifying or closing the socket
             if self.udp_socket:
-                message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port})
-                self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-                self.udp_socket.close()
-                self.udp_socket = None
+                try:
+                    message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port})
+                    self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
+                    self.udp_socket.close()
+                    self.udp_socket = None
+                except Exception as e:
+                    print(f"Error closing UDP socket: {e}")
 
         for client in list(self.clients.keys()):
             try:

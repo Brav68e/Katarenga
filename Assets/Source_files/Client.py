@@ -44,8 +44,14 @@ class Client:
 
     def stop(self):
 
-        self.client_socket.close()
         self.listening = False
+        self.connected = False
+        with self.lock:
+            self.available_server = []
+        try:
+            self.client_socket.close()
+        except:
+            pass
 
 
     def send_message(self, message: str) -> bool:
@@ -101,7 +107,7 @@ class Client:
                     # Delete the specific server info
                     for i, info in enumerate(self.available_server):
                         if info[0]==str(server_host) and info[1]==server_port:
-                            self.available_server.pop(i)
+                            self.available_server.pop(i)    
 
         with self.lock:
             self.available_server = []
