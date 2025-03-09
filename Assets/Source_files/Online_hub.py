@@ -65,7 +65,8 @@ class Online_hub():
         
         self.screen.blit(self.background_img, (0,0))
         for button in self.buttons.keys():
-            self.buttons[button].update(self.screen)
+            if button != "create":
+                self.buttons[button].update(self.screen)
         self.display_servers()
         pygame.display.flip()
 
@@ -94,7 +95,7 @@ class Online_hub():
         elif self.buttons["join"].checkInput((x,y)):
             pass
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
-            self.host_server()
+            self.host_menu()
         elif self.buttons["up"].checkInput((x,y)) and self.current_page > 0:
             self.current_page -= 1
         elif self.buttons["down"].checkInput((x,y)) and self.current_page < self.page_amount-1:
@@ -124,6 +125,38 @@ class Online_hub():
 ###################################################################################################
 
 
+    def host_menu(self):
+        '''Mainloop that allow the player to decide a server's name and a button to create'''
+
+        running = True
+
+        while running:
+            
+            # Display Background + Button
+            self.screen.blit(self.background_img, (0,0))
+            self.buttons["back"].update(self.screen)
+            self.buttons["create"].update(self.screen)
+
+            # Handle Event
+            x,y = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.buttons["back"].checkInput((x,y)):
+                        running = False
+                    elif self.buttons["create"].checkInput((x,y)):      
+                        # Create a server and switch interface
+                        pass
+
+            pygame.display.flip()
+
+
+
+###################################################################################################
+
+
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
              
@@ -132,7 +165,8 @@ class Online_hub():
                             "up": pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png"),
                             "down": pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png"),
                             "join": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
-                            "host": pygame.image.load("Assets/Source_files/Images/Create_region/next.png")}
+                            "host": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
+                            "create": pygame.image.load("Assets/Source_files/Images/Create_region/next.png")}
 
 
 ###################################################################################################
@@ -157,7 +191,8 @@ class Online_hub():
                         "up" : Button((self.screen_width * 0.76 ,self.screen_height * 216/780), self.buttons_img["up"]),
                         "down" : Button((self.screen_width * 0.76, self.screen_height * 386/780), self.buttons_img["down"]),
                         "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64))
+                        "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "create" : Button((self.screen_width * 0.40, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
 
 
