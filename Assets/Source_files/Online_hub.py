@@ -128,7 +128,16 @@ class Online_hub():
     def host_menu(self):
         '''Mainloop that allow the player to decide a server's name and a button to create'''
 
+        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
         running = True
+        text = ""
+        active = False
+        input_box = pygame.Rect(0, 0, self.screen_width * 0.53, self.screen_height * 0.14)
+        input_box.center = (self.screen_width // 2, int(self.screen_height * 0.45))
+        color_active = (200, 200, 200)
+        color_inactive = (175, 175, 175)
+        color = color_inactive
+        max_chars = 20
 
         while running:
             
@@ -143,12 +152,40 @@ class Online_hub():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Check for text selection
+                    if input_box.collidepoint(event.pos):
+                        active = not active
+                    else:
+                        active = False
+                    color = color_active if active else color_inactive
+
+                    # Check for button selection
                     if self.buttons["back"].checkInput((x,y)):
                         running = False
                     elif self.buttons["create"].checkInput((x,y)):      
                         # Create a server and switch interface
                         pass
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        # Act as create button
+                        print("Entered text:", text)
+                        text = ""
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    elif len(text) < max_chars and active:
+                        text += event.unicode
+
+
+            # Draw input box
+            pygame.draw.rect(self.screen, color, input_box)
+
+            # Render text + blitting
+            text_surface = font.render(text, True, (255, 0, 0))
+            input_width, input_height = text_surface.get_size()
+            self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
 
             pygame.display.flip()
 
@@ -192,7 +229,7 @@ class Online_hub():
                         "down" : Button((self.screen_width * 0.76, self.screen_height * 386/780), self.buttons_img["down"]),
                         "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "create" : Button((self.screen_width * 0.40, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64))
+                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
 
 
