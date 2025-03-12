@@ -33,6 +33,7 @@ class Online_hub():
         # Loading Images & Sound
         self.load_assets()
         self.resize_assets()
+        self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
 
         # Button creation & Server selection collision
         self.create_buttons()                         
@@ -111,9 +112,9 @@ class Online_hub():
 ###################################################################################################
 
 
-    def host_server(self):
+    def host_server(self, text):
 
-        self.server = Server("0.0.0.0", 5555)
+        self.server = Server("0.0.0.0", 5555, name=text)
 
         # Start the server in a separate thread
         threading.Thread(target=self.server.start, daemon=True).start()
@@ -128,7 +129,6 @@ class Online_hub():
     def host_menu(self):
         '''Mainloop that allow the player to decide a server's name and a button to create'''
 
-        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
         running = True
         text = ""
         active = False
@@ -166,28 +166,76 @@ class Online_hub():
                         running = False
                     elif self.buttons["create"].checkInput((x,y)):      
                         # Create a server and switch interface
+                        self.host_server(text)
+                        running = self.waiting_menu(text)
                         pass
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        # Act as create button
-                        print("Entered text:", text)
-                        text = ""
+                        # Act as create button (Enter key)
+                        self.host_server(text)
+                        running = self.waiting_menu(text)
                     elif event.key == pygame.K_BACKSPACE:
                         text = text[:-1]
                     elif len(text) < max_chars and active:
                         text += event.unicode
 
+            # Check for hovering animation
+            if self.buttons["create"].checkInput((x,y)) and text:
+                self.buttons_img["create"].set_alpha(250)
+            else:
+                self.buttons_img["create"].set_alpha(150)
 
             # Draw input box
-            pygame.draw.rect(self.screen, color, input_box)
+            pygame.draw.rect(self.screen, color, input_box, border_radius=5)
 
             # Render text + blitting
-            text_surface = font.render(text, True, (255, 0, 0))
+            text_surface = self.font.render(text, True, (255, 0, 0))
             input_width, input_height = text_surface.get_size()
             self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
 
             pygame.display.flip()
+
+
+
+###################################################################################################
+
+
+    def waiting_menu(self, party_name):
+        '''Lock the current hosting user in a loading screen waiting for other user'''
+
+        waiting = True
+        text_surface = self.font.render(f"{party_name}, waiting for player", True, (255, 0, 0))
+        text_width, text_height = text_surface.get_size()
+        text_x, text_y= (self.screen_width - text_width) // 2, int(self.screen_height * 0.30)
+
+        while waiting:
+
+            # Display Background + Button
+            self.screen.blit(self.background_img, (0,0))
+            self.buttons["back"].update(self.screen)
+
+            # Display the Party's name
+            self.screen.blit(text_surface, (text_x, text_y))
+
+            
+            # Handle Event
+            x,y = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    waiting = False
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.buttons["back"].checkInput((x,y)):
+                        waiting = False
+
+
+
+            pygame.display.flip()
+
+        return False
+
 
 
 
@@ -291,7 +339,7 @@ class Online_hub():
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
 
         for i, server in enumerate(servers_to_display):
-            text_surface = font.render(f"Server {i+1}", True, "red")
+            text_surface = font.render(f"{server[2]}", True, "black")
             text_rect = text_surface.get_rect()
             text_rect.topleft = (x, y)
             self.screen.blit(text_surface, text_rect)

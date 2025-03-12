@@ -6,7 +6,8 @@ import time
 
 class Server:
 
-    def __init__(self, ip: str, port: int, broadcast_port = 50000):
+    def __init__(self, ip: str, port: int, broadcast_port = 50000, name = ""):
+        self.name = name
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
@@ -125,7 +126,7 @@ class Server:
             # Calculate broadcast address based on local IP (ASSUMING WE GOT A 24bits Mask)
             ip_parts = local_ip.split('.')
             self.broadcast_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.255"
-            message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port})
+            message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port, "name": self.name})
             
             while self.running and self.client_amount < 2:
                 try:
@@ -151,3 +152,8 @@ class Server:
         except Exception as e:
             print(f"Error getting private IP: {e}")
             return None
+        
+
+        
+    def get_client_amount(self):
+        return self.client_amount
