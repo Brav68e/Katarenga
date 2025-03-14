@@ -1,6 +1,7 @@
 from Server import Server
 from Client import Client
 from Sub_class.button import *
+from math import ceil
 import pygame
 import threading
 import time
@@ -65,6 +66,7 @@ class Online_hub():
     def refresh_screen(self):
         
         self.screen.blit(self.background_img, (0,0))
+        self.display_title()
         for button in self.buttons.keys():
             if button != "create":
                 self.buttons[button].update(self.screen)
@@ -345,16 +347,25 @@ class Online_hub():
     def display_servers_background(self):
         '''Used to display the gray rectangle acting as the area for server display'''
 
-        for i, collision in enumerate(self.servers_collision):
-            if i != len(self.servers_collision) - 1:
-                pygame.draw.line(self.screen, (0, 0, 0), (collision.x, collision.y + collision.height), (collision.x + collision.width, collision.y + collision.height), 2)
-
         if not hasattr(self, "servers_background"):
             # Using a surface trick because Rect object doesn't handle alpha channel
             self.servers_background = pygame.Surface((self.screen_width * 0.6, self.screen_height * 0.57), pygame.SRCALPHA)
             pygame.draw.rect(self.servers_background, (114, 114, 114, 125), self.servers_background.get_rect(), border_radius=20)
 
         self.screen.blit(self.servers_background, (self.screen_width * 0.11, self.screen_height * 0.17))
+
+
+###################################################################################################
+
+
+    def display_title(self):
+        '''Simply blit the "Available Games" on top of the screen'''
+
+        if not hasattr(self, "title"):
+            self.title = self.font.render("Available Games", True, (0, 0, 0))
+            self.title_surface = self.title.get_rect(center = (self.screen_width//2, self.screen_height * 0.1))
+
+        self.screen.blit(self.title, self.title_surface)
 
 
 ###################################################################################################
@@ -368,7 +379,7 @@ class Online_hub():
             with self.lock:                             # Lock before modifying shared resources (Same as self.lock.acquire() + self.lock.release())
                 self.servers = self.client.get_server()
                 self.servers_amount = len(self.servers)
-                self.page_amount = self.servers_amount//4 + 1
+                self.page_amount = ceil(self.servers_amount/4)
 
             time.sleep(5)
             print(self.servers)
@@ -384,10 +395,13 @@ class Online_hub():
 
         with self.lock:                                 # Lock before reading shared data
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
+        
 
         for i, (server, collision) in enumerate(zip(servers_to_display, self.servers_collision)):
-            text_surface = font.render(f"{server[2]}", True, "black")
-            text_rect = text_surface.get_rect(center=collision.center)  # Center text inside the slot
+            if i < len(servers_to_display) - 1:
+                pygame.draw.line(self.screen, (0, 0, 0), (collision.x, collision.y + collision.height), (collision.x + collision.width, collision.y + collision.height), 2)
+            text_surface = font.render(server[2], True, "black")
+            text_rect = text_surface.get_rect(center=collision.center)  # Center text inside the collision box
             self.screen.blit(text_surface, text_rect)
 
 
@@ -397,5 +411,5 @@ class Online_hub():
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    screen = pygame.display.set_mode((1720, 1080))                          # Another commune resolution is 1280 x 720
+    screen = pygame.display.set_mode((1280, 720))                          # Another commune resolution is 1280 x 720
     Online_hub(screen).run()
