@@ -1,10 +1,16 @@
 import pygame, sys, os
+from Sub_class.button import Button
+from Create_region import *
 
 class Menu:
     def __init__(self, root):
         self.root = root
         self.screen = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption("Menu")
+        
+        # Dimensions de l'écran
+        self.screen_width = 1280
+        self.screen_height = 720
 
         self.BG = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
         self.BLACK = (0, 0, 0)
@@ -47,24 +53,24 @@ class Menu:
         # Boutons principaux
         if self.current_page == "Katarenga":
             self.buttons = [
-                Button(None, (640, 300), "Solo", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 400), "Local Multiplayer", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 500), "Online Multiplayer", self.get_font(65), "#514b4b", "#888888")
+               Button((640, 300),None,  text_input="Solo", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+               Button((640, 400),None,  text_input="Local Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+               Button((640, 500),None,  text_input="Online Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
             ]
         elif self.current_page == "Settings":
             self.buttons = [
-                Button(None, (640, 300), "Option", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 400), "Rules", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 500), "Create Tiles", self.get_font(65), "#514b4b", "#888888"),
+                Button((640, 300),None,  text_input="Option", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+                Button((640, 400),None,  text_input="Rules", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+                Button((640, 500),None,  text_input="Create Tiles", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
             ]
         elif self.current_page == "Options":
             # Pas de boutons standard sur la page des options
             self.buttons = []
         else:
             self.buttons = [
-                Button(None, (640, 300), "Solo", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 400), "Local Multiplayer", self.get_font(65), "#514b4b", "#888888"),
-                Button(None, (640, 500), "Online Multiplayer", self.get_font(65), "#514b4b", "#888888")
+                Button((640, 300),None,  text_input="Solo", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+                Button((640, 400),None,  text_input="Local Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+                Button((640, 500),None,  text_input="Online Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
             ]
 
         # Chemins vers les images des icônes
@@ -147,8 +153,8 @@ class Menu:
         
         # Boutons pour les modes d'affichage (plein écran, fenêtré)
         self.display_buttons = [
-            Button(None, (500, 450), "Windowed", self.get_font(40), "#514b4b", "#888888"),
-            Button(None, (800, 450), "Fullscreen", self.get_font(40), "#514b4b", "#888888")
+            Button((500, 450),None,  text_input="Windowed", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+            Button((800, 450),None,  text_input="Fullscreen", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
         ]
         
         # Mettre à jour et afficher les boutons
@@ -193,36 +199,6 @@ class Menu:
         # Afficher les boutons du menu (icônes)
         self.menu_buttons()
 
-class Button():
-    def __init__(self, image, pos, text_input, font, base_color, hovering_color):
-        self.image = image
-        self.x_pos = pos[0]
-        self.y_pos = pos[1]
-        self.font = font
-        self.base_color, self.hovering_color = base_color, hovering_color
-        self.text_input = text_input
-        self.text = self.font.render(self.text_input, True, self.base_color)
-        if self.image is None:
-            self.image = self.text
-        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
-        self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
-
-    def update(self, screen):
-        if self.image is not None:
-            screen.blit(self.image, self.rect)
-        screen.blit(self.text, self.text_rect)
-
-    def checkForInput(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-            return True
-        return False
-
-    def changeColor(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-            self.text = self.font.render(self.text_input, True, self.hovering_color)
-        else:
-            self.text = self.font.render(self.text_input, True, self.base_color)
-
 class IconButton():
     def __init__(self, pos, text_input, font, base_color, hovering_color, icon_image=None, expanded=False):
         self.x_pos = pos[0]
@@ -247,11 +223,11 @@ class IconButton():
             image_rect = self.icon_image.get_rect(center=self.rect.center)
             screen.blit(self.icon_image, image_rect)
 
-    def checkForInput(self, position):
+    def checkInput(self, position):
         return self.rect.collidepoint(position)
 
     def changeColor(self, position):
-        if self.checkForInput(position):
+        if self.checkInput(position):
             self.current_color = self.hovering_color
         else:
             self.current_color = self.base_color
@@ -268,7 +244,7 @@ if __name__ == "__main__":
                 mouse_pos = pygame.mouse.get_pos()
                 # Vérifier les clics sur les icônes
                 for index, button in enumerate(menu.icon_buttons):
-                    if button.checkForInput(mouse_pos):
+                    if button.checkInput(mouse_pos):
                         if index == 0:
                             menu.current_page = "Katarenga"
                         elif index == 1:
@@ -282,7 +258,7 @@ if __name__ == "__main__":
                 # Vérifier les clics sur les boutons principaux
                 if menu.current_page == "Settings":
                     for i, button in enumerate(menu.buttons):
-                        if button.checkForInput(mouse_pos):
+                        if button.checkInput(mouse_pos):
                             if i == 0:  # Bouton "Option"
                                 menu.current_page = "Options"
                                 menu.setup_buttons()
@@ -294,7 +270,7 @@ if __name__ == "__main__":
                     # Gérer les clics sur les boutons de mode d'affichage
                     if hasattr(menu, 'display_buttons'):
                         for i, button in enumerate(menu.display_buttons):
-                            if button.checkForInput(mouse_pos):
+                            if button.checkInput(mouse_pos):
                                 if i == 0:  # Mode fenêtré
                                     pygame.display.set_mode((1280, 720))
                                 elif i == 1:  # Mode plein écran
