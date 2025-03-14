@@ -68,6 +68,7 @@ class Online_hub():
         for button in self.buttons.keys():
             if button != "create":
                 self.buttons[button].update(self.screen)
+        self.display_servers_background()
         self.display_servers()
         pygame.display.flip()
 
@@ -329,6 +330,18 @@ class Online_hub():
         return -1        # No server was selected
 
 
+###################################################################################################
+
+
+    def display_servers_background(self):
+        '''Used to display the gray rectangle acting as the area for server display'''
+
+        if not hasattr(self, "servers_background"):
+            # Using a surface trick because Rect object doesn't handle alpha channel
+            self.servers_background = pygame.Surface((self.screen_width * 0.6, self.screen_height * 0.57), pygame.SRCALPHA)
+            pygame.draw.rect(self.servers_background, (114, 114, 114, 125), self.servers_background.get_rect(), border_radius=20)
+
+        self.screen.blit(self.servers_background, (self.screen_width * 0.11, self.screen_height * 0.17))
 
 
 ###################################################################################################
