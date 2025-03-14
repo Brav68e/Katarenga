@@ -216,7 +216,7 @@ class IconButton():
         self.icon_image = icon_image
         if self.icon_image:
             self.icon_image = pygame.image.load(icon_image)
-            self.icon_image = pygame.transform.scale(self.icon_image, (50, 50))  # resize icon
+            self.icon_image = pygame.transform.smoothscale(self.icon_image, (50, 50))  # resize icon
 
     def draw(self, screen):
         # Draw the button rectangle
