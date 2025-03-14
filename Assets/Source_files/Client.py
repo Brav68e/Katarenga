@@ -86,7 +86,7 @@ class Client:
         '''Listens for server broadcasts and stores the first discovered server'''
 
         # Socket UDP to track servers
-        self.available_server = []
+        self.available_server = [(1, 2, "feur"),(1, 2, "feur"),(1, 2, "feur"),(1, 2, "feur")]
         self.listening = True
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow to reuse a port if alr used
@@ -99,7 +99,7 @@ class Client:
             server_host, server_port, server_name, hosting= server_info["private_ip"], server_info["port"], server_info["name"], server_info["hosting"]
             
             with self.lock:
-                if (server_host, server_port) not in self.available_server and hosting:
+                if (server_host, server_port, server_name) not in self.available_server and hosting:
                     self.available_server.append((server_host, server_port, server_name))
                     print(f"Discovered server at {server_host}:{server_port}")
 

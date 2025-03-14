@@ -251,6 +251,8 @@ class Online_hub():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["back"].checkInput((x,y)):
+                        self.server.stop()
+                        self.server = None
                         waiting = False
 
 
@@ -311,10 +313,17 @@ class Online_hub():
         '''Store in a list Rect item that correspond to server's selection'''      
 
         self.servers_collision = []
-        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.10, self.screen_width * 0.54, self.screen_height * 0.10))
-        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.25, self.screen_width * 0.54, self.screen_height * 0.10))
-        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.40, self.screen_width * 0.54, self.screen_height * 0.10))
-        self.servers_collision.append(pygame.Rect(self.screen_width * 0.17, self.screen_height * 0.55, self.screen_width * 0.54, self.screen_height * 0.10))
+
+        # Get background rect dimensions
+        bg_x, bg_y = self.screen_width * 0.11, self.screen_height * 0.17
+        bg_width, bg_height = self.screen_width * 0.6, self.screen_height * 0.57
+
+        slot_height = bg_height / 4
+        slot_y_start = bg_y
+
+        for i in range(4):
+            self.servers_collision.append(pygame.Rect(bg_x, slot_y_start, bg_width, slot_height))
+            slot_y_start += slot_height
 
 
 ###################################################################################################
@@ -335,6 +344,10 @@ class Online_hub():
 
     def display_servers_background(self):
         '''Used to display the gray rectangle acting as the area for server display'''
+
+        for i, collision in enumerate(self.servers_collision):
+            if i != len(self.servers_collision) - 1:
+                pygame.draw.line(self.screen, (0, 0, 0), (collision.x, collision.y + collision.height), (collision.x + collision.width, collision.y + collision.height), 2)
 
         if not hasattr(self, "servers_background"):
             # Using a surface trick because Rect object doesn't handle alpha channel
@@ -367,18 +380,15 @@ class Online_hub():
     def display_servers(self):
         '''Used to blit at max 4 availables servers, based on current page'''
 
-        x, y = self.screen_width * 0.17, self.screen_height * 0.25
         font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 32))
 
         with self.lock:                                 # Lock before reading shared data
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
 
-        for i, server in enumerate(servers_to_display):
+        for i, (server, collision) in enumerate(zip(servers_to_display, self.servers_collision)):
             text_surface = font.render(f"{server[2]}", True, "black")
-            text_rect = text_surface.get_rect()
-            text_rect.topleft = (x, y)
+            text_rect = text_surface.get_rect(center=collision.center)  # Center text inside the slot
             self.screen.blit(text_surface, text_rect)
-            y += self.screen_height * 0.125
 
 
 ######################################################################################################################################################################################################
@@ -387,5 +397,5 @@ class Online_hub():
 if __name__ == "__main__":
     #Using this command before because in real usage, it will be "setup"
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))                          # Another commune resolution is 1280 x 720
+    screen = pygame.display.set_mode((1720, 1080))                          # Another commune resolution is 1280 x 720
     Online_hub(screen).run()
