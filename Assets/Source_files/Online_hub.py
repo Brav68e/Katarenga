@@ -205,11 +205,31 @@ class Online_hub():
         '''Lock the current hosting user in a loading screen waiting for other user'''
 
         waiting = True
+
         text_surface = self.font.render(f"{party_name}, waiting for player", True, (255, 0, 0))
-        text_width, text_height = text_surface.get_size()
-        text_x, text_y= (self.screen_width - text_width) // 2, int(self.screen_height * 0.30)
+        text_width= text_surface.get_size()[0]
+        text_x, text_y= (self.screen_width - text_width) // 2, int(self.screen_height * 0.35)
+        
+        # Dot animation setup
+        dots = [".", "..", "..."]
+        dot_index = 0
+        last_update_time = pygame.time.get_ticks()
+        dot_surface = self.font.render(dots[0], True, (255, 0, 0))
+        dot_width = dot_surface.get_size()[0]
+        dot_x = text_x + (text_width - dot_width) // 2
+        dot_y = int(self.screen_height * 0.45)
+        
 
         while waiting:
+
+            # Update dot animation every 500ms
+            if pygame.time.get_ticks() - last_update_time > 500:
+                dot_index = (dot_index + 1) % len(dots)
+                last_update_time = pygame.time.get_ticks()
+                dot_surface = self.font.render(dots[dot_index], True, (255, 0, 0))
+                dot_width = dot_surface.get_size()[0]
+                dot_x = text_x + (text_width - dot_width) // 2
+                dot_y = int(self.screen_height * 0.45)
 
             # Display Background + Button
             self.screen.blit(self.background_img, (0,0))
@@ -217,6 +237,8 @@ class Online_hub():
 
             # Display the Party's name
             self.screen.blit(text_surface, (text_x, text_y))
+            # Display dot animation
+            self.screen.blit(dot_surface, (dot_x, dot_y))
 
             
             # Handle Event
