@@ -56,32 +56,32 @@ class Menu:
         # main buttons
         if self.current_page == "Katarenga":
             self.buttons = [
-               Button(pos=(640, 300),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
-               Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
-               Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
+               Button(pos=(580, 250),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(440, 350), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(430, 450), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Settings":
             self.buttons = [
-                Button(pos=(640, 300), image=None, text="Options", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 400), image=None, text="Rules", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 500), image=None, text="Create Tiles", base_color="black", font_size= int(self.screen_height/720 * 64))
+                Button(pos=(540, 250),image=None, text="Options", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(570, 350), image=None, text="Rules", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(490, 450), image=None, text="Create tiles", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Options":
             # No default buttons for Options page
             self.buttons = []
         else:
             self.buttons = [
-                Button(pos=(640, 300), image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
+                Button(pos=(580, 250),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(440, 350), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(430, 450), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
 
         # Path to the icon images
         icon_images = [
-            "Assets/Source_files/Images/menu/icons/tour.png",
-            "Assets/Source_files/Images/menu/icons/plateau.png",
-            "Assets/Source_files/Images/menu/icons/I.png",
-            "Assets/Source_files/Images/menu/icons/settings.png"
+            "Assets/Source_files/Images/menu/icons/tour2.png",
+            "Assets/Source_files/Images/menu/icons/plateau2.png",
+            "Assets/Source_files/Images/menu/icons/I2.png",
+            "Assets/Source_files/Images/menu/icons/settings2.png"
         ]
 
         # Create icon buttons
@@ -156,8 +156,8 @@ class Menu:
         
         # Buttons for display mode
         self.display_buttons = [
-            Button(pos=(500, 450), image=None, text="Windowed", base_color="black", font_size= int(self.screen_height/720 * 64)),
-            Button(pos=(800, 450), image=None, text="Fullscreen", base_color="black", font_size= int(self.screen_height/720 * 64))
+            Button(pos=(380, 450), image=None, text="Windowed", base_color="black", font_size= int(self.screen_height/720 * 64)),
+            Button(pos=(680, 450), image=None, text="Fullscreen", base_color="black", font_size= int(self.screen_height/720 * 64))
         ]
         
         # Update and display the display mode buttons
