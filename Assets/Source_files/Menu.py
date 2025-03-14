@@ -1,6 +1,7 @@
 import pygame, sys, os
 from Sub_class.button import Button
 from Create_region import *
+from Create_region import Create_region
 
 class Menu:
     def __init__(self, root):
@@ -8,7 +9,7 @@ class Menu:
         self.screen = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption("Menu")
         
-        # Dimensions de l'écran
+        # Dimensions of the screen
         self.screen_width = 1280
         self.screen_height = 720
 
@@ -18,13 +19,13 @@ class Menu:
         self.GRAY = (200, 200, 200)
         self.GREEN = (50, 205, 50)
 
-        self.current_page = "Katarenga"  # Page active par défaut
+        self.current_page = "Katarenga"  # default page
         self.buttons = []
-        self.icon_buttons = []  # Liste pour les boutons d'icônes
-        self.volume = 0.5  # Volume initial (50%)
-        self.is_dragging = False  # Pour le drag and drop du slider
+        self.icon_buttons = []  # Buttons for the bottom menu icons
+        self.volume = 0.5  # Default volume
+        self.is_dragging = False  # Drag and Drop
         
-        # Initialiser slider ici
+        # Init slider
         self.slider_width = 800
         self.slider_height = 20
         self.slider_x = 640 - self.slider_width // 2
@@ -35,45 +36,47 @@ class Menu:
         
         self.setup_buttons()
 
-        # Initialiser le mixer pour le son
+        # Init audio
         pygame.mixer.init()
         
-        # Charger et jouer la musique de fond
+        # Load and play background music
         try:
-            pygame.mixer.music.load("Assets\Source_files\Sounds\medieval-adventure-154671.mp3")
-            pygame.mixer.music.play(-1)  # Jouer en boucle
+            pygame.mixer.music.load(r"Assets\Source_files\Sounds\medieval-adventure-154671.mp3")
+            # Or use forward slashes
+            # pygame.mixer.music.load("Assets/Source_files/Sounds/medieval-adventure-154671.mp3")
+            pygame.mixer.music.play(-1)  # Playing the music in a loop
             pygame.mixer.music.set_volume(self.volume)
-        except:
-            print("Fichier audio non trouvé, le son sera désactivé")
+        except Exception as e:
+            print(f"Error loading music file: {e}")
 
     def get_font(self, size):
         return pygame.font.Font(r"Assets/Source_files/fonts/font.ttf", size)
 
     def setup_buttons(self):
-        # Boutons principaux
+        # main buttons
         if self.current_page == "Katarenga":
             self.buttons = [
-               Button((640, 300),None,  text_input="Solo", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-               Button((640, 400),None,  text_input="Local Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-               Button((640, 500),None,  text_input="Online Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
+               Button(pos=(640, 300),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Settings":
             self.buttons = [
-                Button((640, 300),None,  text_input="Option", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-                Button((640, 400),None,  text_input="Rules", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-                Button((640, 500),None,  text_input="Create Tiles", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
+                Button(pos=(640, 300), image=None, text="Options", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                Button(pos=(640, 400), image=None, text="Rules", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                Button(pos=(640, 500), image=None, text="Create Tiles", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Options":
-            # Pas de boutons standard sur la page des options
+            # No default buttons for Options page
             self.buttons = []
         else:
             self.buttons = [
-                Button((640, 300),None,  text_input="Solo", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-                Button((640, 400),None,  text_input="Local Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-                Button((640, 500),None,  text_input="Online Multiplayer", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888")
+                Button(pos=(640, 300), image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
 
-        # Chemins vers les images des icônes
+        # Path to the icon images
         icon_images = [
             "Assets/Source_files/Images/menu/icons/tour.png",
             "Assets/Source_files/Images/menu/icons/plateau.png",
@@ -81,18 +84,18 @@ class Menu:
             "Assets/Source_files/Images/menu/icons/settings.png"
         ]
 
-        # Création des boutons d'icônes avec des images
+        # Create icon buttons
         icon_positions = [(350, 670), (550, 670), (750, 670), (950, 670)]
-        self.icon_buttons = []  # Réinitialiser les boutons d'icônes
+        self.icon_buttons = []  # Reset the list
 
         for index, (pos, image_path) in enumerate(zip(icon_positions, icon_images)):
-            # Agrandir le rectangle du bouton actif
+            # Expend the button if it corresponds to the current page
             expanded = (
                 (self.current_page == "Katarenga" and index == 0) or
                 (self.current_page == "Congress" and index == 1) or
                 (self.current_page == "Isolation" and index == 2) or
                 (self.current_page == "Settings" and index == 3) or
-                (self.current_page == "Options" and index == 3)  # Garder le bouton Settings actif pour Options
+                (self.current_page == "Options" and index == 3)
             )
             icon_button = IconButton(
                 pos,
@@ -106,19 +109,19 @@ class Menu:
             self.icon_buttons.append(icon_button)
 
     def draw_title(self):
-        # Afficher le titre basé sur la page active
+        # Display the title text
         title_text = self.get_font(120).render(self.current_page, True, "#514b4b")
         title_rect = title_text.get_rect(center=(640, 120))
         self.screen.blit(title_text, title_rect)
 
     def menu_buttons(self):
-        # Fond semi-transparent pour la barre de menu
+        # Background for the bottom menu
         s = pygame.Surface((800, 100))
         s.set_alpha(180)
         s.fill(self.BLACK)
         self.screen.blit(s, (250, 620))
 
-        # Dessiner les icônes
+        # Draw icons
         for button in self.icon_buttons:
             button.draw(self.screen)
 
@@ -128,18 +131,18 @@ class Menu:
         volume_rect = volume_text.get_rect(center=(640, 120))
         self.screen.blit(volume_text, volume_rect)
 
-        # Barre de volume (fond)
+        # Volume bar (background)
         pygame.draw.rect(self.screen, self.GRAY, 
                         (self.slider_x, self.slider_y, self.slider_width, self.slider_height),
                         border_radius=10)
         
-        # Barre de volume (barre verte)
+        # Volume bar (active)
         active_width = int(self.slider_width * self.volume)
         pygame.draw.rect(self.screen, self.GREEN, 
                         (self.slider_x, self.slider_y, active_width, self.slider_height),
                         border_radius=10)
         
-        # Bouton du slider (rond)
+        # Button for volume control
         button_radius = 25
         button_x = self.slider_x + active_width
         button_y = self.slider_y + self.slider_height // 2
@@ -151,16 +154,16 @@ class Menu:
         display_rect = display_text.get_rect(center=(640, 350))
         self.screen.blit(display_text, display_rect)
         
-        # Boutons pour les modes d'affichage (plein écran, fenêtré)
+        # Buttons for display mode
         self.display_buttons = [
-            Button((500, 450),None,  text_input="Windowed", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
-            Button((800, 450),None,  text_input="Fullscreen", base_color="#514b4b", font_size= int(self.screen_height*0.03), hovering_color="#888888"),
+            Button(pos=(500, 450), image=None, text="Windowed", base_color="black", font_size= int(self.screen_height/720 * 64)),
+            Button(pos=(800, 450), image=None, text="Fullscreen", base_color="black", font_size= int(self.screen_height/720 * 64))
         ]
         
-        # Mettre à jour et afficher les boutons
+        # Update and display the display mode buttons
         mouse_pos = pygame.mouse.get_pos()
         for button in self.display_buttons:
-            button.changeColor(mouse_pos)
+            button.changeColor(mouse_pos, "grey")
             button.update(self.screen)
 
     def handle_volume_input(self, pos, is_click=False):
@@ -169,34 +172,35 @@ class Menu:
                 self.is_dragging = True
             
             if self.is_dragging:
-                # Calculer le nouveau volume basé sur la position horizontale du bouton de la barre de volume
+                # Calculate the new volume based on the slider position
                 rel_x = max(0, min(pos[0] - self.slider_x, self.slider_width))
                 self.volume = rel_x / self.slider_width
-                
-                # Mettre à jour le volume de la musique
+                if self.volume < 0.01:
+                    self.volume = 0.0
+                # Update the volume
                 pygame.mixer.music.set_volume(self.volume)
 
     def update(self):
-        # Afficher le fond
+        # Display the background
         self.screen.blit(self.BG, (0, 0))
         
-        # Si nous sommes sur la page des options, afficher les contrôles spécifiques
+        # If on the Options page, display the volume slider and display mode buttons
         if self.current_page == "Options":
             self.draw_volume_slider()
             self.draw_display_mode()
         else:
-            # Afficher le titre
+            # Display the title
             self.draw_title()
             
-            # Récupérer la position de la souris
+            # Claim the mouse position
             mouse_pos = pygame.mouse.get_pos()
             
-            # Mettre à jour et afficher chaque bouton principal
+            # Update and display the main buttons
             for button in self.buttons:
-                button.changeColor(mouse_pos)
+                button.changeColor(mouse_pos, "grey")
                 button.update(self.screen)
 
-        # Afficher les boutons du menu (icônes)
+        # Display bottom menu icons
         self.menu_buttons()
 
 class IconButton():
@@ -204,7 +208,7 @@ class IconButton():
         self.x_pos = pos[0]
         self.y_pos = pos[1]
         self.width = 120
-        self.height = 70 if not expanded else 120  # Agrandir la hauteur si "expanded" est activé
+        self.height = 70 if not expanded else 120  # Expend the button if expanded is true
         self.rect = pygame.Rect(self.x_pos - self.width//2, self.y_pos - self.height//2, self.width, self.height)
         self.base_color = base_color
         self.hovering_color = hovering_color
@@ -212,13 +216,13 @@ class IconButton():
         self.icon_image = icon_image
         if self.icon_image:
             self.icon_image = pygame.image.load(icon_image)
-            self.icon_image = pygame.transform.scale(self.icon_image, (50, 50))  # Redimensionner l'image si nécessaire
+            self.icon_image = pygame.transform.scale(self.icon_image, (50, 50))  # resize icon
 
     def draw(self, screen):
-        # Dessiner le fond du bouton (rectangle avec coins arrondis)
+        # Draw the button rectangle
         pygame.draw.rect(screen, self.current_color, self.rect, border_radius=10)
 
-        # Dessiner l'image à l'intérieur du bouton (centrée)
+        # Draw image in the center of the button
         if self.icon_image:
             image_rect = self.icon_image.get_rect(center=self.rect.center)
             screen.blit(self.icon_image, image_rect)
@@ -232,7 +236,99 @@ class IconButton():
         else:
             self.current_color = self.base_color
 
-if __name__ == "__main__":
+def handle_icon_clicks(menu, mouse_pos):
+    """Handle clicks on the menu icon buttons"""
+    for index, button in enumerate(menu.icon_buttons):
+        if button.checkInput(mouse_pos):
+            if index == 0:
+                menu.current_page = "Katarenga"
+            elif index == 1:
+                menu.current_page = "Congress"
+            elif index == 2:
+                menu.current_page = "Isolation"
+            elif index == 3:
+                menu.current_page = "Settings"
+            menu.setup_buttons()  # Update buttons to reflect the new page
+            return True
+    return False
+
+def handle_settings_buttons(menu, mouse_pos):
+    """Handle clicks on the settings page buttons"""
+    for i, button in enumerate(menu.buttons):
+        if button.checkInput(mouse_pos):
+            if i == 0:  # "Option" button
+                menu.current_page = "Options"
+                menu.setup_buttons()
+                return True
+            elif i == 2:  # "Create Tiles" button
+                launch_create_region(menu)
+                return True
+    return False
+
+def launch_create_region(menu):
+    """Launch the Create_region module"""
+    # Save volume state before quitting
+    volume_level = menu.volume
+    pygame.mixer.music.stop()
+
+    try:
+        # Import the create_region function
+        screen = pygame.display.set_mode((1280, 720))
+        # Run the create_region function
+        Create_region(screen)
+        
+        # After the create_region function returns, reinitialize the display for menu
+        pygame.display.set_mode((1280, 720))
+    except Exception as e:
+        print(f"Error launching Create_region: {e}")
+        # Ensure the display is reset if there's an error
+        pygame.display.set_mode((1280, 720))
+    
+    # Restore music and volume after return
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(volume_level)
+
+def handle_display_options(menu, mouse_pos):
+    """Handle clicks on display mode buttons"""
+    if hasattr(menu, 'display_buttons'):
+        for i, button in enumerate(menu.display_buttons):
+            if button.checkInput(mouse_pos):
+                if i == 0:  # Windowed mode
+                    pygame.display.set_mode((1280, 720))
+                    return True
+                elif i == 1:  # Fullscreen mode
+                    pygame.display.set_mode((1280, 720), pygame.FULLSCREEN)
+                    return True
+    return False
+
+def handle_mouse_button_down(menu, event):
+    """Handle mouse button down events"""
+    mouse_pos = pygame.mouse.get_pos()
+    
+    # Check for clicks on the icons
+    if handle_icon_clicks(menu, mouse_pos):
+        return
+    
+    # Check for clicks on the main buttons in Settings page
+    if menu.current_page == "Settings":
+        if handle_settings_buttons(menu, mouse_pos):
+            return
+    
+    # Handle clicks on the volume bar
+    if menu.current_page == "Options":
+        menu.handle_volume_input(mouse_pos, True)
+        
+        # Handle clicks on display mode buttons
+        handle_display_options(menu, mouse_pos)
+
+def handle_mouse_motion(menu, event):
+    """Handle mouse motion events"""
+    # Update volume if adjusting the volume bar
+    if menu.current_page == "Options" and menu.is_dragging:
+        menu.handle_volume_input(pygame.mouse.get_pos())
+
+def run_menu():
+    """Main function to run the menu"""
     pygame.init()
     menu = Menu(pygame.display.set_mode((1280, 720)))
     running = True
@@ -241,51 +337,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                # Vérifier les clics sur les icônes
-                for index, button in enumerate(menu.icon_buttons):
-                    if button.checkInput(mouse_pos):
-                        if index == 0:
-                            menu.current_page = "Katarenga"
-                        elif index == 1:
-                            menu.current_page = "Congress"
-                        elif index == 2:
-                            menu.current_page = "Isolation"
-                        elif index == 3:
-                            menu.current_page = "Settings"
-                        menu.setup_buttons()  # Mettre à jour les boutons pour refléter la nouvelle page
-                
-                # Vérifier les clics sur les boutons principaux
-                if menu.current_page == "Settings":
-                    for i, button in enumerate(menu.buttons):
-                        if button.checkInput(mouse_pos):
-                            if i == 0:  # Bouton "Option"
-                                menu.current_page = "Options"
-                                menu.setup_buttons()
-                
-                # Gérer les clics sur la barre de volume
-                if menu.current_page == "Options":
-                    menu.handle_volume_input(mouse_pos, True)
-                    
-                    # Gérer les clics sur les boutons de mode d'affichage
-                    if hasattr(menu, 'display_buttons'):
-                        for i, button in enumerate(menu.display_buttons):
-                            if button.checkInput(mouse_pos):
-                                if i == 0:  # Mode fenêtré
-                                    pygame.display.set_mode((1280, 720))
-                                elif i == 1:  # Mode plein écran
-                                    pygame.display.set_mode((1280, 720), pygame.FULLSCREEN)
-            
+                handle_mouse_button_down(menu, event)
             elif event.type == pygame.MOUSEBUTTONUP:
                 menu.is_dragging = False
-            
             elif event.type == pygame.MOUSEMOTION:
-                # Mettre à jour le volume si on est en train d'ajuster la barre de volume
-                if menu.current_page == "Options" and menu.is_dragging:
-                    menu.handle_volume_input(pygame.mouse.get_pos())
+                handle_mouse_motion(menu, event)
         
         menu.update()
         pygame.display.update()
     
     pygame.quit()
     sys.exit()
+
+if __name__ == "__main__":
+    run_menu()
