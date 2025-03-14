@@ -367,8 +367,8 @@ class Online_hub():
     def display_servers(self):
         '''Used to blit at max 4 availables servers, based on current page'''
 
-        x, y = self.screen_width * 0.17, self.screen_height * 0.10
-        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
+        x, y = self.screen_width * 0.17, self.screen_height * 0.25
+        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 32))
 
         with self.lock:                                 # Lock before reading shared data
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
@@ -378,7 +378,7 @@ class Online_hub():
             text_rect = text_surface.get_rect()
             text_rect.topleft = (x, y)
             self.screen.blit(text_surface, text_rect)
-            y += self.screen_height * 0.15
+            y += self.screen_height * 0.125
 
 
 ######################################################################################################################################################################################################
