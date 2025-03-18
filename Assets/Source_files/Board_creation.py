@@ -140,7 +140,7 @@ class Delete_region():
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
-            pass
+            print(self.combine_regions())
 
         else:
             self.selected_region = None
@@ -246,7 +246,7 @@ class Delete_region():
         '''Display the given text at the top of the screen'''
 
         self.title = font.render(txt, True, "black")
-        self.title_pos = self.title.get_rect(midtop=(screen.get_width() // 2, 30))
+        self.title_pos = self.title.get_rect(midtop=(self.screen.get_width() // 2, 30))
         self.screen.blit(self.title, self.title_pos)
 
 
@@ -524,7 +524,11 @@ class Delete_region():
 
 
     def combine_regions(self):
-        '''Return the board itself (bidimensional list), combining all Regions specified in the current board dictionnary'''
+        '''Return the board itself (bidimensional list), combining all Regions specified in the current board dictionary.'''
+
+        # Ensure all regions are filled
+        if not all(self.board.values()):
+            raise ValueError("All regions must be filled before combining.")
 
         # First, combine top_left and top_right
         top = [self.board["top_left"].get()[i] + self.board["top_right"].get()[i] for i in range(4)]
@@ -532,8 +536,11 @@ class Delete_region():
         # Same for bottom
         bot = [self.board["bottom_left"].get()[i] + self.board["bottom_right"].get()[i] for i in range(4)]
 
-        # Finnaly combine top and bottom part
-        print(top + bot)
+        # Finally, combine top and bottom parts
+        combined = top + bot
+
+        # Convert raw data into Tile objects
+        return [[Tile(cell.get_deplacement(), cell.get_pawn(), cell.get_collision()) for cell in row] for row in combined]
 
 
 ######################################################################################################################################################################################################
