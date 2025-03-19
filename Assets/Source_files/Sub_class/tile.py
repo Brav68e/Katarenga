@@ -7,12 +7,12 @@ class Tile:
     def __repr__(self):
         """
         Return a string representation of the tile.
-        - If the tile has a pawn, show the pawn and the tile type.
+        - If the tile has a pawn, show the pawn and the tile type separately.
         - If the tile is empty, show the tile type only.
         """
         pawn = self.pawn_on if self.pawn_on else "-"
-        pattern = self.deplacement_pattern[0].upper() if self.deplacement_pattern else "-"
-        return f"{pattern}{pawn}"
+        pattern = self.deplacement_pattern if self.deplacement_pattern else "-"
+        return f"{pawn}({pattern})"
 
     def get_pawn(self):
         return self.pawn_on
@@ -51,7 +51,11 @@ class Tile:
         moves = []
         taille = len(board)
 
-        if self.deplacement_pattern == "King":
+        if not self.deplacement_pattern:
+            print(f"No movement pattern defined for tile at ({x}, {y}).")
+            return moves
+
+        if self.deplacement_pattern.lower() == "king":
             # King-like movement: 8 adjacent tiles
             directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
             for dx, dy in directions:
@@ -60,7 +64,14 @@ class Tile:
                     if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
                         moves.append((nx, ny))
 
-        elif self.deplacement_pattern == "Knight":
+        elif self.deplacement_pattern.lower() == "pawn":
+            # Pawn-like movement: Forward one step
+            direction = -1 if self.pawn_on == 'B' else 1  # Player B moves up, Player N moves down
+            nx, ny = x + direction, y
+            if 0 <= nx < taille and not board[nx][ny].pawn_on:
+                moves.append((nx, ny))
+
+        elif self.deplacement_pattern.lower() == "knight":
             # Knight-like movement: L-shaped moves
             directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
             for dx, dy in directions:
@@ -69,7 +80,7 @@ class Tile:
                     if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
                         moves.append((nx, ny))
 
-        elif self.deplacement_pattern == "Bishop":
+        elif self.deplacement_pattern.lower() == "bishop":
             # Bishop-like movement: Diagonal
             directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
             for dx, dy in directions:
@@ -84,7 +95,7 @@ class Tile:
                     else:
                         break
 
-        elif self.deplacement_pattern == "Rook":
+        elif self.deplacement_pattern.lower() == "rook":
             # Rook-like movement: Straight lines
             directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
             for dx, dy in directions:
@@ -99,7 +110,7 @@ class Tile:
                     else:
                         break
 
-        elif self.deplacement_pattern == "Queen":
+        elif self.deplacement_pattern.lower() == "queen":
             # Queen-like movement: Combine Rook and Bishop logic
             directions = [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (1, 0), (0, -1), (0, 1)]
             for dx, dy in directions:
