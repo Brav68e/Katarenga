@@ -54,7 +54,7 @@ class Tile:
         if not self.deplacement_pattern:
             print(f"No movement pattern defined for tile at ({x}, {y}).")
             return moves
-
+        
         if self.deplacement_pattern.lower() == "king":
             # King-like movement: 8 adjacent tiles
             directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
@@ -64,14 +64,7 @@ class Tile:
                     if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
                         moves.append((nx, ny))
 
-        elif self.deplacement_pattern.lower() == "pawn":
-            # Pawn-like movement: Forward one step
-            direction = -1 if self.pawn_on == 'B' else 1  # Player B moves up, Player N moves down
-            nx, ny = x + direction, y
-            if 0 <= nx < taille and not board[nx][ny].pawn_on:
-                moves.append((nx, ny))
-
-        elif self.deplacement_pattern.lower() == "knight":
+        elif self.deplacement_pattern.lower() == "horse":
             # Knight-like movement: L-shaped moves
             directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
             for dx, dy in directions:
@@ -88,10 +81,12 @@ class Tile:
                 while True:
                     nx, ny = nx + dx, ny + dy
                     if 0 <= nx < taille and 0 <= ny < taille:
-                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                        if not board[nx][ny].pawn_on:  # Empty tile
                             moves.append((nx, ny))
-                        if board[nx][ny].pawn_on:
-                            break
+                            if board[nx][ny].deplacement_pattern.lower() == "bishop":
+                                break  # Stop at the first yellow tile
+                        else:
+                            break  # Stop if a pawn is encountered
                     else:
                         break
 
@@ -103,10 +98,12 @@ class Tile:
                 while True:
                     nx, ny = nx + dx, ny + dy
                     if 0 <= nx < taille and 0 <= ny < taille:
-                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                        if not board[nx][ny].pawn_on:  # Empty tile
                             moves.append((nx, ny))
-                        if board[nx][ny].pawn_on:
-                            break
+                            if board[nx][ny].deplacement_pattern.lower() == "rook":
+                                break  # Stop at the first red tile
+                        else:
+                            break  # Stop if a pawn is encountered
                     else:
                         break
 
