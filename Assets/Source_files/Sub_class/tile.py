@@ -5,7 +5,14 @@ class Tile:
         self.collision = collision
 
     def __repr__(self):
-        return f"{self.deplacement_pattern[0].upper() if self.deplacement_pattern else '-'}{self.pawn_on if self.pawn_on else ''}"
+        """
+        Return a string representation of the tile.
+        - If the tile has a pawn, show the pawn and the tile type.
+        - If the tile is empty, show the tile type only.
+        """
+        pawn = self.pawn_on if self.pawn_on else "-"
+        pattern = self.deplacement_pattern[0].upper() if self.deplacement_pattern else "-"
+        return f"{pattern}{pawn}"
 
     def get_pawn(self):
         return self.pawn_on
@@ -26,7 +33,8 @@ class Tile:
             "pawn_on": self.pawn_on,
             "collision": self.collision
         }
-        
+
+    @staticmethod
     def from_dict(data):
         '''Return a Tile object based on the dictionary version given (JSON handling)'''
         return Tile(data["deplacement_pattern"], data["pawn_on"], data["collision"])
@@ -39,6 +47,7 @@ class Tile:
         :param board: The board (2D list of Tile objects).
         :return: List of valid moves [(new_x, new_y), ...].
         """
+        print(f"Calculating possible moves for tile at ({x}, {y}) with pattern {self.deplacement_pattern} and pawn {self.pawn_on}")
         moves = []
         taille = len(board)
 
@@ -48,7 +57,8 @@ class Tile:
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < taille and 0 <= ny < taille:
-                    moves.append((nx, ny))
+                    if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                        moves.append((nx, ny))
 
         elif self.deplacement_pattern == "Knight":
             # Knight-like movement: L-shaped moves
@@ -56,62 +66,53 @@ class Tile:
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < taille and 0 <= ny < taille:
-                    moves.append((nx, ny))
+                    if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                        moves.append((nx, ny))
 
         elif self.deplacement_pattern == "Bishop":
-            # Bishop-like movement: Diagonal, stop at the first yellow tile
+            # Bishop-like movement: Diagonal
             directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
             for dx, dy in directions:
                 nx, ny = x, y
                 while True:
                     nx, ny = nx + dx, ny + dy
                     if 0 <= nx < taille and 0 <= ny < taille:
-                        moves.append((nx, ny))
-                        if board[nx][ny].deplacement_pattern == "Bishop" or board[nx][ny].pawn_on:
+                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                            moves.append((nx, ny))
+                        if board[nx][ny].pawn_on:
                             break
                     else:
                         break
 
         elif self.deplacement_pattern == "Rook":
-            # Rook-like movement: Straight lines, stop at the first red tile
+            # Rook-like movement: Straight lines
             directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
             for dx, dy in directions:
                 nx, ny = x, y
                 while True:
                     nx, ny = nx + dx, ny + dy
                     if 0 <= nx < taille and 0 <= ny < taille:
-                        moves.append((nx, ny))
-                        if board[nx][ny].deplacement_pattern == "Rook" or board[nx][ny].pawn_on:
+                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                            moves.append((nx, ny))
+                        if board[nx][ny].pawn_on:
                             break
                     else:
                         break
 
         elif self.deplacement_pattern == "Queen":
             # Queen-like movement: Combine Rook and Bishop logic
-            # Diagonal directions (Bishop)
-            directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+            directions = [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (1, 0), (0, -1), (0, 1)]
             for dx, dy in directions:
                 nx, ny = x, y
                 while True:
                     nx, ny = nx + dx, ny + dy
                     if 0 <= nx < taille and 0 <= ny < taille:
-                        moves.append((nx, ny))
-                        if board[nx][ny].deplacement_pattern in ("Bishop", "Queen") or board[nx][ny].pawn_on:
+                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                            moves.append((nx, ny))
+                        if board[nx][ny].pawn_on:
                             break
                     else:
                         break
 
-            # Straight directions (Rook)
-            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-            for dx, dy in directions:
-                nx, ny = x, y
-                while True:
-                    nx, ny = nx + dx, ny + dy
-                    if 0 <= nx < taille and 0 <= ny < taille:
-                        moves.append((nx, ny))
-                        if board[nx][ny].deplacement_pattern in ("Rook", "Queen") or board[nx][ny].pawn_on:
-                            break
-                    else:
-                        break
-
+        print(f"Possible moves for tile at ({x}, {y}): {moves}")
         return moves
