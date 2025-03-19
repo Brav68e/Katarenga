@@ -1,4 +1,4 @@
-from Sub_class.tile import *
+   from Sub_class.tile import *
 from Sub_class.pawn import *
 from Sub_class.player import *
 from Board_creation import Delete_region
@@ -177,7 +177,7 @@ def creer_grille_personnalisee():
 
     # Create the grid with the specified tile types
     for i in range(taille):
-        row = [Tile(tile_types[i][j], None) for j in range(taille)]
+        row = [Tile(deplacement_pattern=tile_types[i][j]) for j in range(taille)]
         grille.append(row)
 
     # Place pawns for both players on their base lines
