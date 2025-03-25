@@ -47,7 +47,7 @@ class Server:
         with self.lock:  # Lock before modifying or closing the socket
             if self.udp_socket:
                 try:
-                    message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port})
+                    message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port, "name": self.name})
                     self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
                     self.udp_socket.sendto(message.encode("utf-8"), (self.broadcast_ip, self.broadcast_port))
                     self.udp_socket.close()
@@ -58,6 +58,7 @@ class Server:
         for client in list(self.clients.keys()):
             try:
                 client.close()
+                print("client close")
             except:
                 pass
         try:

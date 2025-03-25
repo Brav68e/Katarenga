@@ -119,3 +119,11 @@ class Client:
 
         with self.lock:
             return self.available_server
+        
+
+    def reset(self):
+        '''Reset all important information about the current Client, useful we leaving a server'''
+
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
+        self.connected = False
+        self.listening = True

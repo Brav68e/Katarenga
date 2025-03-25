@@ -67,9 +67,8 @@ class Online_hub():
         
         self.screen.blit(self.background_img, (0,0))
         self.display_title()
-        for button in self.buttons.keys():
-            if button != "create":
-                self.buttons[button].update(self.screen)
+        for button in ["back", "up", "down", "join", "host"]:
+            self.buttons[button].update(self.screen)
         self.display_servers_background()
         self.display_servers()
         pygame.display.flip()
@@ -130,10 +129,10 @@ class Online_hub():
 
 
     def host_menu(self):
-        '''Mainloop that allow the player to decide a server's name and a button to create'''
+        '''Mainloop that allow the player to decide a server's name and display a button to continue'''
 
         running = True
-        text = ""
+        host_name = ""
         active = False
         input_box = pygame.Rect(0, 0, self.screen_width * 0.53, self.screen_height * 0.14)
         input_box.center = (self.screen_width // 2, int(self.screen_height * 0.45))
@@ -147,7 +146,7 @@ class Online_hub():
             # Display Background + Button
             self.screen.blit(self.background_img, (0,0))
             self.buttons["back"].update(self.screen)
-            self.buttons["create"].update(self.screen)
+            self.buttons["next"].update(self.screen)
 
             # Handle Event
             x,y = pygame.mouse.get_pos()
@@ -168,23 +167,21 @@ class Online_hub():
                     if self.buttons["back"].checkInput((x,y)):
                         running = False
                     elif self.buttons["create"].checkInput((x,y)):      
-                        # Create a server and switch interface
-                        self.host_server(text)
-                        running = self.waiting_menu(text)
-                        pass
+                        # Go on the next interface to choose gamemode
+                        self.gamemode_menu(host_name)
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         # Act as create button (Enter key)
-                        self.host_server(text)
-                        running = self.waiting_menu(text)
+                        self.host_server(host_name)
+                        running = self.waiting_menu(host_name)
                     elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                    elif len(text) < max_chars and active:
-                        text += event.unicode
+                        host_name = host_name[:-1]
+                    elif len(host_name) < max_chars and active:
+                        host_name += event.unicode
 
             # Check for hovering animation
-            if self.buttons["create"].checkInput((x,y)) and text:
+            if self.buttons["create"].checkInput((x,y)) and host_name:
                 self.buttons_img["create"].set_alpha(250)
             else:
                 self.buttons_img["create"].set_alpha(150)
@@ -193,12 +190,50 @@ class Online_hub():
             pygame.draw.rect(self.screen, color, input_box, border_radius=5)
 
             # Render text + blitting
-            text_surface = self.font.render(text, True, (255, 0, 0))
+            text_surface = self.font.render(host_name, True, (255, 0, 0))
             input_width, input_height = text_surface.get_size()
             self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
 
             pygame.display.flip()
 
+
+###################################################################################################
+
+
+    def gamemode_menu(self, host_name):
+            '''Mainloop that allow the player to decide a server's gamemode between the 3 availables'''
+
+            running = True
+            gamemode = None
+
+            while running:
+                
+                # Display Background + Button
+                self.screen.blit(self.background_img, (0,0))
+                self.buttons["back"].update(self.screen)
+                self.buttons["create"].update(self.screen)
+                self.buttons["katarenga"].update(self.screen)
+
+                # Handle Event
+                x,y = pygame.mouse.get_pos()
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        # Check for button selection
+                        if self.buttons["back"].checkInput((x,y)):
+                            running = False
+                        elif self.buttons["create"].checkInput((x,y)):      
+                            # Create a server and switch interface
+                            self.host_server(host_name, gamemode)
+                            running = self.waiting_menu(host_name)
+                            pass
+
+
+
+                pygame.display.flip()
 
 
 ###################################################################################################
@@ -254,7 +289,9 @@ class Online_hub():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["back"].checkInput((x,y)):
                         self.server.stop()
+                        self.client.reset()
                         self.server = None
+                        self.hosting = False
                         waiting = False
 
 
@@ -278,7 +315,9 @@ class Online_hub():
                             "down": pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png"),
                             "join": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
                             "host": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
-                            "create": pygame.image.load("Assets/Source_files/Images/Create_region/next.png")}
+                            "create": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
+                            "next": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
+                            }
 
 
 ###################################################################################################
@@ -304,7 +343,9 @@ class Online_hub():
                         "down" : Button((self.screen_width * 0.76, self.screen_height * 386/780), self.buttons_img["down"]),
                         "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64))
+                        "next" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["next"], text="Next", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "katarenga" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), text="Katarenga", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
 
 
