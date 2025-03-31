@@ -6,8 +6,9 @@ import time
 
 class Server:
 
-    def __init__(self, ip: str, port: int, broadcast_port = 50000, name = ""):
+    def __init__(self, ip: str, port: int, name: str, gamemode: str, broadcast_port = 50000):
         self.name = name
+        self.gamemode = gamemode
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
@@ -18,7 +19,6 @@ class Server:
         self.thread = None
         self.lock = threading.Lock()
         self.client_amount = 0
-
 
     def start(self):
         try:
@@ -127,7 +127,7 @@ class Server:
             # Calculate broadcast address based on local IP (ASSUMING WE GOT A 24bits Mask)
             ip_parts = local_ip.split('.')
             self.broadcast_ip = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.255"
-            message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port, "name": self.name})
+            message = json.dumps({"hosting": 1, "private_ip": local_ip, "port": self.port, "name": self.name, "gamemode": self.gamemode})
             
             while self.running and self.client_amount < 2:
                 try:

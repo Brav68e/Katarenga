@@ -114,9 +114,9 @@ class Online_hub():
 ###################################################################################################
 
 
-    def host_server(self, text):
+    def host_server(self, host_name, gamemode):
 
-        self.server = Server("0.0.0.0", 5555, name=text)
+        self.server = Server("0.0.0.0", 5555, host_name, gamemode)
 
         # Start the server in a separate thread
         threading.Thread(target=self.server.start, daemon=True).start()
@@ -166,15 +166,14 @@ class Online_hub():
                     # Check for button selection
                     if self.buttons["back"].checkInput((x,y)):
                         running = False
-                    elif self.buttons["create"].checkInput((x,y)):      
+                    elif self.buttons["next"].checkInput((x,y)):      
                         # Go on the next interface to choose gamemode
-                        self.gamemode_menu(host_name)
+                        running = self.gamemode_menu(host_name)
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         # Act as create button (Enter key)
-                        self.host_server(host_name)
-                        running = self.waiting_menu(host_name)
+                        running = self.gamemode_menu(host_name)
                     elif event.key == pygame.K_BACKSPACE:
                         host_name = host_name[:-1]
                     elif len(host_name) < max_chars and active:
@@ -205,6 +204,7 @@ class Online_hub():
 
             running = True
             gamemode = None
+            rect = pygame.Rect(0, 0, self.screen_width * 0.42, self.screen_height * 0.14)
 
             while running:
                 
@@ -213,6 +213,16 @@ class Online_hub():
                 self.buttons["back"].update(self.screen)
                 self.buttons["create"].update(self.screen)
                 self.buttons["katarenga"].update(self.screen)
+                self.buttons["congress"].update(self.screen)
+                self.buttons["isolation"].update(self.screen)
+
+                # Display a selection rectangle around the selected gamemode
+                if gamemode:
+                    rect.center = self.buttons[gamemode].rect.center
+                    pygame.draw.rect(self.screen, (0, 0, 0), rect, 5, border_radius=10)
+                    self.buttons_img["create"].set_alpha(250)
+                else:
+                    self.buttons_img["create"].set_alpha(150)
 
                 # Handle Event
                 x,y = pygame.mouse.get_pos()
@@ -225,11 +235,19 @@ class Online_hub():
                         # Check for button selection
                         if self.buttons["back"].checkInput((x,y)):
                             running = False
-                        elif self.buttons["create"].checkInput((x,y)):      
+                        elif self.buttons["create"].checkInput((x,y)) and gamemode:      
                             # Create a server and switch interface
                             self.host_server(host_name, gamemode)
                             running = self.waiting_menu(host_name)
-                            pass
+                        elif self.buttons["katarenga"].checkInput((x,y)):
+                            gamemode = "katarenga"
+                        elif self.buttons["congress"].checkInput((x,y)):
+                            gamemode = "congress"
+                        elif self.buttons["isolation"].checkInput((x,y)):
+                            gamemode = "isolation"
+                        else:
+                            gamemode = None
+
 
 
 
@@ -344,8 +362,10 @@ class Online_hub():
                         "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "next" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["next"], text="Next", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "katarenga" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), text="Katarenga", base_color="black", font_size= int(self.screen_height/720 * 64))
+                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.79), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "katarenga" : Button((self.screen_width * 0.4125, self.screen_height * 0.25), text="Katarenga", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "congress" : Button((self.screen_width * 0.42, self.screen_height * 0.40), text="Congress", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "isolation" : Button((self.screen_width * 0.42, self.screen_height * 0.55), text="Isolation", base_color="black", font_size= int(self.screen_height/720 * 64))
                         }
 
 
