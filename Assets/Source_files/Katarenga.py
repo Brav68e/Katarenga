@@ -1,4 +1,4 @@
-   from Sub_class.tile import *
+from Sub_class.tile import *
 from Sub_class.pawn import *
 from Sub_class.player import *
 from Board_creation import Delete_region
@@ -16,8 +16,7 @@ class Plateau:
             self.grille = [[Tile() for _ in range(taille)] for _ in range(taille)]
         else:
             raise ValueError("You must provide either a size or an existing grid.")
-        self.first_turn = True
-        self.camps = {"B": [False, False], "N": [False, False]}  # Track if camps are occupied
+        self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
     
     def afficher(self):
         """Display the board with row and column numbers for easier testing."""
@@ -25,29 +24,25 @@ class Plateau:
         for i, ligne in enumerate(self.grille):
             print(f"{i} " + " ".join(str(case) for case in ligne))  # Print row number and row content
     
-    def placer_pion(self, x: int, y: int, pion: str):
+    def place_pawn(self, x: int, y: int, pawn: str):
         """Place a pawn on the board at the given position."""
-        if pion not in ('B', 'N'):
-            raise ValueError("The pawn must be 'B' (white) or 'N' (black).")
+        if pawn not in ('W', 'B'):
+            raise ValueError("The pawn must be 'B' or 'W'.")
         if 0 <= x < self.taille and 0 <= y < self.taille:
-            self.grille[x][y].pion = pion
+            self.grille[x][y].place_pawn(pawn)  # Use the Tile's place_pawn method
         else:
             raise IndexError("Coordinates out of bounds.")
     
-    def retirer_pion(self, x: int, y: int):
+    def remove_pawn(self, x: int, y: int):
         """Remove a pawn from a tile on the board."""
         if 0 <= x < self.taille and 0 <= y < self.taille:
-            self.grille[x][y].pion = None
+            if self.grille[x][y].get_pawn() is not None:  # Check if a pawn exists
+                self.grille[x][y].place_pawn(None)  # Use the Tile's place_pawn method to remove the pawn
+            else:
+                raise ValueError("No pawn to remove at the specified position.")
         else:
             raise IndexError("Coordinates out of bounds.")
     
-    def definir_type_case(self, x: int, y: int, nom: str):
-        """Define the type of a tile (e.g., king, knight, rook, bishop, etc.)."""
-        if 0 <= x < self.taille and 0 <= y < self.taille:
-            self.grille[x][y].nom = nom
-        else:
-            raise IndexError("Coordinates out of bounds.")
-
     def get_possible_moves(self, x: int, y: int):
         """
         Get possible moves for the pawn on the tile at (x, y).
@@ -61,11 +56,11 @@ class Plateau:
                 moves = tile.get_possible_moves(x, y, self.grille)
 
                 # Add camp movement if the pawn is on the opponent's line
-                if tile.pawn_on == 'B' and x == 0:  # Player B's pawns can move into Player N's camps
-                    for i, camp_used in enumerate(self.camps['N']):
+                if tile.pawn_on == 'B' and x == 0:  # Player B's pawns can move into Player W's camps
+                    for i, camp_used in enumerate(self.camps['W']):
                         if not camp_used:
                             moves.append((x, f"camp_{i}"))
-                elif tile.pawn_on == 'N' and x == self.taille - 1:  # Player N's pawns can move into Player B's camps
+                elif tile.pawn_on == 'W' and x == self.taille - 1:  # Player W's pawns can move into Player B's camps
                     for i, camp_used in enumerate(self.camps['B']):
                         if not camp_used:
                             moves.append((x, f"camp_{i}"))
@@ -76,62 +71,58 @@ class Plateau:
         else:
             raise IndexError("Coordinates out of bounds.")
 
-    def move_pawn(self, x: int, y: int, new_x: int, new_y: int, current_player: str):
+    def validate_move(self, x: int, y: int, new_x: int, new_y: int, current_player: str):
         """
-        Move a pawn from (x, y) to (new_x, new_y) according to the game rules.
+        Validate a move before executing it.
         :param x: Current x-coordinate of the pawn.
         :param y: Current y-coordinate of the pawn.
         :param new_x: New x-coordinate of the pawn.
         :param new_y: New y-coordinate of the pawn.
-        :param current_player: The player ('B' or 'N') attempting to move the pawn.
+        :param current_player: The player ('B' or 'W') attempting to move the pawn.
+        :raises ValueError or IndexError if the move is invalid.
         """
-        print(f"Player {current_player} attempting to move pawn from ({x}, {y}) to ({new_x}, {new_y})")
         if not (0 <= x < self.taille and 0 <= y < self.taille and 0 <= new_x < self.taille and 0 <= new_y < self.taille):
-            print("Move out of bounds.")
             raise IndexError("Coordinates out of bounds.")
 
         tile = self.grille[x][y]
         target_tile = self.grille[new_x][new_y]
 
         if not tile.pawn_on:
-            print(f"No pawn on the tile at ({x}, {y}).")
             raise ValueError("No pawn on the specified tile.")
 
         if tile.pawn_on != current_player:
-            print(f"Player {current_player} cannot move pawn at ({x}, {y}) owned by {tile.pawn_on}.")
             raise ValueError(f"Player {current_player} cannot move pawn at ({x}, {y}) owned by {tile.pawn_on}.")
 
         # Get possible moves from the starting tile
         possible_moves = self.get_possible_moves(x, y)
-        print(f"Possible moves for pawn at ({x}, {y}): {possible_moves}")
-
-        # Check if the requested move is valid
         if (new_x, new_y) not in possible_moves:
-            print(f"Move to ({new_x}, {new_y}) is not valid.")
             raise ValueError("Invalid move.")
+
+    def move_pawn(self, x: int, y: int, new_x: int, new_y: int):
+        """
+        Move a pawn from (x, y) to (new_x, new_y).
+        :param x: Current x-coordinate of the pawn.
+        :param y: Current y-coordinate of the pawn.
+        :param new_x: New x-coordinate of the pawn.
+        :param new_y: New y-coordinate of the pawn.
+        """
+        tile = self.grille[x][y]
+        target_tile = self.grille[new_x][new_y]
 
         # If the target tile has a pawn, capture it
         if target_tile.pawn_on:
-            print(f"Capturing pawn at ({new_x}, {new_y}).")
             target_tile.pawn_on = None
 
         # Move the pawn
-        print(f"Moving pawn from ({x}, {y}) to ({new_x}, {new_y}).")
         target_tile.pawn_on = tile.pawn_on
         tile.pawn_on = None
 
-        # Check if the pawn reaches the opponent's line
-        if (target_tile.pawn_on == 'B' and new_x == 0) or (target_tile.pawn_on == 'N' and new_x == self.taille - 1):
-            print(f"Pawn at ({new_x}, {new_y}) reached the opponent's line.")
-            if not any(self.camps[target_tile.pawn_on]):
-                print("No free camps available for this pawn.")
-                raise ValueError("No free camps available for this pawn.")
-            self.enter_camp(target_tile.pawn_on)
+        print(f"Pawn moved from ({x}, {y}) to ({new_x}, {new_y}).")
 
     def enter_camp(self, pion: str):
         """
         Handle a pawn entering the opponent's camp.
-        :param pion: The pawn ('B' or 'N').
+        :param pion: The pawn ('B' or 'W').
         """
         if pion in self.camps and not all(self.camps[pion]):
             for i in range(2):
@@ -144,13 +135,46 @@ class Plateau:
     def check_winner(self):
         """
         Check if there is a winner.
-        :return: The winner ('B' or 'N') or None if there is no winner yet.
+        :return: The winner ('B' or 'W') or None if there is no winner yet.
         """
-        if all(self.camps['N']):  # If both camps of 'N' are occupied, 'B' wins
+        if all(self.camps['W']):  # If both camps of 'W' are occupied, 'B' wins
             return 'B'
-        elif all(self.camps['B']):  # If both camps of 'B' are occupied, 'N' wins
-            return 'N'
+        elif all(self.camps['B']):  # If both camps of 'B' are occupied, 'W' wins
+            return 'W'
         return None
+
+    def bot_move(self, bot_player: str):
+        """
+        Perform a random move for the bot.
+        :param bot_player: The bot's player ('B' or 'W').
+        """
+        possible_moves = []
+
+        # Collect all possible moves for the bot's pawns
+        for x in range(self.taille):
+            for y in range(self.taille):
+                tile = self.grille[x][y]
+                if tile.pawn_on == bot_player:
+                    moves = self.get_possible_moves(x, y)
+                    for move in moves:
+                        possible_moves.append((x, y, move[0], move[1]))
+
+        # If no moves are possible, the bot cannot play
+        if not possible_moves:
+            print(f"No possible moves for bot ({bot_player}).")
+            return
+
+        # Randomly select a move
+        selected_move = random.choice(possible_moves)
+        x, y, new_x, new_y = selected_move
+
+        # Validate and execute the move
+        try:
+            self.validate_move(x, y, new_x, new_y, bot_player)
+            self.move_pawn(x, y, new_x, new_y)
+            print(f"Bot ({bot_player}) moved pawn from ({x}, {y}) to ({new_x}, {new_y}).")
+        except Exception as e:
+            print(f"Bot move failed: {e}")
 
 # Example usage
 import random
@@ -177,13 +201,13 @@ def creer_grille_personnalisee():
 
     # Create the grid with the specified tile types
     for i in range(taille):
-        row = [Tile(deplacement_pattern=tile_types[i][j]) for j in range(taille)]
+        row = [Tile(deplacement_pattern=tile_types[i][j].lower()) for j in range(taille)]
         grille.append(row)
 
     # Place pawns for both players on their base lines
     for i in range(taille):
-        grille[1][i].place_pawn('N')  # Player N's pawns on the second row
-        grille[6][i].place_pawn('B')  # Player B's pawns on the second-to-last row
+        grille[1][i].place_pawn('B')  # Player B's pawns on the second row
+        grille[6][i].place_pawn('W')  # Player W's pawns on the second-to-last row
 
     # Debugging: Print the grid after initialization
     print("Grid after initialization:")
@@ -208,8 +232,8 @@ def creer_plateau_depuis_board_creation():
     # Initialize pawns for both players
     taille = len(combined_board)
     for i in range(taille):
-        combined_board[0][i].place_pawn('N')  # Player N's pawns on the second row
-        combined_board[7][i].place_pawn('B')  # Player B's pawns on the second-to-last row
+        combined_board[0][i].place_pawn('B')  # Player B's pawns on the second row
+        combined_board[7][i].place_pawn('W')  # Player W's pawns on the second-to-last row
 
     # Debugging: Print the combined board with pawns
     print("Combined board with pawns initialized:")
@@ -231,7 +255,7 @@ def play_game():
     plateau = Plateau(grille=grille)
     plateau.afficher()
 
-    current_player = 'B'
+    current_player = 'W'
     while True:
         print(f"\nPlayer {current_player}'s turn.")
         print("Enter your move in the format: x y new_x new_y")
@@ -246,7 +270,8 @@ def play_game():
                 break
 
             x, y, new_x, new_y = map(int, move.split())
-            plateau.move_pawn(x, y, new_x, new_y, current_player)
+            plateau.validate_move(x, y, new_x, new_y, current_player)
+            plateau.move_pawn(x, y, new_x, new_y)
 
             # Check for a winner
             winner = plateau.check_winner()
@@ -255,7 +280,7 @@ def play_game():
                 break
 
             # Switch player
-            current_player = 'N' if current_player == 'B' else 'B'
+            current_player = 'B' if current_player == 'W' else 'W'
 
         except ValueError as e:
             print(f"Invalid input or move: {e}")
@@ -266,3 +291,4 @@ def play_game():
 
 if __name__ == "__main__":
     play_game()
+
