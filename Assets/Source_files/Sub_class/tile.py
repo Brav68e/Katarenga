@@ -48,79 +48,91 @@ class Tile:
         :return: List of valid moves [(new_x, new_y), ...].
         """
         print(f"Calculating possible moves for tile at ({x}, {y}) with pattern {self.deplacement_pattern} and pawn {self.pawn_on}")
+        if not self.deplacement_pattern:
+            print(f"No movement pattern defined for tile at ({x}, {y}).")
+            return []
+
+        moves = []
+        if self.deplacement_pattern.lower() == "king":
+            moves = self.king_moves(x, y, board)
+        elif self.deplacement_pattern.lower() in ["knight", "horse"]:  # Handle both "knight" and "horse"
+            moves = self.knight_moves(x, y, board)
+        elif self.deplacement_pattern.lower() == "bishop":
+            moves = self.bishop_moves(x, y, board)
+        elif self.deplacement_pattern.lower() == "rook":
+            moves = self.rook_moves(x, y, board)
+        elif self.deplacement_pattern.lower() == "queen":
+            moves = self.queen_moves(x, y, board)
+        
+        print(f"Possible moves for tile at ({x}, {y}): {moves}")
+        return moves
+
+    def king_moves(self, x, y, board):
+        """Calculate King-like moves (8 adjacent tiles)."""
+        directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        return self._get_moves_in_directions(x, y, board, directions, max_steps=1)
+
+    def knight_moves(self, x, y, board):
+        """Calculate Knight-like moves (L-shaped)."""
+        directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
         moves = []
         taille = len(board)
 
-        if not self.deplacement_pattern:
-            print(f"No movement pattern defined for tile at ({x}, {y}).")
-            return moves
-        
-        if self.deplacement_pattern.lower() == "king":
-            # King-like movement: 8 adjacent tiles
-            directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-            for dx, dy in directions:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < taille and 0 <= ny < taille:
-                    if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
-                        moves.append((nx, ny))
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < taille and 0 <= ny < taille:
+                if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                    moves.append((nx, ny))
 
-        elif self.deplacement_pattern.lower() == "horse":
-            # Knight-like movement: L-shaped moves
-            directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
-            for dx, dy in directions:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < taille and 0 <= ny < taille:
-                    if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
-                        moves.append((nx, ny))
+        return moves
 
-        elif self.deplacement_pattern.lower() == "bishop":
-            # Bishop-like movement: Diagonal
-            directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-            for dx, dy in directions:
-                nx, ny = x, y
-                while True:
-                    nx, ny = nx + dx, ny + dy
-                    if 0 <= nx < taille and 0 <= ny < taille:
-                        if not board[nx][ny].pawn_on:  # Empty tile
-                            moves.append((nx, ny))
-                            if board[nx][ny].deplacement_pattern.lower() == "bishop":
-                                break  # Stop at the first yellow tile
-                        else:
-                            break  # Stop if a pawn is encountered
-                    else:
-                        break
+    def bishop_moves(self, x, y, board):
+        """Calculate Bishop-like moves (diagonal) with constraints."""
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        return self._get_moves_in_directions(x, y, board, directions, stop_on_pattern="bishop")
 
-        elif self.deplacement_pattern.lower() == "rook":
-            # Rook-like movement: Straight lines
-            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-            for dx, dy in directions:
-                nx, ny = x, y
-                while True:
-                    nx, ny = nx + dx, ny + dy
-                    if 0 <= nx < taille and 0 <= ny < taille:
-                        if not board[nx][ny].pawn_on:  # Empty tile
-                            moves.append((nx, ny))
-                            if board[nx][ny].deplacement_pattern.lower() == "rook":
-                                break  # Stop at the first red tile
-                        else:
-                            break  # Stop if a pawn is encountered
-                    else:
-                        break
+    def rook_moves(self, x, y, board):
+        """Calculate Rook-like moves (straight lines) with constraints."""
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        return self._get_moves_in_directions(x, y, board, directions, stop_on_pattern="rook")
 
-        elif self.deplacement_pattern.lower() == "queen":
-            # Queen-like movement: Combine Rook and Bishop logic
-            directions = [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (1, 0), (0, -1), (0, 1)]
-            for dx, dy in directions:
-                nx, ny = x, y
-                while True:
-                    nx, ny = nx + dx, ny + dy
-                    if 0 <= nx < taille and 0 <= ny < taille:
-                        if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
-                            moves.append((nx, ny))
-                        if board[nx][ny].pawn_on:
-                            break
-                    else:
-                        break
+    def queen_moves(self, x, y, board):
+        """Calculate Queen-like moves (combination of Rook and Bishop)."""
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (1, 0), (0, -1), (0, 1)]
+        return self._get_moves_in_directions(x, y, board, directions)
 
-        print(f"Possible moves for tile at ({x}, {y}): {moves}")
+    def _get_moves_in_directions(self, x, y, board, directions, max_steps=None, stop_on_pattern=None):
+        """
+        Helper method to calculate moves in given directions.
+        :param x: Current x-coordinate of the tile.
+        :param y: Current y-coordinate of the tile.
+        :param board: The board (2D list of Tile objects).
+        :param directions: List of (dx, dy) tuples representing movement directions.
+        :param max_steps: Maximum number of steps in a direction (None for unlimited).
+        :param stop_on_pattern: Stop moving if a tile with this pattern is encountered.
+        :return: List of valid moves [(new_x, new_y), ...].
+        """
+        moves = []
+        taille = len(board)
+
+        for dx, dy in directions:
+            nx, ny = x, y
+            steps = 0
+            while True:
+                nx, ny = nx + dx, ny + dy
+                if not (0 <= nx < taille and 0 <= ny < taille):
+                    break  # Out of bounds
+
+                if board[nx][ny].pawn_on:
+                    break  # Stop if a pawn is encountered
+
+                moves.append((nx, ny))
+
+                if stop_on_pattern and board[nx][ny].deplacement_pattern.lower() == stop_on_pattern:
+                    break  # Stop if the specified pattern is encountered
+
+                steps += 1
+                if max_steps and steps >= max_steps:
+                    break  # Stop if max steps are reached
+
         return moves
