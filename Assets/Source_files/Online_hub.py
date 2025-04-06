@@ -385,7 +385,11 @@ class Online_hub():
         slot_y_start = bg_y
 
         for i in range(4):
-            self.servers_collision.append(pygame.Rect(bg_x, slot_y_start, bg_width, slot_height))
+            adjusted_width = bg_width * 0.9
+            adjusted_height = slot_height * 0.8
+            adjusted_x = bg_x + (bg_width - adjusted_width) / 2              # Center horizontally
+            adjusted_y = slot_y_start + (slot_height - adjusted_height) / 2  # Center vertically
+            self.servers_collision.append(pygame.Rect(adjusted_x, adjusted_y, adjusted_width, adjusted_height))
             slot_y_start += slot_height
 
 
@@ -457,11 +461,17 @@ class Online_hub():
         with self.lock:                                 # Lock before reading shared data
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]
         
-
         for i, (server, collision) in enumerate(zip(servers_to_display, self.servers_collision)):
+            # Draw the seperation line between the servers
             if i < len(servers_to_display) - 1:
                 pygame.draw.line(self.screen, (0, 0, 0), (collision.x, collision.y + collision.height), (collision.x + collision.width, collision.y + collision.height), 2)
-            text_surface = font.render(server[2], True, "black")
+
+            # Draw the selection area
+            if self.selected_server == self.current_page * 4 + i:
+                smaller_rect = collision.scale_by(0.8)
+                pygame.draw.rect(self.screen, (217, 217, 217), smaller_rect, border_radius=10)
+
+            text_surface = font.render(f"{server[2]}    Gamemode : {server[3]}", True, "black")
             text_rect = text_surface.get_rect(center=collision.center)  # Center text inside the collision box
             self.screen.blit(text_surface, text_rect)
 
