@@ -34,7 +34,6 @@ class Tile:
             "collision": self.collision
         }
 
-    @staticmethod
     def from_dict(data):
         '''Return a Tile object based on the dictionary version given (JSON handling)'''
         return Tile(data["deplacement_pattern"], data["pawn_on"], data["collision"])
@@ -52,25 +51,30 @@ class Tile:
             print(f"No movement pattern defined for tile at ({x}, {y}).")
             return []
 
-        moves = []
-        if self.deplacement_pattern.lower() == "king":
-            moves = self.king_moves(x, y, board)
-        elif self.deplacement_pattern.lower() in ["knight", "horse"]:  # Handle both "knight" and "horse"
-            moves = self.knight_moves(x, y, board)
-        elif self.deplacement_pattern.lower() == "bishop":
-            moves = self.bishop_moves(x, y, board)
-        elif self.deplacement_pattern.lower() == "rook":
-            moves = self.rook_moves(x, y, board)
-        elif self.deplacement_pattern.lower() == "queen":
-            moves = self.queen_moves(x, y, board)
+        match self.deplacement_pattern:
+            case "bishop":
+                moves = self.bishop_moves(x, y, board)
+            case "rook":
+                moves = self.rook_moves(x, y, board)
+            case "queen":
+                moves = self.queen_moves(x, y, board)
+            case "king":
+                moves = self.king_moves(x, y, board)
+            case "knight" | "horse":
+                moves = self.knight_moves(x, y, board)
+            case _:
+                print(f"Unknown movement pattern: {self.deplacement_pattern}")
+                return []
         
         print(f"Possible moves for tile at ({x}, {y}): {moves}")
         return moves
+
 
     def king_moves(self, x, y, board):
         """Calculate King-like moves (8 adjacent tiles)."""
         directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
         return self._get_moves_in_directions(x, y, board, directions, max_steps=1)
+
 
     def knight_moves(self, x, y, board):
         """Calculate Knight-like moves (L-shaped)."""
@@ -81,25 +85,30 @@ class Tile:
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
             if 0 <= nx < taille and 0 <= ny < taille:
-                if not board[nx][ny].pawn_on or board[nx][ny].pawn_on != self.pawn_on:
+                # Check if the tile is empty or occupied by an opponent's pawn
+                if not (pawn := board[nx][ny].get_pawn()) or pawn.get_owner().get_username() != self.current_player.get_username():
                     moves.append((nx, ny))
 
         return moves
+
 
     def bishop_moves(self, x, y, board):
         """Calculate Bishop-like moves (diagonal) with constraints."""
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         return self._get_moves_in_directions(x, y, board, directions, stop_on_pattern="bishop")
 
+
     def rook_moves(self, x, y, board):
         """Calculate Rook-like moves (straight lines) with constraints."""
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         return self._get_moves_in_directions(x, y, board, directions, stop_on_pattern="rook")
 
+
     def queen_moves(self, x, y, board):
         """Calculate Queen-like moves (combination of Rook and Bishop)."""
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1), (-1, 0), (1, 0), (0, -1), (0, 1)]
         return self._get_moves_in_directions(x, y, board, directions)
+
 
     def _get_moves_in_directions(self, x, y, board, directions, max_steps=None, stop_on_pattern=None):
         """
@@ -123,12 +132,17 @@ class Tile:
                 if not (0 <= nx < taille and 0 <= ny < taille):
                     break  # Out of bounds
 
-                if board[nx][ny].pawn_on:
-                    break  # Stop if a pawn is encountered
+                if pawn := board[nx][ny].get_pawn():
+                    # Check if the pawn is one of our own pawn
+                    if pawn.get_owner().get_username() == self.current_player.get_username():
+                        break
+                    else:
+                        moves.append((nx, ny))
+                        break
 
                 moves.append((nx, ny))
 
-                if stop_on_pattern and board[nx][ny].deplacement_pattern.lower() == stop_on_pattern:
+                if stop_on_pattern and board[nx][ny].get_deplacement() == stop_on_pattern:
                     break  # Stop if the specified pattern is encountered
 
                 steps += 1

@@ -3,7 +3,9 @@ from Sub_class.pawn import *
 from Sub_class.player import *
 from Board_creation import Delete_region
 
+
 class Plateau:
+    
     def __init__(self, taille: int = None, grille=None):
         """
         Initialize a board either by creating an empty grid or using an existing grid of Tile objects.
