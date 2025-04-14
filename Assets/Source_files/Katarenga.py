@@ -247,3 +247,9 @@ class Games:
         :return: Player object representing the current player.
         """
         return self.current_player
+    
+    def switch_player(self):
+        """
+        Switch to the next player.
+        """
+        self.current_player = self.players[1] if self.current_player == self.players[0] else self.players[0]

@@ -161,7 +161,8 @@ class GamesUI():
         if self.selected_tile.get_pawn() == None:
             self.selected_tile = None
 
-        else:
+        elif self.selected_tile.get_pawn().get_owner() == self.game.get_current_player():
+            # Get the current pawn's position and possible moves
             x, y = self.selected_tile.get_pawn().get_coordinates()
             moves = self.game.get_possible_moves(x, y)
 
@@ -170,10 +171,15 @@ class GamesUI():
             
             # Check if the clicked tile is a valid move
             if (selected_row, selected_column) in moves:
+                self.move_animation(x, y, selected_row, selected_column)
                 self.game.move_pawn(x, y, selected_row, selected_column)
+                self.game.switch_player()
                 self.selected_tile = None
             else:
                 self.selected_tile = None
+        
+        else:
+            self.selected_tile = None
 
 
 ###########################################################################################################
@@ -190,4 +196,48 @@ class GamesUI():
                 self.screen.blit(self.tiles_img["possible_move"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
 
 
+##############################################################################################################
 
+
+    def move_animation(self, x, y, new_x, new_y):
+        '''Animate the movement of the pawn'''
+        
+        # Get the starting and ending positions
+        start_pos = (self.screen_width * 150/1280 + (y + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (x + 1) * self.screen_height * 67/720)
+        end_pos = (self.screen_width * 150/1280 + (new_y + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (new_x + 1) * self.screen_height * 67/720)
+
+        anim_duration = 750                                                 # Animation duration in milliseconds
+        start_time = pygame.time.get_ticks()
+
+        # Animate the movement
+        while True:
+
+            current_time = pygame.time.get_ticks() - start_time
+            if current_time >= anim_duration:
+                break
+
+            progress = current_time / anim_duration                         # 0 to 1 (percentage of animation completed)
+            eased_progress = 1 - pow(1 - progress, 3)                       # Ease-in cubic function   f(progress) = 1 - (1-progress)³
+
+            x_pos = start_pos[0] + (end_pos[0] - start_pos[0]) * eased_progress
+            y_pos = start_pos[1] + (end_pos[1] - start_pos[1]) * eased_progress
+
+            self.draw_board()
+            # Draw pawns EXCEPT the one moving
+            for row in range(8):
+                for column in range(8):
+                    if (pawn := self.game.get_grid()[row][column].get_pawn()) != None and (row, column) != (x, y):
+                        owner = pawn.get_owner()
+                        if owner == self.game.get_player(0):
+                            self.screen.blit(self.pawns_img["white"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                        else:
+                            self.screen.blit(self.pawns_img["black"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+
+            # Draw the moving pawn
+            if self.selected_tile.get_pawn().get_owner() == self.game.get_player(0):
+                self.screen.blit(self.pawns_img["white"], (x_pos, y_pos))
+            else:
+                self.screen.blit(self.pawns_img["black"], (x_pos, y_pos))
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)
