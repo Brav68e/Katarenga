@@ -191,7 +191,7 @@ class Games:
         return None
     
 
-    def bot_move(self, bot_player: str):
+    def bot_move(self):
         """
         Perform a random move for the bot.
         :param bot_player: The bot's player ('B' or 'W').
@@ -202,27 +202,16 @@ class Games:
         for x in range(self.taille):
             for y in range(self.taille):
                 tile = self.board[x][y]
-                if tile.pawn_on == bot_player:
+                if (pawn := tile.get_pawn()) and pawn.get_owner().get_username() == self.players[1].get_username():
                     moves = self.get_possible_moves(x, y)
                     for move in moves:
                         possible_moves.append((x, y, move[0], move[1]))
 
-        # If no moves are possible, the bot cannot play
-        if not possible_moves:
-            print(f"No possible moves for bot ({bot_player}).")
-            return
-
         # Randomly select a move
-        selected_move = random.choice(possible_moves)
+        selected_move = choice(possible_moves)
         x, y, new_x, new_y = selected_move
 
-        # Validate and execute the move
-        try:
-            self.validate_move(x, y, new_x, new_y, bot_player)
-            self.move_pawn(x, y, new_x, new_y)
-            print(f"Bot ({bot_player}) moved pawn from ({x}, {y}) to ({new_x}, {new_y}).")
-        except Exception as e:
-            print(f"Bot move failed: {e}")
+        return (new_x, new_y, x, y)
 
 
     def get_grid(self):

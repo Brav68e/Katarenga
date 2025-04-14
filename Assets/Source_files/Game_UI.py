@@ -5,10 +5,11 @@ import pygame
 
 class GamesUI():
 
-    def __init__(self, screen, grid, gamemode, usernames, type):
+    def __init__(self, screen, grid, gamemode, usernames, style = "solo"):
 
         self.game = Games(grid, usernames[0], usernames[1])
         self.game.init_pawns()
+        self.style = style
         
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -40,6 +41,9 @@ class GamesUI():
         
         while self.running:
 
+            if self.style == "solo" :
+                self.bot_move()
+
             # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -56,9 +60,7 @@ class GamesUI():
             self.draw_board()
             self.draw_pawns()
             self.show_possible_moves()
-            
 
-            # Refresh the screen
             pygame.display.flip()
             self.clock.tick(self.fps)
 
@@ -234,10 +236,25 @@ class GamesUI():
                             self.screen.blit(self.pawns_img["black"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
 
             # Draw the moving pawn
-            if self.selected_tile.get_pawn().get_owner() == self.game.get_player(0):
+            if self.game.get_grid()[x][y].get_pawn().get_owner() == self.game.get_player(0):
                 self.screen.blit(self.pawns_img["white"], (x_pos, y_pos))
             else:
                 self.screen.blit(self.pawns_img["black"], (x_pos, y_pos))
 
             pygame.display.flip()
             self.clock.tick(self.fps)
+
+
+###############################################################################################################
+
+
+    def bot_move(self):
+        '''Perform a random move for the bot.'''
+        
+        if self.game.get_current_player() == self.game.get_player(1):                      # Player 2 (index 1) is the bot
+            # Get the bot move
+            new_x, new_y, x, y = self.game.bot_move()
+
+            self.move_animation(x, y, new_x, new_y)
+            self.game.move_pawn(x, y, new_x, new_y)
+            self.game.switch_player()

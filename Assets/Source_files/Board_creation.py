@@ -141,7 +141,7 @@ class Delete_region():
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
-            self.running = GamesUI(self.screen, self.combine_regions(), "katarenga", ["francis", "patrick"], "solo").run_katarenga()
+            self.running = GamesUI(self.screen, self.combine_regions(), "katarenga", ["francis", "patrick"], "solo")
 
         else:
             self.selected_region = None
