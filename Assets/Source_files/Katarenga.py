@@ -2,6 +2,7 @@ from Sub_class.tile import *
 from Sub_class.pawn import *
 from Sub_class.player import *
 from Board_creation import Delete_region
+from random import choice, random
 
 
 class Games:
@@ -12,22 +13,15 @@ class Games:
         """
 
         self.players = [Player(username1), Player(username2)]
+        self.current_player = self.players[0]  # Start with player 1
 
-        self.grille = grille
+        self.board = grille
         self.taille = 8
-        self.init_pawns(self.players[0], self.players[1])
+        self.init_pawns()
         self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
     
-#####################################################
-    def afficher(self):
-        """Display the board with row and column numbers for easier testing."""
-        print("   " + " ".join(str(i) for i in range(self.taille)))  # Print column numbers
-        for i, ligne in enumerate(self.grille):
-            print(f"{i} " + " ".join(str(case) for case in ligne))  # Print row number and row content
-#####################################################
-    
 
-    def init_pawns(self, player1: Player, player2: Player):
+    def init_pawns(self):
         """
         Initialize pawns on the board for both players.
         :param player1: Player 1 (White).
@@ -35,8 +29,8 @@ class Games:
         """
 
         for i in range(self.taille):
-            self.grille[0][i].place_pawn(Pawn(player2, (0, i)))
-            self.grille[7][i].place_pawn(Pawn(player1, (7, i)))
+            self.board[0][i].place_pawn(Pawn(self.players[1], (0, i)))
+            self.board[7][i].place_pawn(Pawn(self.players[0], (7, i)))
 
 
     def get_possible_moves(self, x, y):
@@ -128,7 +122,7 @@ class Games:
 
                 if pawn := self.board[nx][ny].get_pawn():
                     # Check if the pawn is an opponent's pawn
-                    if pawn.get_owner().get_username() != self.current_player.get_username() and self.capture:
+                    if pawn.get_owner().get_username() != self.current_player.get_username() and capture:
                         # Capture the opponent's pawn
                         moves.append((nx, ny))
                         break
@@ -157,8 +151,8 @@ class Games:
         :param new_x: New x-coordinate of the pawn.
         :param new_y: New y-coordinate of the pawn.
         """
-        tile = self.grille[x][y]
-        target_tile = self.grille[new_x][new_y]
+        tile = self.board[x][y]
+        target_tile = self.board[new_x][new_y]
 
         # If the target tile has a pawn, capture it
         if pawn:= target_tile.pawn_on:
@@ -166,6 +160,7 @@ class Games:
             target_tile.pawn_on = None
 
         # Move the pawn
+        tile.pawn_on.set_coordinates((new_x, new_y))
         target_tile.pawn_on = tile.pawn_on
         tile.pawn_on = None
 
@@ -206,7 +201,7 @@ class Games:
         # Collect all possible moves for the bot's pawns
         for x in range(self.taille):
             for y in range(self.taille):
-                tile = self.grille[x][y]
+                tile = self.board[x][y]
                 if tile.pawn_on == bot_player:
                     moves = self.get_possible_moves(x, y)
                     for move in moves:
@@ -230,120 +225,25 @@ class Games:
             print(f"Bot move failed: {e}")
 
 
-if __name__ == "__main__":
-    # Example usage
-    import random
-    import pygame
-
-    def creer_grille_personnalisee():
+    def get_grid(self):
         """
-        Create a custom grid with specific tile types for each row and place pawns on their base lines.
+        Return the grid of tiles.
+        :return: 2D list of Tile objects.
         """
-        taille = 8
-        grille = []
+        return self.board
+    
 
-        # Define specific tile types for each row
-        tile_types = [
-            ["Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"],  # Top row
-            ["Rook"] * taille,  # Second row
-            ["Bishop"] * taille,  # Third row
-            ["Knight"] * taille,  # Fourth row
-            ["Knight"] * taille,  # Fifth row
-            ["Bishop"] * taille,  # Sixth row
-            ["Rook"] * taille,  # Seventh row
-            ["Rook", "Knight", "Bishop", "Queen", "King", "Bishop", "Knight", "Rook"],  # Bottom row
-        ]
-
-        # Create the grid with the specified tile types
-        for i in range(taille):
-            row = [Tile(deplacement_pattern=tile_types[i][j].lower()) for j in range(taille)]
-            grille.append(row)
-
-        # Place pawns for both players on their base lines
-        for i in range(taille):
-            grille[1][i].place_pawn('B')  # Player B's pawns on the second row
-            grille[6][i].place_pawn('W')  # Player W's pawns on the second-to-last row
-
-        # Debugging: Print the grid after initialization
-        print("Grid after initialization:")
-        for row in grille:
-            print([str(tile) for tile in row])
-
-        return grille
-
-    def creer_plateau_depuis_board_creation():
+    def get_player(self, nbr: int):
         """
-        Create a game board using the combined regions from Board_creation.py and initialize pawns.
+        Return the first player.
+        :param nbr: Player number (0 or 1).
+        :return: Player object representing player nbr.
         """
-        print("Initializing board using Board_creation...")
-        pygame.init()
-        screen = pygame.display.set_mode((1280, 720))
-        board_creator = Delete_region(screen)
-        board_creator.run()
-
-        # Combine regions to create the board
-        combined_board = board_creator.combine_regions()
-
-        # Initialize pawns for both players
-        taille = len(combined_board)
-        for i in range(taille):
-            combined_board[0][i].place_pawn('B')  # Player B's pawns on the second row
-            combined_board[7][i].place_pawn('W')  # Player W's pawns on the second-to-last row
-
-        # Debugging: Print the combined board with pawns
-        print("Combined board with pawns initialized:")
-        for row in combined_board:
-            print([str(tile) for tile in row])
-
-        return combined_board
-
-    def play_game():
+        return self.players[nbr]
+    
+    def get_current_player(self):
         """
-        Play the game in a functional mode without a graphical interface.
+        Return the current player.
+        :return: Player object representing the current player.
         """
-        print("Welcome to Katarenga!")
-
-        # Create the board using Board_creation
-        grille = creer_plateau_depuis_board_creation()
-
-        # Initialize the Plateau with the new board
-        plateau = Plateau(grille=grille)
-        plateau.afficher()
-
-        current_player = 'W'
-        while True:
-            print(f"\nPlayer {current_player}'s turn.")
-            print("Enter your move in the format: x y new_x new_y")
-            print("Example: 1 0 2 0 to move the pawn at (1, 0) to (2, 0).")
-            plateau.afficher()
-
-            try:
-                move = input("Your move: ").strip()
-                print(f"Received input: {move}")
-                if move.lower() == "quit":
-                    print("Game ended.")
-                    break
-
-                x, y, new_x, new_y = map(int, move.split())
-                plateau.validate_move(x, y, new_x, new_y, current_player)
-                plateau.move_pawn(x, y, new_x, new_y)
-
-                # Check for a winner
-                winner = plateau.check_winner()
-                if winner:
-                    print(f"Player {winner} wins!")
-                    break
-
-                # Switch player
-                current_player = 'B' if current_player == 'W' else 'W'
-
-            except ValueError as e:
-                print(f"Invalid input or move: {e}")
-            except IndexError as e:
-                print(f"Move out of bounds: {e}")
-            except Exception as e:
-                print(f"Unexpected error: {e}")
-
-    #Launch the game
-    play_game()
-
+        return self.current_player

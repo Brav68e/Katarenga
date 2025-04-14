@@ -2,6 +2,7 @@ from pygame import *
 from Sub_class.tile import *
 from Sub_class.button import *
 from Sub_class.region import *
+from Game_UI import *
 import json
 from math import ceil, pow, cos, pi, sin
 import copy
@@ -140,7 +141,7 @@ class Delete_region():
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
-            print(self.combine_regions())
+            self.running = GamesUI(self.screen, self.combine_regions(), "katarenga", ["francis", "patrick"], "solo").run_katarenga()
 
         else:
             self.selected_region = None
