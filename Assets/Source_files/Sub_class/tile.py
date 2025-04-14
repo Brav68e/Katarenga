@@ -110,7 +110,7 @@ class Tile:
         return self._get_moves_in_directions(x, y, board, directions)
 
 
-    def _get_moves_in_directions(self, x, y, board, directions, max_steps=None, stop_on_pattern=None):
+    def _get_moves_in_directions(self, x, y, board, directions, max_steps=None, stop_on_pattern=None, capture=True):
         """
         Helper method to calculate moves in given directions.
         :param x: Current x-coordinate of the tile.
@@ -119,6 +119,7 @@ class Tile:
         :param directions: List of (dx, dy) tuples representing movement directions.
         :param max_steps: Maximum number of steps in a direction (None for unlimited).
         :param stop_on_pattern: Stop moving if a tile with this pattern is encountered.
+        :param capture: If True, allow capturing opponent's pawns.
         :return: List of valid moves [(new_x, new_y), ...].
         """
         moves = []
@@ -133,11 +134,12 @@ class Tile:
                     break  # Out of bounds
 
                 if pawn := board[nx][ny].get_pawn():
-                    # Check if the pawn is one of our own pawn
-                    if pawn.get_owner().get_username() == self.current_player.get_username():
+                    # Check if the pawn is an opponent's pawn
+                    if pawn.get_owner().get_username() != self.current_player.get_username() and self.capture:
+                        # Capture the opponent's pawn
+                        moves.append((nx, ny))
                         break
                     else:
-                        moves.append((nx, ny))
                         break
 
                 moves.append((nx, ny))
