@@ -128,6 +128,13 @@ class GamesUI():
                 type = self.game.get_grid()[row][column].get_deplacement()
                 self.screen.blit(self.tiles_img[type], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
+        # Draw the pawns on the camps
+        for i in range(2):
+            if self.game.get_camps()["W"][i]:
+                self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1]))
+            if self.game.get_camps()["B"][i]:
+                self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1] + 9 * self.tiles_size))
+
 
 #####################################################################################################
 

@@ -91,7 +91,7 @@ class Games:
             if (x == 0 and self.board[x][y].get_pawn().get_owner() == self.players[0]) :
                 moves.append((-1, y))
 
-            elif (x == 7 and self.board[x][y].get_pawn().get_owner() == self.players[0]):
+            elif (x == 7 and self.board[x][y].get_pawn().get_owner() == self.players[1]):
                 moves.append((8, y))
 
         for dx, dy in directions:
@@ -291,3 +291,11 @@ class Games:
         Switch to the next player.
         """
         self.current_player = self.players[1] if self.current_player == self.players[0] else self.players[0]
+
+
+    def get_camps(self):
+        """
+        Return the camps occupied status.
+        :return: Dictionary indicating if camps are occupied.
+        """
+        return self.camps
