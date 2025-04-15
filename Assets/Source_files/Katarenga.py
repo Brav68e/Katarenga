@@ -85,6 +85,14 @@ class Games:
         """Calculate Knight-like moves (L-shaped)."""
         directions = [(-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1)]
         moves = []
+        
+        if self.gamemode == "katarenga":
+            # Allow going in camp by appending a SPECIAL coordinate
+            if (x == 0 and self.board[x][y].get_pawn().get_owner() == self.players[0]) :
+                moves.append((-1, y))
+
+            elif (x == 7 and self.board[x][y].get_pawn().get_owner() == self.players[0]):
+                moves.append((8, y))
 
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
@@ -128,6 +136,14 @@ class Games:
         """
         moves = []
 
+        if self.gamemode == "katarenga":
+            # Allow going in camp by appending a SPECIAL coordinate
+            if (x == 0 and self.board[x][y].get_pawn().get_owner() == self.players[0]) :
+                moves.append((-1, y))
+
+            elif (x == 7 and self.board[x][y].get_pawn().get_owner() == self.players[1]):
+                moves.append((8, y))
+
         for dx, dy in directions:
             nx, ny = x, y
             steps = 0
@@ -167,18 +183,32 @@ class Games:
         :param new_x: New x-coordinate of the pawn.
         :param new_y: New y-coordinate of the pawn.
         """
-        tile = self.board[x][y]
-        target_tile = self.board[new_x][new_y]
 
-        # If the target tile has a pawn, capture it
-        if pawn:= target_tile.pawn_on:
-            pawn.get_owner().set_pawns(pawn.get_owner().pawns_nbr() - 1)  # Decrease the pawn count of the owner
-            target_tile.pawn_on = None
+        # Check for special move (AKA CAMP MOVE)
+        match new_x:
+            case -1:
+                self.enter_camp("W")
+                self.players[0].set_pawns(self.players[0].pawns_nbr() - 1)  # Decrease the pawn count of the owner
+                self.board[x][y].place_pawn(None)
 
-        # Move the pawn
-        tile.pawn_on.set_coordinates((new_x, new_y))
-        target_tile.pawn_on = tile.pawn_on
-        tile.pawn_on = None
+            case 8:
+                self.enter_camp("B")
+                self.players[1].set_pawns(self.players[1].pawns_nbr() - 1)  # Decrease the pawn count of the owner
+                self.board[x][y].place_pawn(None)
+
+            case _:
+                tile = self.board[x][y]
+                target_tile = self.board[new_x][new_y]
+
+                # If the target tile has a pawn, capture it
+                if pawn:= target_tile.pawn_on:
+                    pawn.get_owner().set_pawns(pawn.get_owner().pawns_nbr() - 1)  # Decrease the pawn count of the owner
+                    target_tile.pawn_on = None
+
+                # Move the pawn
+                tile.pawn_on.set_coordinates((new_x, new_y))
+                target_tile.pawn_on = tile.pawn_on
+                tile.pawn_on = None
 
 
     def enter_camp(self, pion: str):
@@ -200,11 +230,14 @@ class Games:
         Check if there is a winner.
         :return: The winner ('B' or 'W') or None if there is no winner yet.
         """
-        if all(self.camps['W']):  # If both camps of 'W' are occupied, 'B' wins
-            return 'B'
-        elif all(self.camps['B']):  # If both camps of 'B' are occupied, 'W' wins
-            return 'W'
-        return None
+        if all(self.camps['W']) or (self.players[1].pawns_nbr() + self.camps["B"][0] + self.camps["B"][1]) < 2:
+            return self.players[0].get_username()
+        
+        elif all(self.camps['B']) or (self.players[1].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
+            return self.players[1].get_username()
+        
+        else:
+            return None
     
 
     def bot_move(self):

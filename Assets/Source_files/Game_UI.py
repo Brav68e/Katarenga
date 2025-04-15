@@ -41,6 +41,11 @@ class GamesUI():
         
         while self.running:
 
+            # Check for game over
+            if (player := self.game.katarenga_winner()) != None:
+                self.running = False
+                print(f"{player} wins !")
+
             if self.style == "solo" :
                 self.bot_move()
 
@@ -273,7 +278,7 @@ class GamesUI():
     def bot_move(self):
         '''Perform a random move for the bot.'''
         
-        if self.game.get_current_player() == self.game.get_player(1):                      # Player 2 (index 1) is the bot
+        if self.game.get_current_player() == self.game.get_player(1) and self.running:                      # Player 2 (index 1) is the bot
             # Get the bot move
             new_x, new_y, x, y = self.game.bot_move()
 
