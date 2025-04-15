@@ -7,11 +7,12 @@ from random import choice, random
 
 class Games:
     
-    def __init__(self, grille, username1: str, username2: str):
+    def __init__(self, grille, username1: str, username2: str, gamemode):
         """
         Initialize a board using an existing grid of Tile objects.
         """
 
+        self.gamemode = gamemode
         self.players = [Player(username1), Player(username2)]
         self.current_player = self.players[0]  # Start with player 1
 
@@ -28,9 +29,24 @@ class Games:
         :param player2: Player 2 (Black).
         """
 
-        for i in range(self.taille):
-            self.board[0][i].place_pawn(Pawn(self.players[1], (0, i)))
-            self.board[7][i].place_pawn(Pawn(self.players[0], (7, i)))
+        if self.gamemode == "katarenga":
+            for i in range(self.taille):
+                self.board[0][i].place_pawn(Pawn(self.players[1], (0, i)))
+                self.board[7][i].place_pawn(Pawn(self.players[0], (7, i)))
+
+        elif self.gamemode == "congress":
+            # Define the initial positions for both pawns colors
+            white_positions = [(0,3), (0,6), (1,0), (3,7), (4,0), (6,7), (7, 1), (7, 4)]
+            black_positions = [(0,1), (0,4), (1,7), (3,0), (4,7), (6,0), (7, 3), (7, 6)]
+
+            for i in range(8):
+                self.board[white_positions[i][0]][white_positions[i][1]].place_pawn(Pawn(self.players[0], ([white_positions[i][0]], [white_positions[i][1]])))
+                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], ([black_positions[i][0]], [black_positions[i][1]])))
+
+        else:
+            pass            # No need to initialize pawns for isolation         
+
+
 
 
     def get_possible_moves(self, x, y):
@@ -98,7 +114,7 @@ class Games:
         return self._get_moves_in_directions(x, y, directions)
 
 
-    def _get_moves_in_directions(self, x, y, directions, max_steps=None, stop_on_pattern=None, capture=True):
+    def _get_moves_in_directions(self, x, y, directions, max_steps=None, stop_on_pattern=None):
         """
         Helper method to calculate moves in given directions.
         :param x: Current x-coordinate of the tile.
@@ -122,7 +138,7 @@ class Games:
 
                 if pawn := self.board[nx][ny].get_pawn():
                     # Check if the pawn is an opponent's pawn
-                    if pawn.get_owner().get_username() != self.current_player.get_username() and capture:
+                    if pawn.get_owner().get_username() != self.current_player.get_username() and self.gamemode == "katarenga":
                         # Capture the opponent's pawn
                         moves.append((nx, ny))
                         break

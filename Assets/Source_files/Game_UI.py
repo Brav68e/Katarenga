@@ -7,7 +7,7 @@ class GamesUI():
 
     def __init__(self, screen, grid, gamemode, usernames, style = "solo"):
 
-        self.game = Games(grid, usernames[0], usernames[1])
+        self.game = Games(grid, usernames[0], usernames[1], gamemode)
         self.game.init_pawns()
         self.style = style
         
@@ -60,6 +60,7 @@ class GamesUI():
             self.draw_board()
             self.draw_pawns()
             self.show_possible_moves()
+            self.draw_current_player()
 
             pygame.display.flip()
             self.clock.tick(self.fps)
@@ -86,6 +87,7 @@ class GamesUI():
         
         self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
         self.board_background_img = pygame.image.load("Assets/Source_files/Images/board_background.png").convert()
+        self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height * 0.1))
 
 
 ###################################################################################################
@@ -94,13 +96,16 @@ class GamesUI():
     def resize_assets(self):
 
         self.background_img = pygame.transform.smoothscale(self.background_img, (self.screen_width, self.screen_height))
-        self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.screen_height * 667/720, self.screen_height * 667/720))
         
         for tile in self.tiles_img.keys():
-            self.tiles_img[tile] = pygame.transform.smoothscale(self.tiles_img[tile], (self.screen_height * 67/720, self.screen_height * 67/720))
+            self.tiles_size = int(self.screen_height * 0.093)              # int prevent float number which create space between tiles
+            self.tiles_img[tile] = pygame.transform.smoothscale(self.tiles_img[tile], (self.tiles_size, self.tiles_size))
 
         for pawn in self.pawns_img.keys():
-            self.pawns_img[pawn] = pygame.transform.smoothscale(self.pawns_img[pawn], (self.screen_height * 67/720, self.screen_height * 67/720))
+            self.pawns_img[pawn] = pygame.transform.smoothscale(self.pawns_img[pawn], (self.tiles_size, self.tiles_size))
+
+        self.board_background_topleft = (self.screen_width * 125/1280, self.screen_height * 30/720)
+        self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.tiles_size * 10, self.tiles_size * 10))
 
 
 ###################################################################################################
@@ -110,13 +115,13 @@ class GamesUI():
             
         # Drawing the background
         self.screen.blit(self.background_img, (0, 0))
-        self.screen.blit(self.board_background_img, (self.screen_width * 150/1280, self.screen_height * 30/720))
+        self.screen.blit(self.board_background_img, (self.board_background_topleft[0], self.board_background_topleft[1]))
 
         # Drawing the tiles
         for row in range(8):
             for column in range(8):
                 type = self.game.get_grid()[row][column].get_deplacement()
-                self.screen.blit(self.tiles_img[type], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                self.screen.blit(self.tiles_img[type], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
 
 #####################################################################################################
@@ -130,9 +135,25 @@ class GamesUI():
                 if (pawn := self.game.get_grid()[row][column].get_pawn()) != None:
                     owner = pawn.get_owner()
                     if owner == self.game.get_player(0):
-                        self.screen.blit(self.pawns_img["white"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                        self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                     else:
-                        self.screen.blit(self.pawns_img["black"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                        self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
+
+####################################################################################################
+
+
+    def draw_current_player(self):
+        '''Draw the current player on the board'''
+
+        # Get the current player and create the formatted string
+        current_player = self.game.get_current_player().get_username()
+        lines = [f"Turn of {current_player}", "Choose Wisely !"]
+
+        for i, line in enumerate(lines):
+            self.title = self.font.render(line, True, "black")
+            self.title_pos = self.title.get_rect(center=(self.screen.get_width() * 1025/1280, self.screen.get_height() * (300 + i*100) / 720))
+            self.screen.blit(self.title, self.title_pos)
 
 
 ####################################################################################################
@@ -144,8 +165,8 @@ class GamesUI():
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         # Calculate the tile clicked based on mouse position
-        column = int((mouse_x - (self.screen_width * 150/1280)) // (self.screen_height * 67/720) - 1)
-        row = int((mouse_y - (self.screen_height * 30/720)) // (self.screen_height * 67/720) - 1)
+        column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+        row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
         # Check if the click is within the board boundaries
         if 0 <= row < 8 and 0 <= column < 8:
@@ -168,8 +189,8 @@ class GamesUI():
             x, y = self.selected_tile.get_pawn().get_coordinates()
             moves = self.game.get_possible_moves(x, y)
 
-            selected_column = int((mouse_x - (self.screen_width * 150/1280)) // (self.screen_height * 67/720) - 1)
-            selected_row = int((mouse_y - (self.screen_height * 30/720)) // (self.screen_height * 67/720) - 1)
+            selected_column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+            selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
             
             # Check if the clicked tile is a valid move
             if (selected_row, selected_column) in moves:
@@ -195,7 +216,7 @@ class GamesUI():
             possible_moves = self.game.get_possible_moves(pawn_x, pawn_y)
             for move in possible_moves:
                 row, column = move
-                self.screen.blit(self.tiles_img["possible_move"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
 
 ##############################################################################################################
@@ -205,8 +226,8 @@ class GamesUI():
         '''Animate the movement of the pawn'''
         
         # Get the starting and ending positions
-        start_pos = (self.screen_width * 150/1280 + (y + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (x + 1) * self.screen_height * 67/720)
-        end_pos = (self.screen_width * 150/1280 + (new_y + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (new_x + 1) * self.screen_height * 67/720)
+        start_pos = (self.board_background_topleft[0] + (y + 1) * self.tiles_size, self.board_background_topleft[1] + (x + 1) * self.tiles_size)
+        end_pos = (self.board_background_topleft[0] + (new_y + 1) * self.tiles_size, self.board_background_topleft[1] + (new_x + 1) * self.tiles_size)
 
         anim_duration = 750                                                 # Animation duration in milliseconds
         start_time = pygame.time.get_ticks()
@@ -225,15 +246,16 @@ class GamesUI():
             y_pos = start_pos[1] + (end_pos[1] - start_pos[1]) * eased_progress
 
             self.draw_board()
+            self.draw_current_player()
             # Draw pawns EXCEPT the one moving
             for row in range(8):
                 for column in range(8):
                     if (pawn := self.game.get_grid()[row][column].get_pawn()) != None and (row, column) != (x, y):
                         owner = pawn.get_owner()
                         if owner == self.game.get_player(0):
-                            self.screen.blit(self.pawns_img["white"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                            self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                         else:
-                            self.screen.blit(self.pawns_img["black"], (self.screen_width * 150/1280 + (column + 1) * self.screen_height * 67/720, self.screen_height * 30/720 + (row + 1) * self.screen_height * 67/720))
+                            self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
             # Draw the moving pawn
             if self.game.get_grid()[x][y].get_pawn().get_owner() == self.game.get_player(0):
