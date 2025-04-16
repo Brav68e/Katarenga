@@ -44,7 +44,11 @@ class Games:
                 self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))
 
         else:
-            pass            # No need to initialize pawns for isolation         
+            # For Isolation, create a special set that contain every tile of the board
+            self.available_tiles = set()
+            for i in range(self.taille):
+                for j in range(self.taille):
+                    self.available_tiles.add((i, j))        
 
 
 
@@ -210,6 +214,25 @@ class Games:
                 target_tile.pawn_on = tile.pawn_on
                 tile.pawn_on = None
 
+    
+    def place_pawn(self, x: int, y: int, player: Player):
+        """
+        Place a pawn on the board at (x, y) for the given player.
+        :param x: x-coordinate of the tile.
+        :param y: y-coordinate of the tile.
+        :param player: The player placing the pawn.
+        """
+
+        # Place the pawn on the board
+        self.board[x][y].place_pawn(Pawn(player, (x, y)))
+        player.set_pawns(player.pawns_nbr() + 1)
+
+        # Remove the tile from the available tiles set
+        self.available_tiles.discard((x, y))
+        # Also remove tile that this pawn could reach
+        for move in self.get_possible_moves(x, y):
+            self.available_tiles.discard(move)
+
 
     def enter_camp(self, pion: str):
         """
@@ -288,6 +311,21 @@ class Games:
             return None
     
 
+    def isolation_winner(self):
+        """
+        Check if there is a winner.
+        :return: The winner (his username) or None if there is no winner yet.
+        """
+        if self.current_player == self.players[0] and not self.available_tiles:
+            return self.players[1].get_username()
+        
+        elif self.current_player == self.players[1] and not self.available_tiles:
+            return self.players[0].get_username()
+        
+        else:
+            return None
+
+
     def bot_move(self):
         """
         Perform a random move for the bot.
@@ -295,20 +333,29 @@ class Games:
         """
         possible_moves = []
 
-        # Collect all possible moves for the bot's pawns
-        for x in range(self.taille):
-            for y in range(self.taille):
-                tile = self.board[x][y]
-                if (pawn := tile.get_pawn()) and pawn.get_owner().get_username() == self.players[1].get_username():
-                    moves = self.get_possible_moves(x, y)
-                    for move in moves:
-                        possible_moves.append((x, y, move[0], move[1]))
+        if self.gamemode == "katarenga" or self.gamemode == "congress":
+            # Collect all possible moves for the bot's pawns
+            for x in range(self.taille):
+                for y in range(self.taille):
+                    tile = self.board[x][y]
+                    if (pawn := tile.get_pawn()) and pawn.get_owner().get_username() == self.players[1].get_username():
+                        moves = self.get_possible_moves(x, y)
+                        for move in moves:
+                            possible_moves.append((x, y, move[0], move[1]))
+                        
+            # Randomly select a move
+            selected_move = choice(possible_moves)
+            x, y, new_x, new_y = selected_move
 
-        # Randomly select a move
-        selected_move = choice(possible_moves)
-        x, y, new_x, new_y = selected_move
+            return (new_x, new_y, x, y)
 
-        return (new_x, new_y, x, y)
+        # Isolation mode
+        else:
+            possible_moves = list(self.available_tiles)
+            # Randomly select a move
+            selected_move = choice(possible_moves)
+            new_x, new_y = selected_move
+            return (new_x, new_y)
 
 
     def get_grid(self):
@@ -347,3 +394,11 @@ class Games:
         :return: Dictionary indicating if camps are occupied.
         """
         return self.camps
+    
+
+    def get_available_tiles(self):
+        """
+        Return the set of available tiles.
+        :return: Set of available tiles.
+        """
+        return self.available_tiles if self.gamemode == "isolation" else None

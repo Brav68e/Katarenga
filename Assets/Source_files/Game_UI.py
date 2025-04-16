@@ -10,6 +10,7 @@ class GamesUI():
         self.game = Games(grid, usernames[0], usernames[1], gamemode)
         self.game.init_pawns()
         self.style = style
+        self.gamemode = gamemode
         
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -99,7 +100,44 @@ class GamesUI():
                     if self.selected_tile == None:
                         self.handle_selection()
                     else:   
-                        self.handle_deplacement()
+                        self.handle_placement()
+                       
+                        
+            # Refresh the screen
+            self.draw_board()
+            self.draw_pawns()
+            self.show_possible_moves()
+            self.draw_current_player()
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)
+
+
+###################################################################################################
+
+
+    def run_isolation(self):
+        '''Main loop of the game'''
+
+        self.running = True
+        
+        while self.running:
+
+            # Check for game over
+            if (player := self.game.isolation_winner()) != None:
+                self.running = False
+                print(f"{player} wins !")
+
+            if self.style == "solo" :
+                self.bot_move()
+
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_placement()
                        
                         
             # Refresh the screen
@@ -127,8 +165,14 @@ class GamesUI():
                           }
         
         self.pawns_img = {"white" : pygame.image.load("Assets/Source_files/Images/white_pawn.png").convert_alpha(),
-                          "black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha()
+                          "black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha(),
+                          "ghost_white" : pygame.image.load("Assets/Source_files/Images/white_pawn.png").convert_alpha(),
+                          "ghost_black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha()
                           }
+        
+        # Adjust needed images to be transparent
+        self.pawns_img["ghost_white"].set_alpha(100)
+        self.pawns_img["ghost_black"].set_alpha(100)
         
         self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
         self.board_background_img = pygame.image.load("Assets/Source_files/Images/board_background.png").convert()
@@ -260,15 +304,54 @@ class GamesUI():
 ###########################################################################################################
 
 
+    def handle_placement(self):
+        '''Handle tile placement on the board'''
+        
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Calculate the tile clicked based on mouse position
+        column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+        row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
+
+        # Check if the click is within the board boundaries
+        if 0 <= row < 8 and 0 <= column < 8 and not self.game.get_grid()[row][column].get_pawn():
+            # Now determine if the tile is available for placement
+            if (row, column) in self.game.get_available_tiles(): 
+                self.game.place_pawn(row, column, self.game.get_current_player())
+                self.game.switch_player()
+
+
+###########################################################################################################
+
+
     def show_possible_moves(self):
         '''Show the possible moves for the selected tile'''
-        
-        if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner() == self.game.get_current_player():
-            pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
-            possible_moves = self.game.get_possible_moves(pawn_x, pawn_y)
-            for move in possible_moves:
-                row, column = move
-                self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
+        if self.gamemode == "katarenga" or self.gamemode == "congress":
+            if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner() == self.game.get_current_player():
+                pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
+                possible_moves = self.game.get_possible_moves(pawn_x, pawn_y)
+                for move in possible_moves:
+                    row, column = move
+                    self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
+        # Handle the case for isolation mode
+        else:
+            x, y = pygame.mouse.get_pos()
+            column = int((x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+            row = int((y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
+            if 0 <= row < 8 and 0 <= column < 8:
+                if self.game.get_grid()[row][column].get_pawn() == None and (row, column) in self.game.get_available_tiles():
+                    # Since this is an empty tile, we can show the possible move
+                    if self.game.get_current_player() == self.game.get_player(0):
+                        self.screen.blit(self.pawns_img["ghost_white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+                    else:
+                        self.screen.blit(self.pawns_img["ghost_black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+                    
+                    possible_moves = self.game.get_possible_moves(row, column)
+                    for move in possible_moves:
+                        row, column = move
+                        self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
 
 ##############################################################################################################
@@ -324,11 +407,20 @@ class GamesUI():
 
     def bot_move(self):
         '''Perform a random move for the bot.'''
-        
-        if self.game.get_current_player() == self.game.get_player(1) and self.running:                      # Player 2 (index 1) is the bot
-            # Get the bot move
-            new_x, new_y, x, y = self.game.bot_move()
 
-            self.move_animation(x, y, new_x, new_y)
-            self.game.move_pawn(x, y, new_x, new_y)
-            self.game.switch_player()
+        if self.gamemode == "katarenga" or self.gamemode == "congress":
+            if self.game.get_current_player() == self.game.get_player(1) and self.running:                      # Player 2 (index 1) is the bot
+                # Get the bot move
+                new_x, new_y, x, y = self.game.bot_move()
+
+                self.move_animation(x, y, new_x, new_y)
+                self.game.move_pawn(x, y, new_x, new_y)
+                self.game.switch_player()
+
+        else:
+            if self.game.get_current_player() == self.game.get_player(1) and self.running:                      # Player 2 (index 1) is the bot
+                # Get the bot move
+                x, y = self.game.bot_move()
+                self.game.place_pawn(x, y, self.game.get_current_player())
+                self.game.switch_player()
+        
