@@ -40,8 +40,8 @@ class Games:
             black_positions = [(0,1), (0,4), (1,7), (3,0), (4,7), (6,0), (7, 3), (7, 6)]
 
             for i in range(8):
-                self.board[white_positions[i][0]][white_positions[i][1]].place_pawn(Pawn(self.players[0], ([white_positions[i][0]], [white_positions[i][1]])))
-                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], ([black_positions[i][0]], [black_positions[i][1]])))
+                self.board[white_positions[i][0]][white_positions[i][1]].place_pawn(Pawn(self.players[0], (white_positions[i][0], white_positions[i][1])))
+                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))
 
         else:
             pass            # No need to initialize pawns for isolation         
@@ -98,7 +98,7 @@ class Games:
             nx, ny = x + dx, y + dy
             if 0 <= nx < self.taille and 0 <= ny < self.taille:
                 # Check if the tile is empty or occupied by an opponent's pawn
-                if not (pawn := self.board[nx][ny].get_pawn()) or pawn.get_owner().get_username() != self.current_player.get_username():
+                if not (pawn := self.board[nx][ny].get_pawn()) or pawn.get_owner().get_username() != self.current_player.get_username() and self.gamemode == "katarenga":
                     moves.append((nx, ny))
 
         return moves
@@ -224,16 +224,64 @@ class Games:
         else:
             raise ValueError("Both camps are already occupied.")
         
+    
+    def linked_pawns(self, player):
+        """
+        Check if the player has linked pawns.
+        :param player: The player object.
+        :return: True if the player has linked pawns, False otherwise.
+        """
+        # First acquire the coordinates of the player's pawns
+        player_pawns = []
+        for x in range(self.taille):
+            for y in range(self.taille):
+                if self.board[x][y].get_pawn() and self.board[x][y].get_pawn().get_owner() == player:
+                    player_pawns.append((x, y))
+                    
+        # Now do a Breath First Search (BFS) to check if pawns are linked
+        visited = set()
+        visited.add(player_pawns[0])
+        queue = [player_pawns[0]]                                           # Start with the first pawn's coordinates
+
+        while queue:
+            x, y = queue.pop(0)
+
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                    # Check if the target coordinates are within bounds
+                    if 0 <= x + dx < self.taille and 0 <= y + dy < self.taille:
+                        # Check if the target tile has a pawn and is not already visited
+                        if (x + dx, y + dy) in player_pawns and (x + dx, y + dy) not in visited:
+                            visited.add((x + dx, y + dy))
+                            queue.append((x + dx, y + dy))
+
+        return (len(visited) == len(player_pawns))
+                    
+        
         
     def katarenga_winner(self):
         """
         Check if there is a winner.
-        :return: The winner ('B' or 'W') or None if there is no winner yet.
+        :return: The winner (his username) or None if there is no winner yet.
         """
         if all(self.camps['W']) or (self.players[1].pawns_nbr() + self.camps["B"][0] + self.camps["B"][1]) < 2:
             return self.players[0].get_username()
         
         elif all(self.camps['B']) or (self.players[1].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
+            return self.players[1].get_username()
+        
+        else:
+            return None
+        
+
+    def congress_winner(self):
+        """
+        Check if there is a winner.
+        :return: The winner (his username) or None if there is no winner yet.
+        """
+        if self.linked_pawns(self.players[0]):
+            return self.players[0].get_username()
+        
+        elif self.linked_pawns(self.players[1]):
             return self.players[1].get_username()
         
         else:

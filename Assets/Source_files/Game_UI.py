@@ -71,6 +71,46 @@ class GamesUI():
             self.clock.tick(self.fps)
 
 
+###################################################################################################
+
+
+    def run_congress(self):
+        '''Main loop of the game'''
+
+        self.running = True
+        self.selected_tile = None
+        
+        while self.running:
+
+            # Check for game over
+            if (player := self.game.congress_winner()) != None:
+                self.running = False
+                print(f"{player} wins !")
+
+            if self.style == "solo" :
+                self.bot_move()
+
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.selected_tile == None:
+                        self.handle_selection()
+                    else:   
+                        self.handle_deplacement()
+                       
+                        
+            # Refresh the screen
+            self.draw_board()
+            self.draw_pawns()
+            self.show_possible_moves()
+            self.draw_current_player()
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)
+
 
 ###################################################################################################
 
