@@ -99,7 +99,7 @@ class Client:
             server_host, server_port, server_name, hosting, gamemode= server_info["private_ip"], server_info["port"], server_info["name"], server_info["hosting"], server_info["gamemode"]
             
             with self.lock:
-                if (server_host, server_port, server_name) not in self.available_server and hosting:
+                if (server_host, server_port, server_name, gamemode) not in self.available_server and hosting:
                     self.available_server.append((server_host, server_port, server_name, gamemode))
                     print(f"Discovered server at {server_host}:{server_port}")
 
