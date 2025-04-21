@@ -141,7 +141,8 @@ class Board_creation():
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
-            self.running = GamesUI(self.screen, self.combine_regions(), "isolation", ["francis", "patrick"], "solo")
+            self.running = 0
+            return self.combine_regions()
 
         else:
             self.selected_region = None

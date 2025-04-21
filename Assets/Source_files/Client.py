@@ -1,12 +1,14 @@
 import socket
 import threading
 import json
+import time
 import Server as Server
+from Game_UI import *
 
 
 class Client:
 
-    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000):
+    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000, screen = None):
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
@@ -18,7 +20,10 @@ class Client:
         self.connected = False
         self.listening = True
         self.messages = None
+        self.screen = screen
 
+        self.timeout = 2.0      # Timeout of 2s for server request
+        self.response_data = None
         self.thread = None
         self.lock = threading.Lock()
 
@@ -76,8 +81,28 @@ class Client:
                 
                 message_data = json.loads(data)                 # Loads act as parsing
                 # Gestion de l'information
-            except:
-                break
+
+                 # Game initialization
+                if "message" in message_data and message_data["message"] == "start":
+                    grid = message_data["board"]
+                    gamemode = message_data["gamemode"]
+                    usernames = message_data["usernames"]
+                    
+                    # Start the GameUI in online mode
+                    self.game_ui = GamesUI(self.screen, grid, gamemode, usernames, style="online", client=self)
+                
+                # Game updates
+                elif "action_type" in message_data:
+                    if self.game_ui:
+                        action = message_data["action_type"]
+                        
+                        if action == "get_grid":
+                            self.response_data = message_data["grid"]
+
+                    
+
+            except Exception as e:
+                print(f"Error receiving message: {e}")
         
         self.connected = False
 
@@ -127,3 +152,23 @@ class Client:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
         self.connected = False
         self.listening = True
+
+    
+    def set_game_ui(self, game_ui):
+        '''Set the game UI to the current client'''
+
+        self.game_ui = game_ui
+
+
+    def get_grid(self):
+        '''Ask the current grid to the server'''
+
+        self.response_data = None
+        request = {"request": "get_grid"}
+        self.client_socket.send(json.dumps(request).encode('utf-8'))
+
+        start_time = time.time()
+        while self.response_data is None and (time.time() - start_time) < self.timeout:
+            time.sleep(0.05)
+
+        return self.response_data

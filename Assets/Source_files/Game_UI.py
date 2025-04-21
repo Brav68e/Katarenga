@@ -5,13 +5,18 @@ import pygame
 
 class GamesUI():
 
-    def __init__(self, screen, grid, gamemode, usernames, style = "solo"):
+    def __init__(self, screen, grid, gamemode, usernames, style = "solo", client = None):
 
-        self.game = Games(grid, usernames[0], usernames[1], gamemode)
-        self.game.init_pawns()
+        if style != "online":
+            self.game = Games(grid, usernames[0], usernames[1], gamemode)
+            self.game.init_pawns()
+
         self.style = style
         self.gamemode = gamemode
-        
+        self.client = client
+        if client:
+            self.client.set_game_ui(self)
+            
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
 
@@ -206,10 +211,16 @@ class GamesUI():
         self.screen.blit(self.background_img, (0, 0))
         self.screen.blit(self.board_background_img, (self.board_background_topleft[0], self.board_background_topleft[1]))
 
+        # Acquire the board itself
+        if self.style == "online":
+            grid = self.client.get_grid()
+        else:
+            grid = self.game.get_grid()
+
         # Drawing the tiles
         for row in range(8):
             for column in range(8):
-                type = self.game.get_grid()[row][column].get_deplacement()
+                type = grid[row][column].get_deplacement()
                 self.screen.blit(self.tiles_img[type], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
         # Draw the pawns on the camps

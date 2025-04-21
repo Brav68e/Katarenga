@@ -2,6 +2,7 @@ from Server import Server
 from Client import Client
 from Sub_class.button import *
 from math import ceil
+from Board_creation import *
 import pygame
 import threading
 import time
@@ -14,7 +15,7 @@ class Online_hub():
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
-        self.client = Client()
+        self.client = Client(screen=screen)  # Create a client instance with the screen as an argument
 
         self.server = None                  # Current hosting server
         self.hosting = False
@@ -96,7 +97,7 @@ class Online_hub():
         if self.buttons["back"].checkInput((x,y)):
             self.running = False
         elif self.buttons["join"].checkInput((x,y)):
-            pass
+            self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1])           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
             self.host_menu()
         elif self.buttons["up"].checkInput((x,y)) and self.current_page > 0:
@@ -312,7 +313,14 @@ class Online_hub():
                         self.hosting = False
                         waiting = False
 
+            # Check if the server is full
+            with self.lock:                                 # Lock before reading shared data
+                if self.server.get_client_amount() >= 2:
+                    waiting = False
+                    board = Board_creation(self.screen).run()
+                    self.server.start_game(board)
 
+                    
 
             pygame.display.flip()
 

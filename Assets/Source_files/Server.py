@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 import time
+from Games import *
 
 
 class Server:
@@ -89,6 +90,13 @@ class Server:
                     
                     data = json.loads(message_data)
                     # Gestion de l'information
+                    if "get_grid" in data:
+                            grid = self.game.get_grid()
+                            message = {
+                                "action": "get_grid",
+                                "grid": grid
+                            }
+                            self.broadcast(json.dumps(message).encode('utf-8'))
 
                 except:
                     break
@@ -158,3 +166,25 @@ class Server:
         
     def get_client_amount(self):
         return self.client_amount
+    
+
+    def start_game(self, grid):
+        '''Start the game on the server'''
+
+        self.game = Games(grid, "host", "guess", self.gamemode)
+        self.game.init_pawns()
+        self.game_started = True
+
+        for client_socket in self.clients.items():
+            start_message = {
+                "message": "start",
+                "board": self.game.get_grid(),
+                "gamemode": self.gamemode,
+                "usernames": ["host", "guest"],
+                "current_player": 0
+            }
+
+            try:
+                client_socket.send(json.dumps(start_message).encode('utf-8'))
+            except Exception as e:
+                print(f"Error sending start message: {e}")
