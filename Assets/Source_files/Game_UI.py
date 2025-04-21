@@ -1,4 +1,4 @@
-from Katarenga import *
+from Games import *
 import pygame
 
 
