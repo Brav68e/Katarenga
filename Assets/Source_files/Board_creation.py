@@ -9,7 +9,7 @@ import copy
 
 
 
-class Delete_region():
+class Board_creation():
 
     def __init__(self, screen, controller = None):
         
@@ -552,4 +552,4 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    Delete_region(screen).run()
+    Board_creation(screen).run()
