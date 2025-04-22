@@ -48,7 +48,7 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := self.game.katarenga_winner()) != None:
+            if (player := (self.game.katarenga_winner() if not self.client else self.client.send_msg("katarenga_winner"))) != None:
                 self.running = False
                 print(f"{player} wins !")
 
@@ -89,7 +89,7 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := self.game.congress_winner()) != None:
+            if (player := (self.game.congress_winner() if not self.client else self.client.send_msg("congress_winner"))) != None:
                 self.running = False
                 print(f"{player} wins !")
 
@@ -129,7 +129,7 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := self.game.isolation_winner()) != None:
+            if (player := (self.game.isolation_winner() if not self.client else self.client.send_msg("isolation_winner"))) != None:
                 self.running = False
                 print(f"{player} wins !")
 
@@ -213,9 +213,11 @@ class GamesUI():
 
         # Acquire the board itself
         if self.style == "online":
-            grid = self.client.get_grid()
+            grid = self.client.send_msg("get_grid")
+            camps = self.client.send_msg("get_camps")
         else:
             grid = self.game.get_grid()
+            camps = self.game.get_camps()
 
         # Drawing the tiles
         for row in range(8):
@@ -225,9 +227,9 @@ class GamesUI():
 
         # Draw the pawns on the camps
         for i in range(2):
-            if self.game.get_camps()["W"][i]:
+            if camps["W"][i]:
                 self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1]))
-            if self.game.get_camps()["B"][i]:
+            if camps["B"][i]:
                 self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1] + 9 * self.tiles_size))
 
 
@@ -236,12 +238,19 @@ class GamesUI():
 
     def draw_pawns(self):
         '''Draw the pawns on the board'''
+
+        if self.style == "online":
+            grid = self.client.send_msg("get_grid")
+            player0 = self.client.send_msg("get_player0")
+        else:
+            grid = self.game.get_grid()
+            player0 = self.game.get_player(0)
         
         for row in range(8):
             for column in range(8):
-                if (pawn := self.game.get_grid()[row][column].get_pawn()) != None:
+                if (pawn := grid[row][column].get_pawn()) != None:
                     owner = pawn.get_owner()
-                    if owner == self.game.get_player(0):
+                    if owner == player0:
                         self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                     else:
                         self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
@@ -254,7 +263,10 @@ class GamesUI():
         '''Draw the current player on the board'''
 
         # Get the current player and create the formatted string
-        current_player = self.game.get_current_player().get_username()
+        if self.style == "online":
+            current_player = self.client.send_msg("current_player")
+        else:
+            current_player = self.game.get_current_player().get_username()
         lines = [f"Turn of {current_player}", "Choose Wisely !"]
 
         for i, line in enumerate(lines):
@@ -270,6 +282,10 @@ class GamesUI():
         '''Handle tile selection on the board'''
         
         mouse_x, mouse_y = pygame.mouse.get_pos()
+        if self.style == "online":
+            self.client.send_msg("get_grid")
+        else:
+            grid = self.game.get_grid()
 
         # Calculate the tile clicked based on mouse position
         column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
@@ -277,7 +293,7 @@ class GamesUI():
 
         # Check if the click is within the board boundaries
         if 0 <= row < 8 and 0 <= column < 8:
-            self.selected_tile = self.game.get_grid()[row][column]
+            self.selected_tile = grid[row][column]
 
 
 ##############################################################################################################
@@ -291,10 +307,10 @@ class GamesUI():
         if self.selected_tile.get_pawn() == None:
             self.selected_tile = None
 
-        elif self.selected_tile.get_pawn().get_owner() == self.game.get_current_player():
+        elif self.selected_tile.get_pawn().get_owner() == (self.game.get_current_player() if self.style != "online" else self.client.send_msg("current_player")):
             # Get the current pawn's position and possible moves
             x, y = self.selected_tile.get_pawn().get_coordinates()
-            moves = self.game.get_possible_moves(x, y)
+            moves = (self.game.get_possible_moves(x, y) if self.style != "online" else self.client.send_msg())          # CONTINUE FROM HERE, GOT AN ISSUE WITH HOW MSG ARE SEND
 
             selected_column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
             selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)

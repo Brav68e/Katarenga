@@ -80,9 +80,8 @@ class Client:
                     break
                 
                 message_data = json.loads(data)                 # Loads act as parsing
-                # Gestion de l'information
-
-                 # Game initialization
+                # Informations handling
+                # Game initialization
                 if "message" in message_data and message_data["message"] == "start":
                     grid = message_data["board"]
                     gamemode = message_data["gamemode"]
@@ -92,12 +91,8 @@ class Client:
                     self.game_ui = GamesUI(self.screen, grid, gamemode, usernames, style="online", client=self)
                 
                 # Game updates
-                elif "action_type" in message_data:
-                    if self.game_ui:
-                        action = message_data["action_type"]
-                        
-                        if action == "get_grid":
-                            self.response_data = message_data["grid"]
+                elif "response" in message_data:
+                    self.response_data = message_data["response"]
 
                     
 
@@ -158,13 +153,13 @@ class Client:
         '''Set the game UI to the current client'''
 
         self.game_ui = game_ui
-
-
-    def get_grid(self):
-        '''Ask the current grid to the server'''
+    
+    
+    def send_msg(self, msg):
+        '''Send a msg to the server that basically return the request's response'''
 
         self.response_data = None
-        request = {"request": "get_grid"}
+        request = {"request": msg}
         self.client_socket.send(json.dumps(request).encode('utf-8'))
 
         start_time = time.time()

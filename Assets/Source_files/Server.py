@@ -90,13 +90,36 @@ class Server:
                     
                     data = json.loads(message_data)
                     # Gestion de l'information
-                    if "get_grid" in data:
-                            grid = self.game.get_grid()
-                            message = {
-                                "action": "get_grid",
-                                "grid": grid
-                            }
-                            self.broadcast(json.dumps(message).encode('utf-8'))
+                    match data["request"]:
+                        case "congress_winner":
+                            response = self.game.congress_winner()
+
+                        case "katarenga_winner":
+                            response = self.game.katarenga_winner()
+
+                        case "isolation_winner":
+                            response = self.game.isolation_winner()
+
+                        case "get_grid":
+                            response = self.game.get_grid()
+
+                        case "get_camps":
+                            response = self.game.get_camps()
+
+                        case "get_player0":
+                            response = self.game.get_player(0)
+
+                        case "get_player1":
+                            response = self.game.get_player(1)
+
+                        case "current_player":
+                            response = self.game.get_current_player()
+                        
+                    message = {
+                        "response": response
+                    }
+                    client_socket.send(json.dumps(message).encode('utf-8'))
+
 
                 except:
                     break
