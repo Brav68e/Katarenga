@@ -106,19 +106,37 @@ class Server:
                         case "get_camps":
                             response = self.game.get_camps()
 
-                        case "get_player0":
-                            response = self.game.get_player(0)
-
-                        case "get_player1":
-                            response = self.game.get_player(1)
-
                         case "current_player":
                             response = self.game.get_current_player()
+
+                        case "get_player":
+                            response = self.game.get_player(data["params"][0])
+
+                        case "get_possible_moves":
+                            x = data["params"][0]
+                            y = data["params"][1]
+                            response = self.game.get_possible_moves(x, y)
+
+                        case "move_pawn":
+                            x, new_x = data["params"][0], data["params"][2]
+                            y, new_y = data["params"][1], data["params"][3]
+                            response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
+
+                        case "place_pawn":
+                            self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
+
+                        case "switch_player":
+                            response = self.game.switch_player()
+
+                        case "get_available_tiles":
+                            response = self.game.get_available_tiles()
+
+
                         
                     message = {
                         "response": response
                     }
-                    client_socket.send(json.dumps(message).encode('utf-8'))
+                    self.broadcast(message)
 
 
                 except:

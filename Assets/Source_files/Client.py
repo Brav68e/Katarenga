@@ -156,10 +156,13 @@ class Client:
     
     
     def send_msg(self, msg):
-        '''Send a msg to the server that basically return the request's response'''
+        '''Send a msg to the server that basically returns the request's response
+        param: msg is a tuple with a string and a list of parameters
+        '''
 
         self.response_data = None
-        request = {"request": msg}
+        request = {"request": msg[0],
+                   "params": msg[1] if msg[1] else None}
         self.client_socket.send(json.dumps(request).encode('utf-8'))
 
         start_time = time.time()
