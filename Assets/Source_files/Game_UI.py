@@ -463,13 +463,13 @@ class GamesUI():
                 new_x, new_y, x, y = self.game.bot_move() if self.style != "online" else self.client.send_msg(('bot_move'))
 
                 self.move_animation(x, y, new_x, new_y)
-                self.game.move_pawn(x, y, new_x, new_y) if self.style != "online" else self.client.send_msg()
-                self.game.switch_player()
+                self.game.move_pawn(x, y, new_x, new_y) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, new_x, new_y]))
+                self.game.switch_player() if self.style != "online" else self.client.send_msg(('switch_player'))
 
         else:
             if current_player == bot and self.running:                      # Player 2 (index 1) is the bot
                 # Get the bot move
                 x, y = self.game.bot_move() if self.style != "online" else self.client.send_msg('bot_move')
-                self.game.place_pawn(x, y, self.game.get_current_player())
-                self.game.switch_player()
+                self.game.place_pawn(x, y, current_player) if self.style != "online" else self.client.send_msg(("place_pawn", [x, y, current_player]))
+                self.game.switch_player() if self.style != "online" else self.client.send_msg(('switch_player'))
         
