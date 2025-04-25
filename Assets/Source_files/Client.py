@@ -75,10 +75,10 @@ class Client:
     def receive_messages(self):
         while self.connected:
             try:
-                data = self.client_socket.recv(1024).decode('utf-8')
+                data = self.client_socket.recv(8192).decode('utf-8')
                 if not data:
                     break
-                
+
                 message_data = json.loads(data)                 # Loads act as parsing
                 # Informations handling
                 # Game initialization
@@ -175,24 +175,16 @@ class Client:
     def read_board(self, grid):
         '''Return a board with Object using a json like formatted board'''
 
-        board = []
-        owner = {}              # This is only used to track the players during instanciation and prevent weirdo duplication
+        try:
+            # Debug print to check the input grid
+            print(f"Input grid: {grid}")
 
-        for i, row in enumerate(grid):
-            row = []
-            for j, column in enumerate(row):
-                tile = grid[i][j]
+            # Process the grid (assuming this method transforms the board data)
+            processed_grid = [[Tile.from_dict(tile) for tile in row] for row in grid]
 
-                # Check if the tile got a pawn on and the owner already exist
-                if tile["pawn_on"] and tile["pawn_on"]["owner"]["username"] not in owner:
-                    owner[tile["pawn_on"]["owner"]["username"]] = Player.from_dict(tile["pawn_on"]["owner"])
-
-                if tile["pawn_on"] :
-                    tile["pawn_on"]["owner"] = owner[tile["pawn_on"]["owner"]["username"]]
-
-                row.append(Tile.from_dict(tile))
-
-            board.append(row)
-
-        print(board, owner)
-        return board
+            # Debug print to check the processed grid
+            print(f"Processed grid: {processed_grid}")
+            return processed_grid
+        except Exception as e:
+            print(f"Error processing board: {e}")
+            return None
