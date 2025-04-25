@@ -42,9 +42,7 @@ class Menu:
         
         # Load and play background music
         try:
-            pygame.mixer.music.load(r"Assets\Source_files\Sounds\medieval-adventure-154671.mp3")
-            # Or use forward slashes
-            # pygame.mixer.music.load("Assets/Source_files/Sounds/medieval-adventure-154671.mp3")
+            pygame.mixer.music.load(r"Assets\Source_files\Sounds\test.mp3")
             pygame.mixer.music.play(-1)  # Playing the music in a loop
             pygame.mixer.music.set_volume(self.volume)
         except Exception as e:
@@ -52,6 +50,9 @@ class Menu:
 
     def get_font(self, size):
         return pygame.font.Font(r"Assets/Source_files/fonts/font.ttf", size)
+    
+    def get_font2(self, size):
+        return pygame.font.Font(r"Assets/Source_files/fonts/font2.ttf", size)
 
     def setup_buttons(self):
         # main buttons
@@ -71,6 +72,13 @@ class Menu:
         elif self.current_page == "Options":
             # No default buttons for Options page
             self.buttons = []
+        elif self.current_page == "Rules":
+            # Buttons for rules selection
+            self.buttons = [
+                Button(pos=(220, 300), image=None, text="Katarenga", base_color="black", font_size=int(self.screen_height/720 * 64)),
+                Button(pos=(530, 300), image=None, text="Congress", base_color="black", font_size=int(self.screen_height/720 * 64)),
+                Button(pos=(820, 300), image=None, text="Isolation", base_color="black", font_size=int(self.screen_height/720 * 64))
+            ]
         else:
             self.buttons = [
                 Button(pos=(580, 250),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
@@ -97,7 +105,8 @@ class Menu:
                 (self.current_page == "Congress" and index == 1) or
                 (self.current_page == "Isolation" and index == 2) or
                 (self.current_page == "Settings" and index == 3) or
-                (self.current_page == "Options" and index == 3)
+                (self.current_page == "Options" and index == 3) or
+                (self.current_page == "Rules" and index == 3)
             )
             icon_button = IconButton(
                 pos,
@@ -215,6 +224,10 @@ class Menu:
         """Handle clicks on the menu icon buttons"""
         for index, button in enumerate(self.icon_buttons):
             if button.checkInput(mouse_pos):
+                # If we're in rules display mode, restore the original update method
+                if hasattr(self, 'original_update') and self.current_page == "Rules_Display":
+                    self.update = self.original_update
+                
                 if index == 0:
                     self.current_page = "Katarenga"
                 elif index == 1:
@@ -235,8 +248,114 @@ class Menu:
                     self.current_page = "Options"
                     self.setup_buttons()
                     return True
+                elif i == 1:  # "Rules" button
+                    self.current_page = "Rules"
+                    self.setup_buttons()
+                    return True
                 elif i == 2:  # "Create Tiles" button
                     self.launch_create_region()
+                    return True
+        return False
+    
+    def rules_display_update(self):
+        self.screen.blit(self.BG, (0, 0))
+        
+        # Display title
+        title_text = self.get_font(80).render(self.rules_title, True, "#514b4b")
+        title_rect = title_text.get_rect(center=(640, 80))
+        self.screen.blit(title_text, title_rect)
+        
+        # Display rules text with line wrapping
+        font = self.get_font2(30)
+        y_offset = 150
+        for line in self.rules_text.split('\n'):
+            if line.strip():  # Skip empty lines
+                text = font.render(line, True, (0, 0, 0))
+                self.screen.blit(text, (100, y_offset))
+            y_offset += 35
+        
+        # Add back button
+        back_button = Button(pos=(50, 650), image=None, text="Retour", base_color="black", 
+                            font_size=int(self.screen_height/720 * 50))
+        
+        # Check if mouse is hovering over back button
+        mouse_pos = pygame.mouse.get_pos()
+        back_button.changeColor(mouse_pos, "grey")
+        back_button.update(self.screen)
+        
+        # Check if back button is clicked
+        if pygame.mouse.get_pressed()[0]:
+            if back_button.checkInput(mouse_pos):
+                self.current_page = "Rules"
+                self.setup_buttons()
+                self.update = self.original_update
+        
+        # Display bottom menu icons
+        self.menu_buttons()
+    
+    def handle_rules_buttons(self, mouse_pos):
+        for i, button in enumerate(self.buttons):
+            if button.checkInput(mouse_pos):
+                if self.current_page == "Rules_Display":
+                    # Return to rules selection page
+                    self.current_page = "Rules"
+                    self.setup_buttons()
+                    self.update = self.original_update  # Restore original update method
+                    return True
+                    
+                elif i == 0:  # "Katarenga Rules" button
+                    # Load and display Katarenga rules
+                    try:
+                        with open("Assets/Source_files/Rules/katarenga_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update  # Store original update method
+                        self.update = self.rules_display_update  # Set custom update method
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Katarenga Rules"
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
+                    return True
+                elif i == 1:  # "Congress Rules" button
+                    try:
+                        with open("Assets/Source_files/Rules/congress_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update
+                        self.update = self.rules_display_update
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Congress Rules"
+                        
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
+                    return True
+                elif i == 2:  # "Isolation Rules" button
+                    try:
+                        with open("Assets/Source_files/Rules/isolation_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update
+                        self.update = self.rules_display_update
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Isolation Rules"
+
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
                     return True
         return False
         
@@ -287,6 +406,11 @@ class Menu:
         # Check for clicks on the main buttons in Settings page
         if self.current_page == "Settings":
             if self.handle_settings_buttons(mouse_pos):
+                return
+                
+        # Check for clicks on the rules buttons
+        if self.current_page == "Rules":
+            if self.handle_rules_buttons(mouse_pos):
                 return
         
         # Handle clicks on the volume bar

@@ -1,0 +1,12 @@
+RÈGLES DE BASE
+• Les joueurs jouent à tour de rôle en déplaçant un pion.
+• Captures autorisées (sauf au premier tour).
+
+OBJECTIF
+Pour gagner :
+• Placer deux pions dans les camps adverses.
+• Ou capturer assez de pions pour bloquer l'adversaire.
+
+CONDITION DE VICTOIRE
+• Pour entrer dans un camp adverse : atteindre la ligne opposée, puis y entrer au tour suivant.
+• Un pion dans un camp adverse est définitif et ne peut être ni déplacé ni capturé.
