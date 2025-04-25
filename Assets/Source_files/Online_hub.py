@@ -315,7 +315,7 @@ class Online_hub():
 
             # Check if the server is full
             with self.lock:                                 # Lock before reading shared data
-                if self.server.get_client_amount() >= 2:
+                if self.server and self.server.get_client_amount() >= 2:
                     waiting = False
                     board = Board_creation(self.screen).run()
                     self.server.start_game(board)
