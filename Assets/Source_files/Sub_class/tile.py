@@ -1,3 +1,5 @@
+from pawn import *
+
 class Tile:
     def __init__(self, deplacement_pattern, pawn_on=None, collision=None):
         self.deplacement_pattern = deplacement_pattern 
@@ -30,7 +32,7 @@ class Tile:
         '''Return a transformed version of the current object in a dictionary (JSON handling)'''
         return {
             "deplacement_pattern": self.deplacement_pattern,
-            "pawn_on": self.pawn_on,
+            "pawn_on": self.pawn_on.to_dict() if self.pawn_on else self.pawn_on,
             "collision": self.collision
         }
 

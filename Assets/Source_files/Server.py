@@ -210,16 +210,19 @@ class Server:
     
 
     def start_game(self, grid):
-        '''Start the game on the server'''
+        '''Start the game on the server and communicates it to client'''
 
         self.game = Games(grid, "host", "guess", self.gamemode)
         self.game.init_pawns()
         self.game_started = True
 
-        for client_socket in self.clients.items():
+        # Formatting the board object notation into json
+        board = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+
+        for client_socket in self.clients.keys():
             start_message = {
                 "message": "start",
-                "board": self.game.get_grid(),
+                "board": board,
                 "gamemode": self.gamemode,
                 "usernames": ["host", "guest"],
                 "current_player": 0

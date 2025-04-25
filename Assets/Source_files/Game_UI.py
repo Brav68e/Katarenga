@@ -15,6 +15,7 @@ class GamesUI():
         self.gamemode = gamemode
         self.client = client
         if client:
+            # Make a relation between client and game_ui
             self.client.set_game_ui(self)
             
         self.screen = screen
