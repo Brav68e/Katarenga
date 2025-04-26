@@ -5,7 +5,15 @@ import pygame
 
 class GamesUI():
 
-    def __init__(self, screen, grid, gamemode, usernames, style = "solo", client = None):
+    def __init__(self, screen, gamemode, usernames, grid = None, style = "solo", client = None):
+
+        print(f"Initializing GamesUI with:")
+        print(f"Screen: {screen}")
+        print(f"Grid: {grid}")
+        print(f"Gamemode: {gamemode}")
+        print(f"Usernames: {usernames}")
+        print(f"Style: {style}")
+        print(f"Client: {client}")
 
         if style != "online":
             self.game = Games(grid, usernames[0], usernames[1], gamemode)
@@ -49,7 +57,7 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := (self.game.katarenga_winner() if not self.client else self.client.send_msg(("katarenga_winner")))) != None:
+            if (player := (self.game.katarenga_winner() if not self.client else self.client.send_msg(("katarenga_winner", None)))) != None:
                 self.running = False
                 print(f"{player} wins !")
 
@@ -69,10 +77,15 @@ class GamesUI():
                        
                         
             # Refresh the screen
+            print("refresh")
             self.draw_board()
+            print("refresh board")
             self.draw_pawns()
+            print("refresh pawns")
             self.show_possible_moves()
+            print("refresh moves")
             self.draw_current_player()
+            print("refresh player")
 
             pygame.display.flip()
             self.clock.tick(self.fps)
@@ -206,32 +219,41 @@ class GamesUI():
 ###################################################################################################
 
 
-    def draw_board(self):       
-            
-        # Drawing the background
-        self.screen.blit(self.background_img, (0, 0))
-        self.screen.blit(self.board_background_img, (self.board_background_topleft[0], self.board_background_topleft[1]))
+    def draw_board(self):
+        '''Draw the board and its tiles'''
+        try:
+            # Drawing the background
+            self.screen.blit(self.background_img, (0, 0))
+            self.screen.blit(self.board_background_img, (self.board_background_topleft[0], self.board_background_topleft[1]))
 
-        # Acquire the board itself
-        if self.style == "online":
-            grid = self.client.send_msg(("get_grid"))
-            camps = self.client.send_msg(("get_camps"))
-        else:
-            grid = self.game.get_grid()
-            camps = self.game.get_camps()
+            # Acquire the board itself
+            print("Fetching grid...")
+            if self.style == "online":
+                grid = self.client.send_msg(("get_grid", []))  # Ensure the request is properly formatted
+                print(f"Grid received: {grid}")
+                camps = self.client.send_msg(("get_camps", []))
+                print(f"Camps received: {camps}")
+            else:
+                grid = self.game.get_grid()
+                camps = self.game.get_camps()
 
-        # Drawing the tiles
-        for row in range(8):
-            for column in range(8):
-                type = grid[row][column].get_deplacement()
-                self.screen.blit(self.tiles_img[type], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+            # Drawing the tiles
+            for row in range(8):
+                for column in range(8):
+                    type = grid[row][column].get_deplacement()
+                    self.screen.blit(self.tiles_img[type], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
-        # Draw the pawns on the camps
-        for i in range(2):
-            if camps["W"][i]:
-                self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1]))
-            if camps["B"][i]:
-                self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1] + 9 * self.tiles_size))
+            # Draw the pawns on the camps
+            for i in range(2):
+                if camps["W"][i]:
+                    self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1]))
+                if camps["B"][i]:
+                    self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1] + 9 * self.tiles_size))
+
+        except Exception as e:
+            print(f"Error in draw_board: {e}")
+            import traceback
+            traceback.print_exc()
 
 
 #####################################################################################################

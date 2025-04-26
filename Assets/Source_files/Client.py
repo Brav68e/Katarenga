@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 import time
+import queue
 import Server as Server
 from Game_UI import *
 
@@ -23,7 +24,7 @@ class Client:
         self.screen = screen
 
         self.timeout = 2.0      # Timeout of 2s for server request
-        self.response_data = None
+        self.response_queue = queue.Queue()
         self.thread = None
         self.lock = threading.Lock()
 
@@ -59,19 +60,6 @@ class Client:
             pass
 
 
-    def send_message(self, message: str) -> bool:
-        if not self.connected:
-            return False
-        
-        try:
-            data = {"message": message}
-            self.client_socket.send(json.dumps(data).encode('utf-8'))
-            return True
-        except:
-            self.connected = False
-            return False
-
-
     def receive_messages(self):
         while self.connected:
             try:
@@ -80,25 +68,25 @@ class Client:
                     break
 
                 message_data = json.loads(data)                 # Loads act as parsing
-                # Informations handling
-                # Game initialization
-                if "message" in message_data and message_data["message"] == "start":
-                    grid = self.read_board(message_data["board"])
+                print(f"Message received: {message_data}")
+
+                # Handle responses
+                if "response" in message_data:
+                    self.response_queue.put(message_data["response"])
+
+                # Handle other types of messages (e.g., "start")
+                elif "message" in message_data and message_data["message"] == "start":
+                    grid = read_board(message_data["board"])
                     gamemode = message_data["gamemode"]
                     usernames = message_data["usernames"]
-                    
-                    # Start the GameUI in online mode
-                    self.game_ui = GamesUI(self.screen, grid, gamemode, usernames, style="online", client=self)
-                
-                # Game updates
-                elif "response" in message_data:
-                    self.response_data = message_data["response"]
-
-                    
+                    print("Game initialization message received.")
+                    self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
 
             except Exception as e:
                 print(f"Error receiving message: {e}")
-        
+                import traceback
+                traceback.print_exc()
+
         self.connected = False
 
 
@@ -154,37 +142,28 @@ class Client:
 
         self.game_ui = game_ui
     
-    
+        
     def send_msg(self, msg):
         '''Send a msg to the server that basically returns the request's response
-        param: msg is a tuple with a string and a list of parameters
+        param: msg is a tuple with a string and a list of parameters (msg[0] is the request type)
         '''
-
-        self.response_data = None
-        request = {"request": msg[0],
-                   "params": msg[1] if msg[1] else None}
-        self.client_socket.send(json.dumps(request).encode('utf-8'))
-
-        start_time = time.time()
-        while self.response_data is None and (time.time() - start_time) < self.timeout:
-            time.sleep(0.05)
-
-        return self.response_data
-    
-
-    def read_board(self, grid):
-        '''Return a board with Object using a json like formatted board'''
-
         try:
-            # Debug print to check the input grid
-            print(f"Input grid: {grid}")
+            request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
+            print(f"Sending request to server: {request}")
+            self.client_socket.send(json.dumps(request).encode('utf-8'))
 
-            # Process the grid (assuming this method transforms the board data)
-            processed_grid = [[Tile.from_dict(tile) for tile in row] for row in grid]
+            # Wait for the response
+            try:
+                response = self.response_queue.get(timeout=self.timeout)
+                print(f"Response received: {response}")
+                return response
+            except queue.Empty:
+                print("Error: Response timeout.")
+                return None
 
-            # Debug print to check the processed grid
-            print(f"Processed grid: {processed_grid}")
-            return processed_grid
         except Exception as e:
-            print(f"Error processing board: {e}")
+            print(f"Error in send_msg: {e}")
+            import traceback
+            traceback.print_exc()
             return None
+
