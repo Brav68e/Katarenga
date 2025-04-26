@@ -24,7 +24,7 @@ class Client:
         self.messages = None
         self.screen = screen
 
-        self.timeout = 2.0      # Timeout of 2s for server request
+        self.timeout = 5      # Timeout of 5s for server request
         self.response_queue = queue.Queue()
         self.thread = None
         self.lock = threading.Lock()

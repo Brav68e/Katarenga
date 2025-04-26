@@ -15,7 +15,7 @@ class Online_hub():
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
-        self.client = Client(screen=screen)  # Create a client instance with the screen as an argument
+        self.client = Client(screen=screen, online_hub=self)  # Create a client instance with the screen as an argument
 
         self.server = None                  # Current hosting server
         self.hosting = False
@@ -97,7 +97,7 @@ class Online_hub():
         
         if self.buttons["back"].checkInput((x,y)):
             self.running = False
-        elif self.buttons["join"].checkInput((x,y)):
+        elif self.buttons["join"].checkInput((x,y)) and self.selected_server is not None:
             if self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1]):           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
                 self.waiting_menu2()
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
