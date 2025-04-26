@@ -102,7 +102,30 @@ class Server:
                             response = self.game.get_camps()
                             print(f"Camps sent to client: {response}")
 
-                        # Add other cases as needed...
+                        case "current_player":
+                             response = self.game.get_current_player().to_dict()
+ 
+                        case "get_player":
+                            response = self.game.get_player(data["params"][0]).to_dict()
+
+                        case "get_possible_moves":
+                            x = data["params"][0]
+                            y = data["params"][1]
+                            response = self.game.get_possible_moves(x, y)
+
+                        case "move_pawn":
+                            x, new_x = data["params"][0], data["params"][2]
+                            y, new_y = data["params"][1], data["params"][3]
+                            response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
+
+                        case "place_pawn":
+                            self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
+
+                        case "switch_player":
+                            response = self.game.switch_player()
+
+                        case "get_available_tiles":
+                            response = self.game.get_available_tiles()
 
                     # Send the response
                     if response is not None:

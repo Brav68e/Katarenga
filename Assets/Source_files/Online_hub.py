@@ -31,6 +31,7 @@ class Online_hub():
         self.clock = pygame.time.Clock()
         self.fps = 60
         self.running = True
+        self.waiting = False
 
         # Loading Images & Sound
         self.load_assets()
@@ -97,7 +98,8 @@ class Online_hub():
         if self.buttons["back"].checkInput((x,y)):
             self.running = False
         elif self.buttons["join"].checkInput((x,y)):
-            self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1])           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
+            if self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1]):           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
+                self.waiting_menu2()
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
             self.host_menu()
         elif self.buttons["up"].checkInput((x,y)) and self.current_page > 0:
@@ -327,7 +329,58 @@ class Online_hub():
         return False
 
 
+###################################################################################################
 
+
+    def waiting_menu2(self):
+        '''Lock the user that joined a server in a loading screen waiting for the host'''
+
+        self.waiting = True
+
+        text_surface = self.font.render("Loading", True, (255, 0, 0))
+        text_width= text_surface.get_size()[0]
+        text_x, text_y= (self.screen_width - text_width) // 2, int(self.screen_height * 0.35)
+        
+        # Dot animation setup
+        dots = [".", "..", "..."]
+        dot_index = 0
+        last_update_time = pygame.time.get_ticks()
+        dot_surface = self.font.render(dots[0], True, (255, 0, 0))
+        dot_width = dot_surface.get_size()[0]
+        dot_x = text_x + (text_width - dot_width) // 2
+        dot_y = int(self.screen_height * 0.45)
+        
+
+        while self.waiting:
+
+            # Update dot animation every 500ms
+            if pygame.time.get_ticks() - last_update_time > 500:
+                dot_index = (dot_index + 1) % len(dots)
+                last_update_time = pygame.time.get_ticks()
+                dot_surface = self.font.render(dots[dot_index], True, (255, 0, 0))
+                dot_width = dot_surface.get_size()[0]
+                dot_x = text_x + (text_width - dot_width) // 2
+                dot_y = int(self.screen_height * 0.45)
+
+            # Display Background + Button
+            self.screen.blit(self.background_img, (0,0))
+
+            # Display the Party's name
+            self.screen.blit(text_surface, (text_x, text_y))
+            # Display dot animation
+            self.screen.blit(dot_surface, (dot_x, dot_y))
+
+            
+            # Handle Event
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.waiting = False
+                    
+
+            pygame.display.flip()
+
+        return False
+    
 
 ###################################################################################################
 
@@ -483,6 +536,14 @@ class Online_hub():
             text_rect = text_surface.get_rect(center=collision.center)  # Center text inside the collision box
             self.screen.blit(text_surface, text_rect)
 
+
+###################################################################################################
+
+
+    def set_waiting(self, waiting):
+        '''Set the current state of the client to waiting or not'''
+
+        self.waiting = waiting
 
 ######################################################################################################################################################################################################
 

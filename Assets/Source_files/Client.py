@@ -9,13 +9,14 @@ from Game_UI import *
 
 class Client:
 
-    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000, screen = None):
+    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000, screen = None, online_hub = None):
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
         self.username = username
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
+        self.online_hub = online_hub        # Keep track of the Online_hub object to update the waiting variable
         self.available_server = []
 
         self.connected = False
@@ -80,6 +81,8 @@ class Client:
                     gamemode = message_data["gamemode"]
                     usernames = message_data["usernames"]
                     print("Game initialization message received.")
+                    # Stop the waiting screen
+                    self.online_hub.set_waiting(False)
                     self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
 
             except Exception as e:
@@ -141,7 +144,7 @@ class Client:
         '''Set the game UI to the current client'''
 
         self.game_ui = game_ui
-    
+
         
     def send_msg(self, msg):
         '''Send a msg to the server that basically returns the request's response
