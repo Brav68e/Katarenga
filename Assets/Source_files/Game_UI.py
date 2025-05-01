@@ -225,7 +225,7 @@ class GamesUI():
             # Acquire the board itself
             print("Fetching grid...")
             if self.style == "online":
-                grid = self.client.send_msg(("get_grid", []))  # Ensure the request is properly formatted
+                grid = read_board(self.client.send_msg(("get_grid", [])))  # Ensure the request is properly formatted
                 print(f"Grid received: {grid}")
                 camps = self.client.send_msg(("get_camps", []))
                 print(f"Camps received: {camps}")

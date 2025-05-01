@@ -77,7 +77,6 @@ class Client:
 
                 # Handle other types of messages (e.g., "start")
                 elif "message" in message_data and message_data["message"] == "start":
-                    grid = read_board(message_data["board"])
                     gamemode = message_data["gamemode"]
                     usernames = message_data["usernames"]
                     print("Game initialization message received.")
@@ -150,23 +149,16 @@ class Client:
         '''Send a msg to the server that basically returns the request's response
         param: msg is a tuple with a string and a list of parameters (msg[0] is the request type)
         '''
+
+        request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
+        print(f"Sending request to server: {request}")
+        self.client_socket.send(json.dumps(request).encode('utf-8'))
+
+        # Wait for the response
         try:
-            request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
-            print(f"Sending request to server: {request}")
-            self.client_socket.send(json.dumps(request).encode('utf-8'))
-
-            # Wait for the response
-            try:
-                response = self.response_queue.get(timeout=self.timeout)
-                print(f"Response received: {response}")
-                return response
-            except queue.Empty:
-                print("Error: Response timeout.")
-                return None
-
-        except Exception as e:
-            print(f"Error in send_msg: {e}")
-            import traceback
-            traceback.print_exc()
+            response = self.response_queue.get(timeout=self.timeout)
+            print(f"Response received: {response}")
+            return response
+        except queue.Empty:
+            print("Error: Response timeout.")
             return None
-
