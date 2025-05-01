@@ -62,27 +62,40 @@ class Client:
 
 
     def receive_messages(self):
+        buffer = ""
         while self.connected:
             try:
+                # Read data from the socket
                 data = self.client_socket.recv(8192).decode('utf-8')
                 if not data:
                     break
 
-                message_data = json.loads(data)                 # Loads act as parsing
-                print(f"Message received: {message_data}")
+                # Accumulate data in the buffer
+                buffer += data
 
-                # Handle responses
-                if "response" in message_data:
-                    self.response_queue.put(message_data["response"])
+                # Process complete messages (delimited by '\n')
+                while "\n" in buffer:
+                    message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
+                    try:
+                        message_data = json.loads(message)  # Parse the JSON message
+                        print(f"Message received: {message_data}")
 
-                # Handle other types of messages (e.g., "start")
-                elif "message" in message_data and message_data["message"] == "start":
-                    gamemode = message_data["gamemode"]
-                    usernames = message_data["usernames"]
-                    print("Game initialization message received.")
-                    # Stop the waiting screen
-                    self.online_hub.set_waiting(False)
-                    self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
+                        # Handle responses
+                        if "response" in message_data:
+                            self.response_queue.put(message_data["response"])
+
+                        # Handle other types of messages (e.g., "start")
+                        elif "message" in message_data and message_data["message"] == "start":
+                            gamemode = message_data["gamemode"]
+                            usernames = message_data["usernames"]
+                            print("Game initialization message received.")
+                            # Stop the waiting animation for the online hub and start the game UI
+                            self.online_hub.set_waiting(False)
+                            self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
+
+                    except json.JSONDecodeError as e:
+                        print(f"JSON decoding error: {e}")
+                        continue
 
             except Exception as e:
                 print(f"Error receiving message: {e}")
@@ -162,3 +175,5 @@ class Client:
         except queue.Empty:
             print("Error: Response timeout.")
             return None
+        finally:
+            time.sleep(0.1)  # Add a small delay to prevent spamming

@@ -130,7 +130,7 @@ class Server:
                     # Send the response
                     if response is not None:
                         message = {"response": response}
-                        client_socket.send(json.dumps(message).encode('utf-8'))
+                        client_socket.send(json.dumps(message + '\n').encode('utf-8'))
                         print(f"Response sent to client: {message}")
 
                 except Exception as e:
@@ -215,13 +215,10 @@ class Server:
         self.game.init_pawns()
         self.game_started = True
 
-        # Formatting the board object notation into json
-        board = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
 
         for client_socket in self.clients.keys():
             start_message = {
                 "message": "start",
-                "board": board,
                 "gamemode": self.gamemode,
                 "usernames": ["host", "guest"],
                 "current_player": 0
