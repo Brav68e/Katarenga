@@ -226,9 +226,7 @@ class GamesUI():
             print("Fetching grid...")
             if self.style == "online":
                 grid = read_board(self.client.send_msg(("get_grid", [])))  # Ensure the request is properly formatted
-                print(f"Grid received: {grid}")
                 camps = self.client.send_msg(("get_camps", []))
-                print(f"Camps received: {camps}")
             else:
                 grid = self.game.get_grid()
                 camps = self.game.get_camps()
@@ -330,7 +328,7 @@ class GamesUI():
         if self.selected_tile.get_pawn() == None:
             self.selected_tile = None
 
-        elif self.selected_tile.get_pawn().get_owner() == (self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))):
+        elif self.selected_tile.get_pawn().get_owner().get_username() == (self.game.get_current_player().get_username() if self.style != "online" else self.client.send_msg(("current_player", None)).get_username()):
             # Get the current pawn's position and possible moves
             x, y = self.selected_tile.get_pawn().get_coordinates()
             moves = (self.game.get_possible_moves(x, y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [x, y])))
@@ -357,6 +355,10 @@ class GamesUI():
     def handle_placement(self):
         '''Handle tile placement on the board'''
         
+        if self.style == "online" and self.client.send_msg(("current_player", None)).get_username() != self.client.get_username():
+            # If it's not the player's turn, do nothing
+            return
+
         mouse_x, mouse_y = pygame.mouse.get_pos()
         grid = self.game.get_grid() if self.style != "online" else self.client.send_msg(("get_grid", None))
         available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
@@ -371,7 +373,7 @@ class GamesUI():
         if 0 <= row < 8 and 0 <= column < 8 and not grid[row][column].get_pawn():
             # Now determine if the tile is available for placement
             if (row, column) in available_tiles: 
-                self.game.place_pawn(row, column, current_player) if self.style != "online" else self.client.sned_msg(("place_pawn", [row, column, current_player]))
+                self.game.place_pawn(row, column, current_player) if self.style != "online" else self.client.send_msg(("place_pawn", [row, column, current_player]))
                 self.game.switch_player() if self.style != "online" else self.client.send_msg("switch_player, None")
 
 

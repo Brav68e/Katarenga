@@ -81,6 +81,7 @@ class Server:
         try: 
             self.client_amount += 1
             self.clients[client_socket] = self.client_amount
+            buffer = ""
             
             while self.running:
                 try:
@@ -88,49 +89,59 @@ class Server:
                     if not message_data:
                         break
                     
-                    data = json.loads(message_data)
-                    print(f"Request received from client: {data}")
+                    buffer += message_data
 
-                    # Handle the request
-                    response = None
-                    match data["request"]:
-                        case "get_grid":
-                            response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-                            print(f"Grid sent to client: {response}")
+                    while "\n" in buffer:
+                        # Handle the request
+                        message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
+                    
+                        data = json.loads(message)  # Parse the JSON message
+                        print(f"Message received: {data}")
 
-                        case "get_camps":
-                            response = self.game.get_camps()
-                            print(f"Camps sent to client: {response}")
+                        response = None
+                        match data["request"]:
+                            case "katarenga_winner":
+                                response = self.game.katarenga_winner()
+                                print(f"Katarenga winner sent to client: {response}")
 
-                        case "current_player":
-                             response = self.game.get_current_player().to_dict()
- 
-                        case "get_player":
-                            response = self.game.get_player(data["params"][0]).to_dict()
+                            case "get_grid":
+                                response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+                                print(f"Grid sent to client")
 
-                        case "get_possible_moves":
-                            x = data["params"][0]
-                            y = data["params"][1]
-                            response = self.game.get_possible_moves(x, y)
+                            case "get_camps":
+                                response = self.game.get_camps()
+                                print(f"Camps sent to client: {response}")
 
-                        case "move_pawn":
-                            x, new_x = data["params"][0], data["params"][2]
-                            y, new_y = data["params"][1], data["params"][3]
-                            response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
+                            case "current_player":
+                                response = self.game.get_current_player().to_dict()
+    
+                            case "get_player":
+                                response = self.game.get_player(data["params"][0]).to_dict()
 
-                        case "place_pawn":
-                            self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
+                            case "get_possible_moves":
+                                x = data["params"][0]
+                                y = data["params"][1]
+                                response = self.game.get_possible_moves(x, y)
 
-                        case "switch_player":
-                            response = self.game.switch_player()
+                            case "move_pawn":
+                                x, new_x = data["params"][0], data["params"][2]
+                                y, new_y = data["params"][1], data["params"][3]
+                                response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
 
-                        case "get_available_tiles":
-                            response = self.game.get_available_tiles()
+                            case "place_pawn":
+                                self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
 
-                    # Send the response
-                    if response is not None:
-                        message = {"response": response}
-                        client_socket.send(json.dumps(message + '\n').encode('utf-8'))
+                            case "switch_player":
+                                response = self.game.switch_player()
+
+                            case "get_available_tiles":
+                                response = self.game.get_available_tiles()
+
+                        # Send the response
+                        message = {"response": None if response is None else response}
+                        message = json.dumps(message) + '\n'
+
+                        client_socket.send(message.encode('utf-8'))
                         print(f"Response sent to client: {message}")
 
                 except Exception as e:
@@ -138,7 +149,7 @@ class Server:
                     import traceback
                     traceback.print_exc()
                     break
-                    
+                
         except Exception as e:
             print(f"Error in handle_client: {e}")
             import traceback
@@ -147,19 +158,6 @@ class Server:
             if client_socket in self.clients:
                 del self.clients[client_socket]
                 client_socket.close()
-    
-
-    def broadcast(self, data):
-        '''Send a specific message to all clients connected to the server'''
-
-        message = json.dumps(data)
-        for client in list(self.clients.keys()):
-            try:
-                client.send(message.encode('utf-8'))
-            except:
-                # Si l'envoi échoue, on considère que le client est déconnecté
-                if client in self.clients:
-                    del self.clients[client]
 
 
     def broadcast_presence(self):
@@ -223,8 +221,10 @@ class Server:
                 "usernames": ["host", "guest"],
                 "current_player": 0
             }
+        
+            start_message = json.dumps(start_message) + '\n'
 
             try:
-                client_socket.send(json.dumps(start_message).encode('utf-8'))
+                client_socket.send(start_message.encode('utf-8'))
             except Exception as e:
                 print(f"Error sending start message: {e}")

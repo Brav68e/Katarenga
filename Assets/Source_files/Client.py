@@ -67,21 +67,21 @@ class Client:
             try:
                 # Read data from the socket
                 data = self.client_socket.recv(8192).decode('utf-8')
-                if not data:
-                    break
 
                 # Accumulate data in the buffer
                 buffer += data
+                print(f"Buffer content: {buffer}")
 
                 # Process complete messages (delimited by '\n')
                 while "\n" in buffer:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        print(f"Message received: {message_data}")
+                        print(f"Client received: {message_data}")
 
                         # Handle responses
                         if "response" in message_data:
+                            print(f"Response put in the queue: {message_data['response']}")
                             self.response_queue.put(message_data["response"])
 
                         # Handle other types of messages (e.g., "start")
@@ -89,7 +89,6 @@ class Client:
                             gamemode = message_data["gamemode"]
                             usernames = message_data["usernames"]
                             print("Game initialization message received.")
-                            # Stop the waiting animation for the online hub and start the game UI
                             self.online_hub.set_waiting(False)
                             self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
 
@@ -165,7 +164,7 @@ class Client:
 
         request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
         print(f"Sending request to server: {request}")
-        self.client_socket.send(json.dumps(request).encode('utf-8'))
+        self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
 
         # Wait for the response
         try:
@@ -177,3 +176,9 @@ class Client:
             return None
         finally:
             time.sleep(0.1)  # Add a small delay to prevent spamming
+
+
+    def get_username(self):
+        '''Return the current username of the client'''
+
+        return self.username
