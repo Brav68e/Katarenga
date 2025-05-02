@@ -19,6 +19,9 @@ class Online_hub():
 
         self.server = None                  # Current hosting server
         self.hosting = False
+        self.start = False
+        self.username = None                # Username of the player
+        self.gamemode = None                # Gamemode of the player
 
         self.servers = []                   # List all servers available
         self.servers_amount = 0
@@ -56,6 +59,8 @@ class Online_hub():
             self.refresh_screen()
             self.handle_event()
             self.clock.tick(self.fps)
+            if self.start:
+                self.running = GamesUI(self.screen, self.username, self.gamemode, style='online', client=self.client)
 
         self.client.stop()
         if self.server:
@@ -544,6 +549,17 @@ class Online_hub():
         '''Set the current state of the client to waiting or not'''
 
         self.waiting = waiting
+
+
+###################################################################################################
+
+
+    def start_game(self, username, gamemode):
+
+        self.start = True
+        self.username = username
+        self.gamemode = gamemode
+
 
 ######################################################################################################################################################################################################
 

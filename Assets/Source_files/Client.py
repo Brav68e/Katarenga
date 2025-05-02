@@ -77,7 +77,7 @@ class Client:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        print(f"Client received: {message_data}")
+                        print(f"Message received: {message_data}")
 
                         # Handle responses
                         if "response" in message_data:
@@ -90,7 +90,7 @@ class Client:
                             usernames = message_data["usernames"]
                             print("Game initialization message received.")
                             self.online_hub.set_waiting(False)
-                            self.game_ui = GamesUI(self.screen, gamemode, usernames, style="online", client=self)
+                            self.online_hub.start_game(gamemode, usernames)
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")

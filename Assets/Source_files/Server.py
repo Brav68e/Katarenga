@@ -138,7 +138,7 @@ class Server:
                                 response = self.game.get_available_tiles()
 
                         # Send the response
-                        message = {"response": None if response is None else response}
+                        message = {"response":response}
                         message = json.dumps(message) + '\n'
 
                         client_socket.send(message.encode('utf-8'))

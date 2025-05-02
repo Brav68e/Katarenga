@@ -38,7 +38,7 @@ class Tile:
 
     def from_dict(data):
         '''Return a Tile object based on the dictionary version given (JSON handling)'''
-        return Tile(data["deplacement_pattern"], data["pawn_on"], data["collision"])
+        return Tile(data["deplacement_pattern"], Pawn.from_dict(data["pawn_on"]) if data["pawn_on"] else data["pawn_on"], data["collision"])
 
     
 
