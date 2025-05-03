@@ -96,21 +96,17 @@ class Server:
                         message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     
                         data = json.loads(message)  # Parse the JSON message
-                        #print(f"Message received: {data}")
 
                         response = None
                         match data["request"]:
                             case "katarenga_winner":
                                 response = self.game.katarenga_winner()
-                                #print(f"Katarenga winner sent to client: {response}")
 
                             case "get_grid":
                                 response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-                                #print(f"Grid sent to client")
 
                             case "get_camps":
                                 response = self.game.get_camps()
-                                #print(f"Camps sent to client: {response}")
 
                             case "current_player":
                                 response = self.game.get_current_player().to_dict()
@@ -127,9 +123,13 @@ class Server:
                                 x, new_x = data["params"][0], data["params"][2]
                                 y, new_y = data["params"][1], data["params"][3]
                                 response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
+                                
+
 
                             case "place_pawn":
                                 self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
+
+                                
 
                             case "switch_player":
                                 response = self.game.switch_player()
@@ -228,3 +228,15 @@ class Server:
                 client_socket.send(start_message.encode('utf-8'))
             except Exception as e:
                 print(f"Error sending start message: {e}")
+
+
+    def broadcast_game(self):
+        '''Broadcast the game to all clients'''
+
+        for client_socket in self.clients.keys():
+            message = {
+                "update": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+            }
+        
+            start_message = json.dumps(message) + '\n'
+            client_socket.send(start_message.encode('utf-8'))

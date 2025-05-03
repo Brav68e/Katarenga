@@ -70,18 +70,15 @@ class Client:
 
                 # Accumulate data in the buffer
                 buffer += data
-                #print(f"Buffer content: {buffer}")
 
                 # Process complete messages (delimited by '\n')
                 while "\n" in buffer:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        #print(f"Message received: {message_data}")
 
                         # Handle responses
                         if "response" in message_data:
-                            #print(f"Response put in the queue: {message_data['response']}")
                             self.response_queue.put(message_data["response"])
 
                         # Handle other types of messages (e.g., "start")
@@ -91,6 +88,10 @@ class Client:
                             print("Game initialization message received.")
                             self.online_hub.set_waiting(False)
                             self.online_hub.start_game(gamemode, usernames)
+
+                        elif "update" in message_data:
+                            # Refresh the current game grid
+                            self.game_ui.set_grid(read_board(message_data["update"]))
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")

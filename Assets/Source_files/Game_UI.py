@@ -266,7 +266,6 @@ class GamesUI():
         for row in range(8):
             for column in range(8):
                 if (pawn := grid[row][column].get_pawn()) != None:
-                    print(pawn)
                     owner = pawn.get_owner().get_username()
                     if owner == player0:
                         self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
@@ -338,7 +337,6 @@ class GamesUI():
                 self.move_animation(x, y, selected_row, selected_column)
                 self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
                 self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
-                self.grid = read_board(self.client.send_msg(("get_grid", None))) if self.style == "online" else self.game.get_grid()
                 self.selected_tile = None
             else:
                 self.selected_tile = None
@@ -433,7 +431,7 @@ class GamesUI():
 
         # Acquire information
         grid = self.game.get_grid() if self.style != "online" else self.grid
-        player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))
+        player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))["username"]
 
         # Animate the movement
         while True:
@@ -454,7 +452,7 @@ class GamesUI():
             for row in range(8):
                 for column in range(8):
                     if (pawn := grid[row][column].get_pawn()) != None and (row, column) != (x, y):
-                        owner = pawn.get_owner()
+                        owner = pawn.get_owner().get_username()
                         if owner == player0:
                             self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                         else:
@@ -496,3 +494,11 @@ class GamesUI():
                 self.game.place_pawn(x, y, current_player) if self.style != "online" else self.client.send_msg(("place_pawn", [x, y, current_player]))
                 self.game.switch_player() if self.style != "online" else self.client.send_msg(('switch_player', None))
         
+
+###############################################################################################################
+
+    
+    def set_grid(self, grid):
+        '''Set the grid of the game'''
+
+        self.grid = grid
