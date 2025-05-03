@@ -61,6 +61,7 @@ class Online_hub():
             self.clock.tick(self.fps)
             if self.start:
                 self.running = GamesUI(self.screen, self.username, self.gamemode, style='online', client=self.client)
+                self.start = False
 
         self.client.stop()
         if self.server:

@@ -116,7 +116,7 @@ class GamesUI():
                     if self.selected_tile == None:
                         self.handle_selection()
                     else:   
-                        self.handle_placement()
+                        self.handle_deplacement()
                        
                         
             # Refresh the screen
@@ -352,7 +352,7 @@ class GamesUI():
     def handle_placement(self):
         '''Handle tile placement on the board'''
         
-        if self.style == "online" and self.client.send_msg(("current_player", None)).get_username() != self.client.get_username():
+        if self.style == "online" and self.client.send_msg(("current_player", None))["username"] != self.client.get_username():
             # If it's not the player's turn, do nothing
             return
 

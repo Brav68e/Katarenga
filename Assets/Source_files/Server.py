@@ -102,6 +102,12 @@ class Server:
                             case "katarenga_winner":
                                 response = self.game.katarenga_winner()
 
+                            case "congress_winner":
+                                response = self.game.congress_winner()
+
+                            case "isolation_winner":
+                                response = self.game.isolation_winner()
+
                             case "get_grid":
                                 response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
 
