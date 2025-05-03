@@ -336,7 +336,6 @@ class GamesUI():
         
         # Check if the clicked tile is a valid move
         if [selected_row, selected_column] in moves:
-            self.move_animation(x, y, selected_row, selected_column)
             self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
             self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
             self.selected_tile = None
@@ -495,9 +494,3 @@ class GamesUI():
         
 
 ###############################################################################################################
-
-    
-    def set_grid(self, grid):
-        '''Set the grid of the game'''
-
-        self.grid = grid

@@ -123,11 +123,11 @@ class Server:
                                 x, new_x = data["params"][0], data["params"][2]
                                 y, new_y = data["params"][1], data["params"][3]
                                 response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
-                                self.broadcast_game()
+                                self.broadcast_deplacement(x, y, new_x, new_y)
 
                             case "place_pawn":
                                 self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
-                                self.broadcast_game()
+                                self.broadcast_placement(data["params"][0], data["params"][1], data["params"][2])
                                 
                             case "switch_player":
                                 response = self.game.switch_player()
@@ -140,7 +140,6 @@ class Server:
                         message = json.dumps(message) + '\n'
 
                         client_socket.send(message.encode('utf-8'))
-                        #print(f"Response sent to client: {message}")
 
                 except Exception as e:
                     print(f"Error handling client request: {e}")
@@ -207,7 +206,7 @@ class Server:
     def start_game(self, grid):
         '''Start the game on the server and communicates it to client'''
 
-        self.game = Games(grid, "host", "guess", self.gamemode)
+        self.game = Games(grid, "host", "guest", self.gamemode)
         self.game.init_pawns()
         self.game_started = True
 
@@ -228,12 +227,24 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_game(self):
-        '''Broadcast the game to all clients'''
+    def broadcast_deplacement(self, x, y, new_x, new_y):
+        '''Broadcast the deplacement to all clients'''
 
         for client_socket in self.clients.keys():
             message = {
-                "update": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+                "deplacement": [x, y, new_x, new_y]
+            }
+        
+            start_message = json.dumps(message) + '\n'
+            client_socket.send(start_message.encode('utf-8'))
+
+
+    def broadcast_placement(self, x, y, player):
+        '''Broadcast the placement to all clients'''
+
+        for client_socket in self.clients.keys():
+            message = {
+                "update": [x, y, player]
             }
         
             start_message = json.dumps(message) + '\n'
