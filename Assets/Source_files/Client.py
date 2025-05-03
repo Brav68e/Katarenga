@@ -70,18 +70,18 @@ class Client:
 
                 # Accumulate data in the buffer
                 buffer += data
-                print(f"Buffer content: {buffer}")
+                #print(f"Buffer content: {buffer}")
 
                 # Process complete messages (delimited by '\n')
                 while "\n" in buffer:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        print(f"Message received: {message_data}")
+                        #print(f"Message received: {message_data}")
 
                         # Handle responses
                         if "response" in message_data:
-                            print(f"Response put in the queue: {message_data['response']}")
+                            #print(f"Response put in the queue: {message_data['response']}")
                             self.response_queue.put(message_data["response"])
 
                         # Handle other types of messages (e.g., "start")
@@ -163,13 +163,11 @@ class Client:
         '''
 
         request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
-        print(f"Sending request to server: {request}")
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
 
         # Wait for the response
         try:
             response = self.response_queue.get(timeout=self.timeout)
-            print(f"Response received: {response}")
             return response
         except queue.Empty:
             print("Error: Response timeout.")

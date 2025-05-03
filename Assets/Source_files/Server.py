@@ -96,21 +96,21 @@ class Server:
                         message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     
                         data = json.loads(message)  # Parse the JSON message
-                        print(f"Message received: {data}")
+                        #print(f"Message received: {data}")
 
                         response = None
                         match data["request"]:
                             case "katarenga_winner":
                                 response = self.game.katarenga_winner()
-                                print(f"Katarenga winner sent to client: {response}")
+                                #print(f"Katarenga winner sent to client: {response}")
 
                             case "get_grid":
                                 response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-                                print(f"Grid sent to client")
+                                #print(f"Grid sent to client")
 
                             case "get_camps":
                                 response = self.game.get_camps()
-                                print(f"Camps sent to client: {response}")
+                                #print(f"Camps sent to client: {response}")
 
                             case "current_player":
                                 response = self.game.get_current_player().to_dict()
@@ -142,7 +142,7 @@ class Server:
                         message = json.dumps(message) + '\n'
 
                         client_socket.send(message.encode('utf-8'))
-                        print(f"Response sent to client: {message}")
+                        #print(f"Response sent to client: {message}")
 
                 except Exception as e:
                     print(f"Error handling client request: {e}")
