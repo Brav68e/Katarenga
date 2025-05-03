@@ -89,17 +89,8 @@ class Client:
                             self.online_hub.set_waiting(False)
                             self.online_hub.start_game(gamemode, usernames)
 
-                        elif "deplacement" in message_data:
-                            # Refresh the current game grid
-                            x, y, new_x, new_y = message_data["deplacement"]
-                            self.game_ui.move_animation(x, y, new_x, new_y)
-                            self.game_ui.set_board(read_board(message_data["board"]))
-
-                        elif "placement" in message_data:
-                            # Refresh the current game grid
-                            x, y, player = message_data["placement"]
-                            self.game_ui.move_animation(x, y, player)
-                            self.game_ui.set_board(read_board(message_data["board"]))
+                        elif "update" in message_data:
+                            self.game_ui.set_board(read_board(message_data["update"]))
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")

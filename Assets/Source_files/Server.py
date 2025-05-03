@@ -123,11 +123,11 @@ class Server:
                                 x, new_x = data["params"][0], data["params"][2]
                                 y, new_y = data["params"][1], data["params"][3]
                                 response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
-                                self.broadcast_deplacement(x, y, new_x, new_y)
+                                self.broadcast_board()
 
                             case "place_pawn":
                                 self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
-                                self.broadcast_placement(data["params"][0], data["params"][1], data["params"][2])
+                                self.broadcast_board()
                                 
                             case "switch_player":
                                 response = self.game.switch_player()
@@ -227,27 +227,16 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_deplacement(self, x, y, new_x, new_y):
-        '''Broadcast the deplacement to all clients'''
+    def broadcast_board(self):
+        '''Broadcast the current board to all clients'''
 
         for client_socket in self.clients.keys():
-            message = {
-                "deplacement": [x, y, new_x, new_y],
-                "board": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-            }
-        
-            start_message = json.dumps(message) + '\n'
-            client_socket.send(start_message.encode('utf-8'))
-
-
-    def broadcast_placement(self, x, y, player):
-        '''Broadcast the placement to all clients'''
-
-        for client_socket in self.clients.keys():
-            message = {
-                "update": [x, y, player],
-                "board": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-            }
-        
-            start_message = json.dumps(message) + '\n'
-            client_socket.send(start_message.encode('utf-8'))
+            try:
+                message = {
+                    "update": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+                }
+                
+                message = json.dumps(message) + '\n'
+                client_socket.send(message.encode('utf-8'))
+            except Exception as e:
+                print(f"Error sending board message: {e}")
