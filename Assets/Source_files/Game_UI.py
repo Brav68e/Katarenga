@@ -301,15 +301,17 @@ class GamesUI():
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.style == "online":
             grid = self.grid
+            current_player = self.client.send_msg(("current_player", None))["username"]
         else:
             grid = self.game.get_grid()
+            current_player = self.game.get_current_player().get_username()
 
         # Calculate the tile clicked based on mouse position
         column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
         row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
         # Check if the click is within the board boundaries
-        if 0 <= row < 8 and 0 <= column < 8:
+        if 0 <= row < 8 and 0 <= column < 8 and grid[row][column].get_owner().get_username() == current_player:
             self.selected_tile = grid[row][column]
 
 

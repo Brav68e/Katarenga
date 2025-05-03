@@ -123,14 +123,12 @@ class Server:
                                 x, new_x = data["params"][0], data["params"][2]
                                 y, new_y = data["params"][1], data["params"][3]
                                 response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
-                                
-
+                                self.broadcast_game()
 
                             case "place_pawn":
                                 self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
-
+                                self.broadcast_game()
                                 
-
                             case "switch_player":
                                 response = self.game.switch_player()
 
