@@ -296,12 +296,16 @@ class GamesUI():
 
 
     def handle_selection(self):
-        '''Handle tile selection on the board'''
+        '''Handle pawn selection on the board'''
         
         mouse_x, mouse_y = pygame.mouse.get_pos()
+
         if self.style == "online":
             grid = self.grid
             current_player = self.client.send_msg(("current_player", None))["username"]
+            # Check if the current player is me
+            if current_player != self.client.get_username():
+                return
         else:
             grid = self.game.get_grid()
             current_player = self.game.get_current_player().get_username()
@@ -310,8 +314,8 @@ class GamesUI():
         column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
         row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
-        # Check if the click is within the board boundaries
-        if 0 <= row < 8 and 0 <= column < 8 and grid[row][column].get_owner().get_username() == current_player:
+        # Check if the click is within the board boundaries + got a pawn that belongs to the current player
+        if 0 <= row < 8 and 0 <= column < 8 and grid[row][column].get_pawn() and grid[row][column].get_pawn().get_owner().get_username() == current_player:
             self.selected_tile = grid[row][column]
 
 
@@ -319,30 +323,23 @@ class GamesUI():
 
 
     def handle_deplacement(self):
-        '''Handle tile selection on the board'''
+        '''Handle pawn deplacement on the board'''
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Get the current pawn's position and possible moves
+        x, y = self.selected_tile.get_pawn().get_coordinates()
+        moves = (self.game.get_possible_moves(x, y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [x, y])))
+
+        selected_column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+        selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
         
-        if self.selected_tile.get_pawn() == None:
+        # Check if the clicked tile is a valid move
+        if [selected_row, selected_column] in moves:
+            self.move_animation(x, y, selected_row, selected_column)
+            self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
+            self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
             self.selected_tile = None
-
-        elif self.selected_tile.get_pawn().get_owner().get_username() == (self.game.get_current_player().get_username() if self.style != "online" else self.client.send_msg(("current_player", None))["username"]):
-            # Get the current pawn's position and possible moves
-            x, y = self.selected_tile.get_pawn().get_coordinates()
-            moves = (self.game.get_possible_moves(x, y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [x, y])))
-
-            selected_column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
-            selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
-            
-            # Check if the clicked tile is a valid move
-            if [selected_row, selected_column] in moves:
-                self.move_animation(x, y, selected_row, selected_column)
-                self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
-                self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
-                self.selected_tile = None
-            else:
-                self.selected_tile = None
-        
         else:
             self.selected_tile = None
 

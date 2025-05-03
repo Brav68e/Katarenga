@@ -181,3 +181,8 @@ class Client:
         '''Return the current username of the client'''
 
         return self.username
+    
+    def set_username(self, username):
+        '''Set the current username of the client'''
+
+        self.username = username
