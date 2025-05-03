@@ -91,11 +91,15 @@ class Client:
 
                         elif "deplacement" in message_data:
                             # Refresh the current game grid
-                            self.game_ui.move_animation(message_data["deplacement"])
+                            x, y, new_x, new_y = message_data["deplacement"]
+                            self.game_ui.move_animation(x, y, new_x, new_y)
+                            self.game_ui.set_board(read_board(message_data["board"]))
 
                         elif "placement" in message_data:
                             # Refresh the current game grid
-                            self.game_ui.move_animation(message_data["placement"])
+                            x, y, player = message_data["placement"]
+                            self.game_ui.move_animation(x, y, player)
+                            self.game_ui.set_board(read_board(message_data["board"]))
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")

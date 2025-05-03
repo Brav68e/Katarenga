@@ -232,7 +232,8 @@ class Server:
 
         for client_socket in self.clients.keys():
             message = {
-                "deplacement": [x, y, new_x, new_y]
+                "deplacement": [x, y, new_x, new_y],
+                "board": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
             }
         
             start_message = json.dumps(message) + '\n'
@@ -244,7 +245,8 @@ class Server:
 
         for client_socket in self.clients.keys():
             message = {
-                "update": [x, y, player]
+                "update": [x, y, player],
+                "board": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
             }
         
             start_message = json.dumps(message) + '\n'
