@@ -1,4 +1,5 @@
 from Games import *
+from Sub_class.button import *
 import pygame
 
 
@@ -60,7 +61,11 @@ class GamesUI():
             # Check for game over
             if (player := (self.game.katarenga_winner() if not self.client else self.client.send_msg(("katarenga_winner", None)))) != None:
                 self.running = False
+                self.show_winner(player)
                 print(f"{player} wins !")
+                if self.style != "online" and self.rematch():
+                    self.game.reset()
+                    self.running = True
 
             if self.style == "solo" :
                 self.bot_move()
@@ -102,7 +107,11 @@ class GamesUI():
             # Check for game over
             if (player := (self.game.congress_winner() if not self.client else self.client.send_msg(("congress_winner", None)))) != None:
                 self.running = False
+                self.show_winner(player)
                 print(f"{player} wins !")
+                if self.style != "online" and self.rematch():
+                    self.game.reset()
+                    self.running = True
 
             if self.style == "solo" :
                 self.bot_move()
@@ -142,7 +151,11 @@ class GamesUI():
             # Check for game over
             if (player := (self.game.isolation_winner() if not self.client else self.client.send_msg(("isolation_winner", None)))) != None:
                 self.running = False
+                self.show_winner(player)
                 print(f"{player} wins !")
+                if self.style != "online" and self.rematch():
+                    self.game.reset()
+                    self.running = True
 
             if self.style == "solo" :
                 self.bot_move()
@@ -186,6 +199,10 @@ class GamesUI():
                           "ghost_black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha()
                           }
         
+        self.buttons_img = {"yes" : pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha(),
+                            "no" : pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha()
+                            }
+
         # Adjust needed images to be transparent
         self.pawns_img["ghost_white"].set_alpha(100)
         self.pawns_img["ghost_black"].set_alpha(100)
@@ -208,6 +225,9 @@ class GamesUI():
 
         for pawn in self.pawns_img.keys():
             self.pawns_img[pawn] = pygame.transform.smoothscale(self.pawns_img[pawn], (self.tiles_size, self.tiles_size))
+
+        for button in self.buttons_img.keys():
+            self.buttons_img[button] = pygame.transform.smoothscale(self.buttons_img[button], (self.screen_width * 200/1280, self.screen_height * 120/780))
 
         self.board_background_topleft = (self.screen_width * 125/1280, self.screen_height * 30/720)
         self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.tiles_size * 10, self.tiles_size * 10))
@@ -261,7 +281,7 @@ class GamesUI():
             player0 = self.client.send_msg(("get_player", [0]))["username"]
         else:
             grid = self.game.get_grid()
-            player0 = self.game.get_player(0)["username"]
+            player0 = self.game.get_player(0).get_username()
         
         for row in range(8):
             for column in range(8):
@@ -335,13 +355,19 @@ class GamesUI():
         selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
         
         # Check if the clicked tile is a valid move
-        if [selected_row, selected_column] in moves:
-            if self.style != "online" : 
-                self.move_animation(x, y, selected_row, selected_column)
-            
+        if self.style == "online" and [selected_row, selected_column] in moves:
+
             self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
             self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
             self.selected_tile = None
+
+        elif (selected_row, selected_column) in moves:
+
+            self.move_animation(x, y, selected_row, selected_column)
+            self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
+            self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
+            self.selected_tile = None
+
         else:
             self.selected_tile = None
 
@@ -431,8 +457,8 @@ class GamesUI():
         start_time = pygame.time.get_ticks()
 
         # Acquire information
-        grid = self.game.get_grid() if self.style != "online" else self.grid
-        player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))["username"]
+        grid = self.game.get_grid()
+        player0 = self.game.get_player(0)
 
         # Animate the movement
         while True:
@@ -453,7 +479,7 @@ class GamesUI():
             for row in range(8):
                 for column in range(8):
                     if (pawn := grid[row][column].get_pawn()) != None and (row, column) != (x, y):
-                        owner = pawn.get_owner().get_username()
+                        owner = pawn.get_owner()
                         if owner == player0:
                             self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                         else:
@@ -499,8 +525,69 @@ class GamesUI():
 ###############################################################################################################
 
 
+    def show_winner(self, winner):
+        '''Display the winner of the game'''
+        
+        # Creating a popup window
+        popup = pygame.Surface((self.screen_width * 0.75, self.screen_height * 0.75))
+        popup.fill((255, 255, 255))
+
+        # Adding text to the popup
+        self.title = self.font.render(f"{winner} won the game !", True, "black")
+        self.title_pos = self.title.get_rect(center=(self.screen_width * 0.5, self.screen_height * 0.35))
+
+        # Display the image on the screen
+        self.screen.blit(popup, (self.screen_width * 0.125, self.screen_height * 0.125))
+        self.screen.blit(self.title, self.title_pos)
+        pygame.display.flip()
+
+        # Wait for a few seconds before closing
+        pygame.time.delay(3000)
+        
+
+###############################################################################################################
+
+
+    def rematch(self):
+        '''Display a popup asking for a rematch'''
+
+        # Creating a popup window
+        popup = pygame.Surface((self.screen_width * 0.75, self.screen_height * 0.75))
+        popup.fill((255, 255, 255))
+
+        # Adding text to the popup
+        self.title = self.font.render("Do you want a rematch ?", True, "black")
+        self.title_pos = self.title.get_rect(center=(self.screen_width * 0.5, self.screen_height * 0.35))
+
+        # Adding buttons to the popup
+        yes_button = Button((self.screen_width * 0.25, self.screen_height * 0.45), image=self.buttons_img["yes"], text="Yes", font_size= int(self.screen_height/720 * 64))
+        no_button = Button((self.screen_width * 0.55, self.screen_height * 0.45), image=self.buttons_img["no"],text="No", font_size= int(self.screen_height/720 * 64))
+        
+        # Main loop for the popup
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if yes_button.checkInput(event.pos):
+                        return True
+                    elif no_button.checkInput(event.pos):
+                        return False
+
+            # Draw the popup and buttons
+            self.screen.blit(popup, (self.screen_width * 0.125, self.screen_height * 0.125))
+            self.screen.blit(self.title, self.title_pos)
+            yes_button.update(self.screen)
+            no_button.update(self.screen)
+            pygame.display.flip()
+
+
+###############################################################################################################
+
+
     def set_board(self, grid):
         '''Set the board to a new grid'''
         
         self.grid = grid
-        
