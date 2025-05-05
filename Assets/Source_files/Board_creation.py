@@ -57,6 +57,8 @@ class Board_creation():
             pygame.display.flip()
             self.clock.tick(self.fps)
 
+        return self.response
+
 
 ###################################################################################################
 
@@ -141,7 +143,8 @@ class Board_creation():
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
-            self.running = GamesUI(self.screen, self.combine_regions(), "isolation", ["francis", "patrick"], "solo")
+            self.running = 0
+            self.response = self.combine_regions()
 
         else:
             self.selected_region = None
@@ -552,4 +555,5 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     #screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-    Board_creation(screen).run()
+    board = Board_creation(screen).run()
+    GamesUI(screen, "katarenga", ["jean", "eude"], board, "multi")

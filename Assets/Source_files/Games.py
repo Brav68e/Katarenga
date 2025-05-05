@@ -402,3 +402,14 @@ class Games:
         :return: Set of available tiles.
         """
         return self.available_tiles if self.gamemode == "isolation" else None
+    
+
+    def reset(self):
+        '''Reset the game to its initial state'''
+
+        # Remove every pawn from the board
+        for i in range(self.taille):
+            for j in range(self.taille):
+                self.board[i][j].place_pawn(None)
+
+        self.__init__(self.board, self.players[0].get_username(), self.players[1].get_username(), self.gamemode)

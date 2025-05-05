@@ -1,24 +1,31 @@
 import socket
 import threading
 import json
+import time
+import queue
 import Server as Server
+from Game_UI import *
 
 
 class Client:
 
-    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000):
+    def __init__(self, ip = None, port = None, username = None, broadcast_port = 50000, screen = None, online_hub = None):
         self.ip = ip
         self.port = port
         self.broadcast_port = broadcast_port
         self.username = username
 
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
+        self.online_hub = online_hub        # Keep track of the Online_hub object to update the waiting variable
         self.available_server = []
 
         self.connected = False
         self.listening = True
         self.messages = None
+        self.screen = screen
 
+        self.timeout = 5      # Timeout of 5s for server request
+        self.response_queue = queue.Queue()
         self.thread = None
         self.lock = threading.Lock()
 
@@ -54,31 +61,46 @@ class Client:
             pass
 
 
-    def send_message(self, message: str) -> bool:
-        if not self.connected:
-            return False
-        
-        try:
-            data = {"message": message}
-            self.client_socket.send(json.dumps(data).encode('utf-8'))
-            return True
-        except:
-            self.connected = False
-            return False
-
-
     def receive_messages(self):
+        buffer = ""
         while self.connected:
             try:
-                data = self.client_socket.recv(1024).decode('utf-8')
-                if not data:
-                    break
-                
-                message_data = json.loads(data)                 # Loads act as parsing
-                # Gestion de l'information
-            except:
-                break
-        
+                # Read data from the socket
+                data = self.client_socket.recv(8192).decode('utf-8')
+
+                # Accumulate data in the buffer
+                buffer += data
+
+                # Process complete messages (delimited by '\n')
+                while "\n" in buffer:
+                    message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
+                    try:
+                        message_data = json.loads(message)  # Parse the JSON message
+
+                        # Handle responses
+                        if "response" in message_data:
+                            self.response_queue.put(message_data["response"])
+
+                        # Handle other types of messages (e.g., "start")
+                        elif "message" in message_data and message_data["message"] == "start":
+                            gamemode = message_data["gamemode"]
+                            usernames = message_data["usernames"]
+                            print("Game initialization message received.")
+                            self.online_hub.set_waiting(False)
+                            self.online_hub.start_game(gamemode, usernames)
+
+                        elif "update" in message_data:
+                            self.game_ui.set_board(read_board(message_data["update"]))
+
+                    except json.JSONDecodeError as e:
+                        print(f"JSON decoding error: {e}")
+                        continue
+
+            except Exception as e:
+                print(f"Error receiving message: {e}")
+                import traceback
+                traceback.print_exc()
+
         self.connected = False
 
 
@@ -99,7 +121,7 @@ class Client:
             server_host, server_port, server_name, hosting, gamemode= server_info["private_ip"], server_info["port"], server_info["name"], server_info["hosting"], server_info["gamemode"]
             
             with self.lock:
-                if (server_host, server_port, server_name) not in self.available_server and hosting:
+                if (server_host, server_port, server_name, gamemode) not in self.available_server and hosting:
                     self.available_server.append((server_host, server_port, server_name, gamemode))
                     print(f"Discovered server at {server_host}:{server_port}")
 
@@ -127,3 +149,39 @@ class Client:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
         self.connected = False
         self.listening = True
+
+    
+    def set_game_ui(self, game_ui):
+        '''Set the game UI to the current client'''
+
+        self.game_ui = game_ui
+
+        
+    def send_msg(self, msg):
+        '''Send a msg to the server that basically returns the request's response
+        param: msg is a tuple with a string and a list of parameters (msg[0] is the request type)
+        '''
+
+        request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
+        self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
+
+        # Wait for the response
+        try:
+            response = self.response_queue.get(timeout=self.timeout)
+            return response
+        except queue.Empty:
+            print("Error: Response timeout.")
+            return None
+        finally:
+            time.sleep(0.1)  # Add a small delay to prevent spamming
+
+
+    def get_username(self):
+        '''Return the current username of the client'''
+
+        return self.username
+    
+    def set_username(self, username):
+        '''Set the current username of the client'''
+
+        self.username = username
