@@ -13,7 +13,8 @@ class Menu:
         self.screen_width = 1280
         self.screen_height = 720
 
-        self.BG = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
+        background = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
+        self.BG = pygame.transform.smoothscale(background, (1280, 720))
         self.BLACK = (0, 0, 0)
         self.WHITE = (255, 255, 255)
         self.GRAY = (200, 200, 200)
@@ -41,9 +42,7 @@ class Menu:
         
         # Load and play background music
         try:
-            pygame.mixer.music.load(r"Assets\Source_files\Sounds\medieval-adventure-154671.mp3")
-            # Or use forward slashes
-            # pygame.mixer.music.load("Assets/Source_files/Sounds/medieval-adventure-154671.mp3")
+            pygame.mixer.music.load(r"Assets\Source_files\Sounds\test.mp3")
             pygame.mixer.music.play(-1)  # Playing the music in a loop
             pygame.mixer.music.set_volume(self.volume)
         except Exception as e:
@@ -51,37 +50,48 @@ class Menu:
 
     def get_font(self, size):
         return pygame.font.Font(r"Assets/Source_files/fonts/font.ttf", size)
+    
+    def get_font2(self, size):
+        return pygame.font.Font(r"Assets/Source_files/fonts/font2.ttf", size)
 
     def setup_buttons(self):
         # main buttons
+        path_test = "Assets/Source_files/Images/menu/imgs/button_asset.png"
         if self.current_page == "Katarenga":
             self.buttons = [
-               Button(pos=(640, 300),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
-               Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
-               Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
+               Button(pos=(580, 250), image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(440, 350), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(430, 450), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Settings":
             self.buttons = [
-                Button(pos=(640, 300), image=None, text="Options", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 400), image=None, text="Rules", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 500), image=None, text="Create Tiles", base_color="black", font_size= int(self.screen_height/720 * 64))
+                Button(pos=(540, 250),image=None, text="Options", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(570, 350), image=None, text="Rules", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(490, 450), image=None, text="Create tiles", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
         elif self.current_page == "Options":
             # No default buttons for Options page
             self.buttons = []
+        elif self.current_page == "Rules":
+            # Buttons for rules selection
+            self.buttons = [
+                Button(pos=(220, 300), image=None, text="Katarenga", base_color="black", font_size=int(self.screen_height/720 * 64)),
+                Button(pos=(530, 300), image=None, text="Congress", base_color="black", font_size=int(self.screen_height/720 * 64)),
+                Button(pos=(820, 300), image=None, text="Isolation", base_color="black", font_size=int(self.screen_height/720 * 64))
+            ]
         else:
             self.buttons = [
-                Button(pos=(640, 300), image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 400), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                Button(pos=(640, 500), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
+                Button(pos=(580, 250),image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(440, 350), image=None, text="Local Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64)),
+               Button(pos=(430, 450), image=None, text="Online Multiplayer", base_color="black", font_size= int(self.screen_height/720 * 64))
             ]
 
         # Path to the icon images
         icon_images = [
-            "Assets/Source_files/Images/menu/icons/tour.png",
-            "Assets/Source_files/Images/menu/icons/plateau.png",
-            "Assets/Source_files/Images/menu/icons/I.png",
-            "Assets/Source_files/Images/menu/icons/settings.png"
+            "Assets/Source_files/Images/menu/icons/tour2.png",
+            "Assets/Source_files/Images/menu/icons/plateau2.png",
+            "Assets/Source_files/Images/menu/icons/I2.png",
+            "Assets/Source_files/Images/menu/icons/settings2.png"
         ]
 
         # Create icon buttons
@@ -95,7 +105,8 @@ class Menu:
                 (self.current_page == "Congress" and index == 1) or
                 (self.current_page == "Isolation" and index == 2) or
                 (self.current_page == "Settings" and index == 3) or
-                (self.current_page == "Options" and index == 3)
+                (self.current_page == "Options" and index == 3) or
+                (self.current_page == "Rules" and index == 3)
             )
             icon_button = IconButton(
                 pos,
@@ -115,11 +126,16 @@ class Menu:
         self.screen.blit(title_text, title_rect)
 
     def menu_buttons(self):
-        # Background for the bottom menu
-        s = pygame.Surface((800, 100))
-        s.set_alpha(180)
-        s.fill(self.BLACK)
-        self.screen.blit(s, (250, 620))
+         # Background for the bottom menu with rounded corners
+        s = pygame.Surface((800, 200), pygame.SRCALPHA)
+        s.fill((0, 0, 0, 0))  # Clear with transparent background
+        
+        # Draw rounded rectangle on the surface
+        rect = pygame.Rect(0, 0, 800, 200)  # You can adjust this value for more/less rounded corners
+        pygame.draw.rect(s, (*self.BLACK, 180), rect, border_radius=15)
+        
+        # Blit the surface to the screen
+        self.screen.blit(s, (240, 620))
 
         # Draw icons
         for button in self.icon_buttons:
@@ -156,8 +172,8 @@ class Menu:
         
         # Buttons for display mode
         self.display_buttons = [
-            Button(pos=(500, 450), image=None, text="Windowed", base_color="black", font_size= int(self.screen_height/720 * 64)),
-            Button(pos=(800, 450), image=None, text="Fullscreen", base_color="black", font_size= int(self.screen_height/720 * 64))
+            Button(pos=(380, 450), image=None, text="Windowed", base_color="black", font_size= int(self.screen_height/720 * 64)),
+            Button(pos=(680, 450), image=None, text="Fullscreen", base_color="black", font_size= int(self.screen_height/720 * 64))
         ]
         
         # Update and display the display mode buttons
@@ -182,6 +198,7 @@ class Menu:
 
     def update(self):
         # Display the background
+        
         self.screen.blit(self.BG, (0, 0))
         
         # If on the Options page, display the volume slider and display mode buttons
@@ -203,6 +220,212 @@ class Menu:
         # Display bottom menu icons
         self.menu_buttons()
 
+    def handle_icon_clicks(self, mouse_pos):
+        """Handle clicks on the menu icon buttons"""
+        for index, button in enumerate(self.icon_buttons):
+            if button.checkInput(mouse_pos):
+                # If we're in rules display mode, restore the original update method
+                if hasattr(self, 'original_update') and self.current_page == "Rules_Display":
+                    self.update = self.original_update
+                
+                if index == 0:
+                    self.current_page = "Katarenga"
+                elif index == 1:
+                    self.current_page = "Congress"
+                elif index == 2:
+                    self.current_page = "Isolation"
+                elif index == 3:
+                    self.current_page = "Settings"
+                self.setup_buttons()  # Update buttons to reflect the new page
+                return True
+        return False
+
+    def handle_settings_buttons(self, mouse_pos):
+        """Handle clicks on the settings page buttons"""
+        for i, button in enumerate(self.buttons):
+            if button.checkInput(mouse_pos):
+                if i == 0:  # "Option" button
+                    self.current_page = "Options"
+                    self.setup_buttons()
+                    return True
+                elif i == 1:  # "Rules" button
+                    self.current_page = "Rules"
+                    self.setup_buttons()
+                    return True
+                elif i == 2:  # "Create Tiles" button
+                    self.launch_create_region()
+                    return True
+        return False
+    
+    def rules_display_update(self):
+        self.screen.blit(self.BG, (0, 0))
+        
+        # Display title
+        title_text = self.get_font(80).render(self.rules_title, True, "#514b4b")
+        title_rect = title_text.get_rect(center=(640, 80))
+        self.screen.blit(title_text, title_rect)
+        
+        # Display rules text with line wrapping
+        font = self.get_font2(30)
+        y_offset = 150
+        for line in self.rules_text.split('\n'):
+            if line.strip():  # Skip empty lines
+                text = font.render(line, True, (0, 0, 0))
+                self.screen.blit(text, (100, y_offset))
+            y_offset += 35
+        
+        # Add back button
+        back_button = Button(pos=(50, 650), image=None, text="Retour", base_color="black", 
+                            font_size=int(self.screen_height/720 * 50))
+        
+        # Check if mouse is hovering over back button
+        mouse_pos = pygame.mouse.get_pos()
+        back_button.changeColor(mouse_pos, "grey")
+        back_button.update(self.screen)
+        
+        # Check if back button is clicked
+        if pygame.mouse.get_pressed()[0]:
+            if back_button.checkInput(mouse_pos):
+                self.current_page = "Rules"
+                self.setup_buttons()
+                self.update = self.original_update
+        
+        # Display bottom menu icons
+        self.menu_buttons()
+    
+    def handle_rules_buttons(self, mouse_pos):
+        for i, button in enumerate(self.buttons):
+            if button.checkInput(mouse_pos):
+                if self.current_page == "Rules_Display":
+                    # Return to rules selection page
+                    self.current_page = "Rules"
+                    self.setup_buttons()
+                    self.update = self.original_update  # Restore original update method
+                    return True
+                    
+                elif i == 0:  # "Katarenga Rules" button
+                    # Load and display Katarenga rules
+                    try:
+                        with open("Assets/Source_files/Rules/katarenga_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update  # Store original update method
+                        self.update = self.rules_display_update  # Set custom update method
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Katarenga Rules"
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
+                    return True
+                elif i == 1:  # "Congress Rules" button
+                    try:
+                        with open("Assets/Source_files/Rules/congress_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update
+                        self.update = self.rules_display_update
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Congress Rules"
+                        
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
+                    return True
+                elif i == 2:  # "Isolation Rules" button
+                    try:
+                        with open("Assets/Source_files/Rules/isolation_rules.txt", "r", encoding="utf-8") as file:
+                            rules_content = file.read()
+                        
+                        self.current_page = "Rules_Display"
+                        self.original_update = self.update
+                        self.update = self.rules_display_update
+                        
+                        # Store the rules content for display
+                        self.rules_text = rules_content
+                        self.rules_title = "Isolation Rules"
+
+                    except FileNotFoundError:
+                        print("Rules file not found")
+                    except Exception as e:
+                        print(f"Error loading rules: {e}")
+                    return True
+        return False
+        
+    def launch_create_region(self):
+        """Launch the Create_region module"""
+        # Save volume state before quitting
+        volume_level = self.volume
+        pygame.mixer.music.stop()
+
+        try:
+            # Import the create_region function
+            screen = pygame.display.set_mode((1280, 720))
+            # Run the create_region function
+            Create_region(screen)
+            
+            # After the create_region function returns, reinitialize the display for menu
+            pygame.display.set_mode((1280, 720))
+        except Exception as e:
+            print(f"Error launching Create_region: {e}")
+            # Ensure the display is reset if there's an error
+            pygame.display.set_mode((1280, 720))
+        
+        # Restore music and volume after return
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(volume_level)
+        
+    def handle_display_options(self, mouse_pos):
+        """Handle clicks on display mode buttons"""
+        if hasattr(self, 'display_buttons'):
+            for i, button in enumerate(self.display_buttons):
+                if button.checkInput(mouse_pos):
+                    if i == 0:  # Windowed mode
+                        pygame.display.set_mode((1280, 720))
+                        return True
+                    elif i == 1:  # Fullscreen mode
+                        pygame.display.set_mode((1280, 720), pygame.FULLSCREEN)
+                        return True
+        return False
+        
+    def handle_mouse_button_down(self, event):
+        """Handle mouse button down events"""
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Check for clicks on the icons
+        if self.handle_icon_clicks(mouse_pos):
+            return
+        
+        # Check for clicks on the main buttons in Settings page
+        if self.current_page == "Settings":
+            if self.handle_settings_buttons(mouse_pos):
+                return
+                
+        # Check for clicks on the rules buttons
+        if self.current_page == "Rules":
+            if self.handle_rules_buttons(mouse_pos):
+                return
+        
+        # Handle clicks on the volume bar
+        if self.current_page == "Options":
+            self.handle_volume_input(mouse_pos, True)
+            
+            # Handle clicks on display mode buttons
+            self.handle_display_options(mouse_pos)
+            
+    def handle_mouse_motion(self, event):
+        """Handle mouse motion events"""
+        # Update volume if adjusting the volume bar
+        if self.current_page == "Options" and self.is_dragging:
+            self.handle_volume_input(pygame.mouse.get_pos())
+
 class IconButton():
     def __init__(self, pos, text_input, font, base_color, hovering_color, icon_image=None, expanded=False):
         self.x_pos = pos[0]
@@ -216,7 +439,7 @@ class IconButton():
         self.icon_image = icon_image
         if self.icon_image:
             self.icon_image = pygame.image.load(icon_image)
-            self.icon_image = pygame.transform.scale(self.icon_image, (50, 50))  # resize icon
+            self.icon_image = pygame.transform.smoothscale(self.icon_image, (65, 65))  # resize icon
 
     def draw(self, screen):
         # Draw the button rectangle
@@ -236,97 +459,6 @@ class IconButton():
         else:
             self.current_color = self.base_color
 
-def handle_icon_clicks(menu, mouse_pos):
-    """Handle clicks on the menu icon buttons"""
-    for index, button in enumerate(menu.icon_buttons):
-        if button.checkInput(mouse_pos):
-            if index == 0:
-                menu.current_page = "Katarenga"
-            elif index == 1:
-                menu.current_page = "Congress"
-            elif index == 2:
-                menu.current_page = "Isolation"
-            elif index == 3:
-                menu.current_page = "Settings"
-            menu.setup_buttons()  # Update buttons to reflect the new page
-            return True
-    return False
-
-def handle_settings_buttons(menu, mouse_pos):
-    """Handle clicks on the settings page buttons"""
-    for i, button in enumerate(menu.buttons):
-        if button.checkInput(mouse_pos):
-            if i == 0:  # "Option" button
-                menu.current_page = "Options"
-                menu.setup_buttons()
-                return True
-            elif i == 2:  # "Create Tiles" button
-                launch_create_region(menu)
-                return True
-    return False
-
-def launch_create_region(menu):
-    """Launch the Create_region module"""
-    # Save volume state before quitting
-    volume_level = menu.volume
-    pygame.mixer.music.stop()
-
-    try:
-        # Import the create_region function
-        screen = pygame.display.set_mode((1280, 720))
-        # Run the create_region function
-        Create_region(screen)
-        
-        # After the create_region function returns, reinitialize the display for menu
-        pygame.display.set_mode((1280, 720))
-    except Exception as e:
-        print(f"Error launching Create_region: {e}")
-        # Ensure the display is reset if there's an error
-        pygame.display.set_mode((1280, 720))
-    
-    # Restore music and volume after return
-    pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(volume_level)
-
-def handle_display_options(menu, mouse_pos):
-    """Handle clicks on display mode buttons"""
-    if hasattr(menu, 'display_buttons'):
-        for i, button in enumerate(menu.display_buttons):
-            if button.checkInput(mouse_pos):
-                if i == 0:  # Windowed mode
-                    pygame.display.set_mode((1280, 720))
-                    return True
-                elif i == 1:  # Fullscreen mode
-                    pygame.display.set_mode((1280, 720), pygame.FULLSCREEN)
-                    return True
-    return False
-
-def handle_mouse_button_down(menu, event):
-    """Handle mouse button down events"""
-    mouse_pos = pygame.mouse.get_pos()
-    
-    # Check for clicks on the icons
-    if handle_icon_clicks(menu, mouse_pos):
-        return
-    
-    # Check for clicks on the main buttons in Settings page
-    if menu.current_page == "Settings":
-        if handle_settings_buttons(menu, mouse_pos):
-            return
-    
-    # Handle clicks on the volume bar
-    if menu.current_page == "Options":
-        menu.handle_volume_input(mouse_pos, True)
-        
-        # Handle clicks on display mode buttons
-        handle_display_options(menu, mouse_pos)
-
-def handle_mouse_motion(menu, event):
-    """Handle mouse motion events"""
-    # Update volume if adjusting the volume bar
-    if menu.current_page == "Options" and menu.is_dragging:
-        menu.handle_volume_input(pygame.mouse.get_pos())
-
 def run_menu():
     """Main function to run the menu"""
     pygame.init()
@@ -337,11 +469,11 @@ def run_menu():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                handle_mouse_button_down(menu, event)
+                menu.handle_mouse_button_down(event)
             elif event.type == pygame.MOUSEBUTTONUP:
                 menu.is_dragging = False
             elif event.type == pygame.MOUSEMOTION:
-                handle_mouse_motion(menu, event)
+                menu.handle_mouse_motion(event)
         
         menu.update()
         pygame.display.update()

@@ -1,0 +1,13 @@
+RÈGLES DE BASE
+• Le plateau est initialement vide.
+• À tour de rôle, chaque joueur place un pion sur une case vide.
+• Un pion ne peut pas être placé en position où il pourrait être capturé
+  par un pion déjà sur le plateau (quelle que soit sa couleur).
+• Il n'y a ni déplacements ni captures dans ce jeu.
+
+OBJECTIF
+Le dernier joueur capable de placer un pion légalement remporte la partie.
+
+STRATÉGIE
+Planifiez vos placements pour limiter les options de votre adversaire
+tout en préservant vos propres possibilités de jeu.

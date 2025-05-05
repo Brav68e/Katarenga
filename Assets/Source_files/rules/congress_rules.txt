@@ -1,0 +1,12 @@
+RÈGLES DE BASE
+• Les joueurs jouent à tour de rôle en déplaçant un de leurs pions.
+• Les captures sont interdites durant toute la partie.
+
+OBJECTIF
+Le but est de former un bloc connecté avec tous vos pions.
+
+CONDITION DE VICTOIRE
+Un joueur gagne quand tous ses pions forment un groupe connecté où :
+• Chaque pion est adjacent orthogonalement (horizontalement ou verticalement)
+  à au moins un autre de ses propres pions.
+• Tous les pions sont ainsi reliés entre eux, formant un bloc compact.
