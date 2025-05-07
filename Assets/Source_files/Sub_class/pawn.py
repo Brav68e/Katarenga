@@ -1,4 +1,4 @@
-from Sub_class.player import *
+from Source_files.Sub_class.player import *
 
 class Pawn():
 

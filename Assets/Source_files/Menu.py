@@ -1,12 +1,11 @@
 import pygame, sys, os
-from Sub_class.button import Button
-from Create_region import *
-from Create_region import Create_region
+from Source_files.Sub_class.button import Button
+from Source_files.Create_region import *
+from Source_files.Create_region import Create_region
 
 class Menu:
     def __init__(self, root):
-        self.root = root
-        self.screen = pygame.display.set_mode((1280, 720))
+        self.screen = root
         pygame.display.set_caption("Menu")
         
         # Dimensions of the screen
@@ -426,6 +425,27 @@ class Menu:
         if self.current_page == "Options" and self.is_dragging:
             self.handle_volume_input(pygame.mouse.get_pos())
 
+    def run_menu(self):
+        """Main function to run the menu"""
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_mouse_button_down(event)
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    self.is_dragging = False
+                elif event.type == pygame.MOUSEMOTION:
+                    self.handle_mouse_motion(event)
+            
+            self.update()
+            pygame.display.update()
+        
+        pygame.quit()
+        sys.exit()
+
 class IconButton():
     def __init__(self, pos, text_input, font, base_color, hovering_color, icon_image=None, expanded=False):
         self.x_pos = pos[0]
@@ -459,27 +479,8 @@ class IconButton():
         else:
             self.current_color = self.base_color
 
-def run_menu():
-    """Main function to run the menu"""
-    pygame.init()
-    menu = Menu(pygame.display.set_mode((1280, 720)))
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                menu.handle_mouse_button_down(event)
-            elif event.type == pygame.MOUSEBUTTONUP:
-                menu.is_dragging = False
-            elif event.type == pygame.MOUSEMOTION:
-                menu.handle_mouse_motion(event)
-        
-        menu.update()
-        pygame.display.update()
-    
-    pygame.quit()
-    sys.exit()
+
 
 if __name__ == "__main__":
-    run_menu()
+    pygame.init()
+    Menu(pygame.display.set_mode((1280, 720))).run_menu()

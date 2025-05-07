@@ -1,4 +1,4 @@
-from Sub_class.pawn import *
+from Source_files.Sub_class.pawn import *
 
 class Tile:
     def __init__(self, deplacement_pattern, pawn_on=None, collision=None):

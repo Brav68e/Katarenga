@@ -1,4 +1,5 @@
 from Source_files.Intro import Intro
+from Source_files.Menu import Menu
 import pygame
 
 
@@ -10,10 +11,16 @@ class Game():
         self.screen = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption("Game")
 
+
+
+    def run(self):
+
         Intro(self.screen)
+        Menu(self.screen).run_menu()
 
 
 
 
 
 
+Game().run()
