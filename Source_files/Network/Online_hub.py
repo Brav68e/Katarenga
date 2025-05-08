@@ -1,8 +1,8 @@
-from Server import Server
-from Client import Client
+from Assets.Source_files.Network.Server import Server
+from Assets.Source_files.Network.Client import Client
 from Sub_class.button import *
 from math import ceil
-from Board_creation import *
+from Assets.Source_files.Board_handling.Board_creation import *
 import pygame
 import threading
 import time

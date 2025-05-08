@@ -1,7 +1,7 @@
 import pygame, sys, os
 from Source_files.Sub_class.button import Button
-from Source_files.Create_region import *
-from Source_files.Create_region import Create_region
+from Source_files.Assets.Board_handling.Create_region import *
+from Source_files.Assets.Board_handling.Create_region import Create_region
 
 class Menu:
     def __init__(self, root):

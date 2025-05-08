@@ -1,5 +1,5 @@
-from Source_files.Intro import Intro
-from Source_files.Menu import Menu
+from Source_files.Menu.Intro import Intro
+from Source_files.Menu.Menu import Menu
 import pygame
 
 

@@ -3,7 +3,7 @@ import threading
 import json
 import time
 import queue
-import Server as Server
+import Assets.Source_files.Network.Server as Server
 from Game_UI import *
 
 

@@ -1,7 +1,7 @@
 from Source_files.Sub_class.tile import *
 from Source_files.Sub_class.button import *
 from Source_files.Sub_class.region import *
-from Source_files.Region_deletion import Delete_region
+from Assets.Source_files.Board_handling.Region_deletion import Delete_region
 import pygame
 import json
 
