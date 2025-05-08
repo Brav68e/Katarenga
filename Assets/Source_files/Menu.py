@@ -42,7 +42,7 @@ class Menu:
         
         # Load and play background music
         try:
-            pygame.mixer.music.load(r"Assets\Source_files\Sounds\test.mp3")
+            pygame.mixer.music.load(r"Assets\Source_files\Sounds\soundtrack.mp3")
             pygame.mixer.music.play(-1)  # Playing the music in a loop
             pygame.mixer.music.set_volume(self.volume)
         except Exception as e:

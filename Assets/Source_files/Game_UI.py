@@ -207,7 +207,7 @@ class GamesUI():
         self.pawns_img["ghost_white"].set_alpha(100)
         self.pawns_img["ghost_black"].set_alpha(100)
         
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
+        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Game_Background.png").convert()
         self.board_background_img = pygame.image.load("Assets/Source_files/Images/board_background.png").convert()
         self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height * 0.1))
 
