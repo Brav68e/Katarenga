@@ -11,11 +11,11 @@ import time
 
 class Online_hub():
 
-    def __init__(self, screen, controller = None):
+    def __init__(self, screen, controller = None, client_username = None):
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
-        self.client = Client(screen=screen, online_hub=self)  # Create a client instance with the screen as an argument
+        self.client = Client(screen=screen, online_hub=self, username= client_username)  # Create a client instance with the screen as an argument
 
         self.server = None                  # Current hosting server
         self.hosting = False

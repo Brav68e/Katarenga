@@ -393,6 +393,16 @@ class Menu:
                         pygame.display.set_mode((1280, 720), pygame.FULLSCREEN)
                         return True
         return False
+    
+    def get_usernames(self, mode):
+        """Display a username input screen based on the selected mode."""
+        num_fields = 1 if mode in ["Solo", "Online Multiplayer"] else 2
+        prompt = "Enter Username" if mode in ["Solo", "Online Multiplayer"] else "Enter Usernames"
+        username_input = UsernameInput(self.screen, prompt, num_fields)
+        result = username_input.run()
+        if result == "back":
+            return None  # Return None to indicate going back to the main menu
+        return username_input
         
     def handle_mouse_button_down(self, event):
         """Handle mouse button down events"""
@@ -418,6 +428,17 @@ class Menu:
             
             # Handle clicks on display mode buttons
             self.handle_display_options(mouse_pos)
+        
+        if self.current_page == "Katarenga":
+            if self.buttons[0].checkInput(mouse_pos):  # Solo
+                usernames = self.get_usernames("Solo")
+                # truc des username pour le jeu
+            elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
+                usernames = self.get_usernames("Local Multiplayer")
+                # truc des username pour le jeu
+            elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
+                usernames = self.get_usernames("Online Multiplayer")
+                # truc des username pour le jeu
             
     def handle_mouse_motion(self, event):
         """Handle mouse motion events"""
