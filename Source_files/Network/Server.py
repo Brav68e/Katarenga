@@ -2,7 +2,7 @@ import socket
 import threading
 import json
 import time
-from Games import *
+from Source_files.Games import Games
 
 
 class Server:

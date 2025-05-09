@@ -1,8 +1,8 @@
-from Assets.Source_files.Network.Server import Server
-from Assets.Source_files.Network.Client import Client
-from Sub_class.button import *
+from Source_files.Network.Server import Server
+from Source_files.Network.Client import Client
+from Source_files.Sub_class.button import *
 from math import ceil
-from Assets.Source_files.Board_handling.Board_creation import *
+from Source_files.Board_handling.Board_creation import *
 import pygame
 import threading
 import time
@@ -11,7 +11,7 @@ import time
 
 class Online_hub():
 
-    def __init__(self, screen, controller = None, client_username = None):
+    def __init__(self, screen, client_username = None):
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -39,7 +39,7 @@ class Online_hub():
         # Loading Images & Sound
         self.load_assets()
         self.resize_assets()
-        self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 64))
+        self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height/720 * 64))
 
         # Button creation & Server selection collision
         self.create_buttons()                         
@@ -396,14 +396,14 @@ class Online_hub():
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
              
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
-        self.buttons_img = {"back": pygame.image.load("Assets/Source_files/Images/Delete_region/left_arrow.png"),
-                            "up": pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png"),
-                            "down": pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png"),
-                            "join": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
-                            "host": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
-                            "create": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
-                            "next": pygame.image.load("Assets/Source_files/Images/Create_region/next.png"),
+        self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Background.png")
+        self.buttons_img = {"back": pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png"),
+                            "up": pygame.image.load("Source_files/Assets/Images/Utility/up_arrow.png"),
+                            "down": pygame.image.load("Source_files/Assets/Images/Utility/down_arrow.png"),
+                            "join": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
+                            "host": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
+                            "create": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
+                            "next": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
                             }
 
 
@@ -525,7 +525,7 @@ class Online_hub():
     def display_servers(self):
         '''Used to blit at max 4 availables servers, based on current page'''
 
-        font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height/720 * 32))
+        font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height/720 * 32))
 
         with self.lock:                                 # Lock before reading shared data
             servers_to_display = self.servers[self.current_page * 4: self.current_page * 4 + 4]

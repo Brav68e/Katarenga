@@ -10,7 +10,7 @@ from math import ceil
 
 class Delete_region():
 
-    def __init__(self, screen, controller = None):
+    def __init__(self, screen):
         
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -104,18 +104,18 @@ class Delete_region():
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
         
-        self.tiles_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
-                          "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
-                          "bishop": pygame.image.load("Assets/Source_files/Images/Create_region/bishop.png").convert(),
-                          "king": pygame.image.load("Assets/Source_files/Images/Create_region/king.png").convert(),
-                          "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert()
+        self.tiles_img = {"horse" : pygame.image.load("Source_files/Assets/Images/Board/horse.png").convert(),
+                          "rook" : pygame.image.load("Source_files/Assets/Images/Board/rook.png").convert(),
+                          "bishop": pygame.image.load("Source_files/Assets/Images/Board/bishop.png").convert(),
+                          "king": pygame.image.load("Source_files/Assets/Images/Board/king.png").convert(),
+                          "queen": pygame.image.load("Source_files/Assets/Images/Board/queen.png").convert()
                           }
         
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
-        self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
-        self.back_img = pygame.image.load("Assets/Source_files/Images/Delete_region/left_arrow.png").convert_alpha()
-        self.up_img = pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png").convert_alpha()
-        self.down_img = pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png").convert_alpha()
+        self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
+        self.button_img = pygame.image.load("Source_files/Assets/Images/Utility/button.png").convert_alpha()
+        self.back_img = pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha()
+        self.up_img = pygame.image.load("Source_files/Assets/Images/Utility/up_arrow.png").convert_alpha()
+        self.down_img = pygame.image.load("Source_files/Assets/Images/Utility/down_arrow.png").convert_alpha()
 
 
 ###################################################################################################

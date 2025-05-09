@@ -1,8 +1,8 @@
 from pygame import *
-from Sub_class.tile import *
-from Sub_class.button import *
-from Sub_class.region import *
-from Game_UI import *
+from Source_files.Sub_class.tile import *
+from Source_files.Sub_class.button import *
+from Source_files.Sub_class.region import *
+from Source_files.Game_UI import *
 import json
 from math import ceil, pow, cos, pi, sin
 import copy
@@ -11,13 +11,13 @@ import copy
 
 class Board_creation():
 
-    def __init__(self, screen, controller = None):
+    def __init__(self, screen):
         
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
         self.clock = pygame.time.Clock()
         self.fps = 60
-        running = True
+        self.response = None
 
         self.region_amount = region_amount()
         self.current_region_index = 0
@@ -39,7 +39,7 @@ class Board_creation():
         self.resize_assets()
 
         # Creation of things that need to be display
-        self.font = font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height * 0.1))
+        self.font = font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height * 0.1))
         self.create_buttons()
 
 
@@ -180,20 +180,20 @@ class Board_creation():
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
         
-        self.tiles_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
-                          "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
-                          "bishop": pygame.image.load("Assets/Source_files/Images/Create_region/bishop.png").convert(),
-                          "king": pygame.image.load("Assets/Source_files/Images/Create_region/king.png").convert(),
-                          "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert()
+        self.tiles_img = {"horse" : pygame.image.load("Source_files/Assets/Images/Board/horse.png").convert(),
+                          "rook" : pygame.image.load("Source_files/Assets/Images/Board/rook.png").convert(),
+                          "bishop": pygame.image.load("Source_files/Assets/Images/Board/bishop.png").convert(),
+                          "king": pygame.image.load("Source_files/Assets/Images/Board/king.png").convert(),
+                          "queen": pygame.image.load("Source_files/Assets/Images/Board/queen.png").convert()
                           }
         
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
-        self.board_background_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png").convert()
-        self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
-        self.back_img = pygame.image.load("Assets/Source_files/Images/Delete_region/left_arrow.png").convert_alpha()
-        self.up_img = pygame.image.load("Assets/Source_files/Images/Delete_region/up_arrow.png").convert_alpha()
-        self.down_img = pygame.image.load("Assets/Source_files/Images/Delete_region/down_arrow.png").convert_alpha()
-        self.next_img = pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha()
+        self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
+        self.board_background_img = pygame.image.load("Source_files/Assets/Images/Board/region.png").convert()
+        self.button_img = pygame.image.load("Source_files/Assets/Images/Utility/button.png").convert_alpha()
+        self.back_img = pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha()
+        self.up_img = pygame.image.load("Source_files/Assets/Images/Utility/up_arrow.png").convert_alpha()
+        self.down_img = pygame.image.load("Source_files/Assets/Images/Utility/down_arrow.png").convert_alpha()
+        self.next_img = pygame.image.load("Source_files/Assets/Images/Utility/next.png").convert_alpha()
         self.next_img.set_alpha(200)
 
 

@@ -1,7 +1,10 @@
 import pygame, sys, os
+from Source_files.Menu.Username_input import UsernameInput
 from Source_files.Sub_class.button import Button
-from Source_files.Assets.Board_handling.Create_region import *
-from Source_files.Assets.Board_handling.Create_region import Create_region
+from Source_files.Board_handling.Create_region import *
+from Source_files.Board_handling.Create_region import Create_region
+from Source_files.Game_UI import *
+from Source_files.Network.Online_hub import Online_hub
 
 class Menu:
     def __init__(self, root):
@@ -12,7 +15,7 @@ class Menu:
         self.screen_width = 1280
         self.screen_height = 720
 
-        background = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png")
+        background = pygame.image.load("Source_files/Assets/Images/Menu/Background.png")
         self.BG = pygame.transform.smoothscale(background, (1280, 720))
         self.BLACK = (0, 0, 0)
         self.WHITE = (255, 255, 255)
@@ -41,21 +44,20 @@ class Menu:
         
         # Load and play background music
         try:
-            pygame.mixer.music.load(r"Assets\Source_files\Sounds\soundtrack.mp3")
+            pygame.mixer.music.load(r"Source_files/Assets/Sounds/soundtrack.mp3")
             pygame.mixer.music.play(-1)  # Playing the music in a loop
             pygame.mixer.music.set_volume(self.volume)
         except Exception as e:
             print(f"Error loading music file: {e}")
 
     def get_font(self, size):
-        return pygame.font.Font(r"Assets/Source_files/fonts/font.ttf", size)
+        return pygame.font.Font(r"Source_files/Assets/Fonts/font.ttf", size)
     
     def get_font2(self, size):
-        return pygame.font.Font(r"Assets/Source_files/fonts/font2.ttf", size)
+        return pygame.font.Font(r"Source_files/Assets/Fonts/font2.ttf", size)
 
     def setup_buttons(self):
         # main buttons
-        path_test = "Assets/Source_files/Images/menu/imgs/button_asset.png"
         if self.current_page == "Katarenga":
             self.buttons = [
                Button(pos=(580, 250), image=None, text="Solo", base_color="black", font_size= int(self.screen_height/720 * 64)),
@@ -87,10 +89,10 @@ class Menu:
 
         # Path to the icon images
         icon_images = [
-            "Assets/Source_files/Images/menu/icons/tour2.png",
-            "Assets/Source_files/Images/menu/icons/plateau2.png",
-            "Assets/Source_files/Images/menu/icons/I2.png",
-            "Assets/Source_files/Images/menu/icons/settings2.png"
+            "Source_files/Assets/Images/Menu/tour.png",
+            "Source_files/Assets/Images/Menu/plateau.png",
+            "Source_files/Assets/Images/Menu/I.png",
+            "Source_files/Assets/Images/Menu/settings.png"
         ]
 
         # Create icon buttons
@@ -305,7 +307,7 @@ class Menu:
                 elif i == 0:  # "Katarenga Rules" button
                     # Load and display Katarenga rules
                     try:
-                        with open("Assets/Source_files/Rules/katarenga_rules.txt", "r", encoding="utf-8") as file:
+                        with open("Source_files/Assets/Rules/katarenga_rules.txt", "r", encoding="utf-8") as file:
                             rules_content = file.read()
                         
                         self.current_page = "Rules_Display"
@@ -322,7 +324,7 @@ class Menu:
                     return True
                 elif i == 1:  # "Congress Rules" button
                     try:
-                        with open("Assets/Source_files/Rules/congress_rules.txt", "r", encoding="utf-8") as file:
+                        with open("Source_files/Assets/Rules/congress_rules.txt", "r", encoding="utf-8") as file:
                             rules_content = file.read()
                         
                         self.current_page = "Rules_Display"
@@ -340,7 +342,7 @@ class Menu:
                     return True
                 elif i == 2:  # "Isolation Rules" button
                     try:
-                        with open("Assets/Source_files/Rules/isolation_rules.txt", "r", encoding="utf-8") as file:
+                        with open("Source_files/Assets/Rules/isolation_rules.txt", "r", encoding="utf-8") as file:
                             rules_content = file.read()
                         
                         self.current_page = "Rules_Display"
@@ -402,7 +404,7 @@ class Menu:
         result = username_input.run()
         if result == "back":
             return None  # Return None to indicate going back to the main menu
-        return username_input
+        return result
         
     def handle_mouse_button_down(self, event):
         """Handle mouse button down events"""
@@ -431,14 +433,16 @@ class Menu:
         
         if self.current_page == "Katarenga":
             if self.buttons[0].checkInput(mouse_pos):  # Solo
-                usernames = self.get_usernames("Solo")
-                # truc des username pour le jeu
+                if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
+                    username.append("AI")
+                    GamesUI(self.screen, "katarenga", username, grid)
             elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
-                usernames = self.get_usernames("Local Multiplayer")
+                if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
+                    GamesUI(self.screen, "katarenga", username, grid, "multi")
                 # truc des username pour le jeu
             elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
-                usernames = self.get_usernames("Online Multiplayer")
-                # truc des username pour le jeu
+                if (username := self.get_usernames("Online Multiplayer")):
+                    Online_hub(self.screen, username).run()
             
     def handle_mouse_motion(self, event):
         """Handle mouse motion events"""

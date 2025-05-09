@@ -1,6 +1,8 @@
+import pygame
+
 from Source_files.Menu.Intro import Intro
 from Source_files.Menu.Menu import Menu
-import pygame
+
 
 
 
@@ -17,10 +19,3 @@ class Game():
 
         Intro(self.screen)
         Menu(self.screen).run_menu()
-
-
-
-
-
-
-Game().run()

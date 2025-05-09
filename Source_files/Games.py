@@ -1,7 +1,7 @@
-from Sub_class.tile import *
-from Sub_class.pawn import *
-from Sub_class.player import *
-from Assets.Source_files.Board_handling.Board_creation import Board_creation
+from Source_files.Sub_class.tile import *
+from Source_files.Sub_class.pawn import *
+from Source_files.Sub_class.player import *
+from Source_files.Board_handling.Board_creation import Board_creation
 from random import choice, random
 
 

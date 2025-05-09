@@ -3,7 +3,7 @@ import pygame
 class Button:
     '''A flexible button class for pygame that supports images, text, or both with multi-line text support.'''
     
-    def __init__(self, pos, image=None, text='', font_path="Assets/Source_files/fonts/font.ttf", font_size=10, base_color="black", 
+    def __init__(self, pos, image=None, text='', font_path="Source_files/Assets/Fonts/font.ttf", font_size=10, base_color="black", 
                  hover_color=(100, 100, 255), animation_speed=5):
         self.image = image
         self.x_pos, self.y_pos = pos

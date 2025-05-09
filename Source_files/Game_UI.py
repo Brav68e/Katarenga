@@ -1,5 +1,5 @@
-from Games import *
-from Sub_class.button import *
+from Source_files.Sub_class.button import *
+from Source_files.Games import *
 import pygame
 
 
@@ -185,31 +185,31 @@ class GamesUI():
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
         
-        self.tiles_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
-                          "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
-                          "bishop": pygame.image.load("Assets/Source_files/Images/Create_region/bishop.png").convert(),
-                          "king": pygame.image.load("Assets/Source_files/Images/Create_region/king.png").convert(),
-                          "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert(),
-                          "possible_move": pygame.image.load("Assets/Source_files/Images/Create_region/possible_move.png").convert_alpha()
+        self.tiles_img = {"horse" : pygame.image.load("Source_files/Assets/Images/Board/horse.png").convert(),
+                          "rook" : pygame.image.load("Source_files/Assets/Images/Board/rook.png").convert(),
+                          "bishop": pygame.image.load("Source_files/Assets/Images/Board/bishop.png").convert(),
+                          "king": pygame.image.load("Source_files/Assets/Images/Board/king.png").convert(),
+                          "queen": pygame.image.load("Source_files/Assets/Images/Board/queen.png").convert(),
+                          "possible_move": pygame.image.load("Source_files/Assets/Images/Game/possible_move.png").convert_alpha()
                           }
         
-        self.pawns_img = {"white" : pygame.image.load("Assets/Source_files/Images/white_pawn.png").convert_alpha(),
-                          "black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha(),
-                          "ghost_white" : pygame.image.load("Assets/Source_files/Images/white_pawn.png").convert_alpha(),
-                          "ghost_black" : pygame.image.load("Assets/Source_files/Images/black_pawn.png").convert_alpha()
+        self.pawns_img = {"white" : pygame.image.load("Source_files/Assets/Images/Game/white_pawn.png").convert_alpha(),
+                          "black" : pygame.image.load("Source_files/Assets/Images/Game/black_pawn.png").convert_alpha(),
+                          "ghost_white" : pygame.image.load("Source_files/Assets/Images/Game/white_pawn.png").convert_alpha(),
+                          "ghost_black" : pygame.image.load("Source_files/Assets/Images/Game/black_pawn.png").convert_alpha()
                           }
         
-        self.buttons_img = {"yes" : pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha(),
-                            "no" : pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha()
+        self.buttons_img = {"yes" : pygame.image.load("Source_files/Assets/Images/Utility/next.png").convert_alpha(),
+                            "no" : pygame.image.load("Source_files/Assets/Images/Utility/next.png").convert_alpha()
                             }
 
         # Adjust needed images to be transparent
         self.pawns_img["ghost_white"].set_alpha(100)
         self.pawns_img["ghost_black"].set_alpha(100)
         
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Game_Background.png").convert()
-        self.board_background_img = pygame.image.load("Assets/Source_files/Images/board_background.png").convert()
-        self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", int(self.screen_height * 0.1))
+        self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Game_Background.png").convert()
+        self.board_background_img = pygame.image.load("Source_files/Assets/Images/Game/board_background.png").convert()
+        self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height * 0.1))
 
 
 ###################################################################################################

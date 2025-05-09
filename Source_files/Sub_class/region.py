@@ -130,7 +130,7 @@ def save_region(region):
     '''Add a dictionnary version of a region to the JSON region file'''
 
     try:
-        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+        with open("Source_files/Assets/Data_files/region.json", 'r') as f:
             regions = json.load(f)          # Lecture du fichier
 
     # Problème de lecture si le fichier est vide
@@ -139,7 +139,7 @@ def save_region(region):
 
     regions.append(region)
     # Réécrire tout le fichier
-    with open("Assets/Source_files/Data_files/region.json", 'w') as f:
+    with open("Source_files/Assets/Data_files/region.json", 'w') as f:
         json.dump(regions, f, indent=4)
 
 
@@ -151,7 +151,7 @@ def search_region(target):
 
     exist = False
     # Read the file and recreate a list that contain all the regions inside
-    with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+    with open("Source_files/Assets/Data_files/region.json", 'r') as f:
         regions_dicts = json.load(f)
 
     for reg in regions_dicts:
@@ -168,7 +168,7 @@ def region_amount():
     '''Return a int that indicate how many regions are available in your own datas'''
 
     try:
-        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+        with open("Source_files/Assets/Data_files/region.json", 'r') as f:
             regions = json.load(f)          # Lecture du fichier
 
     # Problème de lecture si le fichier est vide
@@ -185,7 +185,7 @@ def delete_region(index):
     '''Delete a region based on his index'''
 
     try:
-        with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+        with open("Source_files/Assets/Data_files/region.json", 'r') as f:
             regions = json.load(f)          # Lecture du fichier
 
     # Problème de lecture si le fichier est vide
@@ -196,7 +196,7 @@ def delete_region(index):
     regions.pop(index)
 
     # Réécrire tout le fichier
-    with open("Assets/Source_files/Data_files/region.json", 'w') as f:
+    with open("Source_files/Assets/Data_files/region.json", 'w') as f:
         json.dump(regions, f, indent=4)
 
 
@@ -206,7 +206,7 @@ def delete_region(index):
 def load_region(index):
     '''Return a Region object based on his index'''
 
-    with open("Assets/Source_files/Data_files/region.json", 'r') as f:
+    with open("Source_files/Assets/Data_files/region.json", 'r') as f:
         regions_list = json.load(f)
 
         # Load new regions

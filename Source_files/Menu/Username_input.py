@@ -1,32 +1,32 @@
 import sys
 import pygame
-from Sub_class.button import Button
-from Sub_class.player import Player
+from Source_files.Sub_class.button import Button
+from Source_files.Sub_class.player import Player
 
 class UsernameInput:
     def __init__(self, screen, prompt, num_fields=1):
         self.screen = screen
         self.prompt = prompt
         self.num_fields = num_fields
-        self.font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", 40)
-        self.label_font = pygame.font.Font("Assets/Source_files/fonts/font.ttf", 30)
+        self.font = pygame.font.Font("Source_files/Assets/fonts/font.ttf", 40)
+        self.label_font = pygame.font.Font("Source_files/Assets/fonts/font.ttf", 30)
         self.input_boxes = [pygame.Rect(440, 300 + i * 100, 500, 70) for i in range(num_fields)]  # Adjusted for multiple fields
         self.labels = ["Player 1", "Player 2"][:num_fields]  # Labels for the input boxes
         self.max_text_width = 480  # Maximum width for text inside the input box
         self.usernames = [f"Player {i + 1}" for i in range(num_fields)]  # Default usernames
         self.active = [False] * num_fields
-        self.back_arrow = Button(pos=(70, 600), image=pygame.image.load("Assets/Source_files/Images/Delete_region/left_arrow.png").convert_alpha(), text=None)
+        self.back_arrow = Button(pos=(70, 600), image=pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha(), text="")
         self.next_button = Button(
             pos=(580, 500),  # Adjusted position for "Next" button
             image=pygame.transform.smoothscale(
-                pygame.image.load("Assets/Source_files/Images/Create_region/next.png").convert_alpha(),
+                pygame.image.load("Source_files/Assets/Images/Utility/next.png").convert_alpha(),
                 (180, 60)
             ),
             text="Next",
             base_color="black",
             font_size=40
         )
-        self.background = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
+        self.background = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
         self.background = pygame.transform.smoothscale(self.background, screen.get_size())
 
     def run(self):

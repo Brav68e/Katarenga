@@ -1,7 +1,7 @@
 from Source_files.Sub_class.tile import *
 from Source_files.Sub_class.button import *
 from Source_files.Sub_class.region import *
-from Assets.Source_files.Board_handling.Region_deletion import Delete_region
+from Source_files.Board_handling.Region_deletion import Delete_region
 import pygame
 import json
 
@@ -105,17 +105,17 @@ class Create_region():
     def load_assets(self):
         '''Load once all the assets needed in this menu'''
         
-        self.tiles_img = {"horse" : pygame.image.load("Assets/Source_files/Images/Create_region/horse.png").convert(),
-                          "rook" : pygame.image.load("Assets/Source_files/Images/Create_region/rook.png").convert(),
-                          "bishop": pygame.image.load("Assets/Source_files/Images/Create_region/bishop.png").convert(),
-                          "king": pygame.image.load("Assets/Source_files/Images/Create_region/king.png").convert(),
-                          "queen": pygame.image.load("Assets/Source_files/Images/Create_region/queen.png").convert()
+        self.tiles_img = {"horse" : pygame.image.load("Source_files/Assets/Images/Board/horse.png").convert(),
+                          "rook" : pygame.image.load("Source_files/Assets/Images/Board/rook.png").convert(),
+                          "bishop": pygame.image.load("Source_files/Assets/Images/Board/bishop.png").convert(),
+                          "king": pygame.image.load("Source_files/Assets/Images/Board/king.png").convert(),
+                          "queen": pygame.image.load("Source_files/Assets/Images/Board/queen.png").convert()
                           }
         
-        self.region_img = pygame.image.load("Assets/Source_files/Images/Create_region/region.png").convert()
-        self.background_img = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
-        self.button_img = pygame.image.load("Assets/Source_files/Images/Create_region/button.png").convert_alpha()
-        self.back_img = pygame.image.load("Assets/Source_files/Images/Create_region/left_arrow.png").convert_alpha()
+        self.region_img = pygame.image.load("Source_files/Assets/Images/Board/region.png").convert()
+        self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
+        self.button_img = pygame.image.load("Source_files/Assets/Images/Utility/button.png").convert_alpha()
+        self.back_img = pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha()
 
 
 

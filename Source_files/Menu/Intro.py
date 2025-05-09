@@ -18,8 +18,8 @@ class Intro():
     
     def load_assets(self):
 
-        self.background = pygame.image.load("Assets/Source_files/Images/menu/imgs/Background.png").convert()
-        self.logo = pygame.image.load("Assets/Source_files/Images/Other/smart.png").convert_alpha()
+        self.background = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
+        self.logo = pygame.image.load("Source_files/Assets/Images/Other/smart.png").convert_alpha()
 
 
         self.background = pygame.transform.scale(self.background, (self.screen.get_width(), self.screen.get_height()))
