@@ -362,22 +362,13 @@ class Menu:
         
     def launch_create_region(self):
         """Launch the Create_region module"""
-        # Save volume state before quitting
-        volume_level = self.volume
-        #pygame.mixer.music.stop()
 
         try:
-            # Import the create_region function
-            screen = pygame.display.set_mode((1280, 720))
-            # Run the create_region function
-            Create_region(screen)
+            # Create a Create_region instance
+            Create_region(self.screen)
             
-            # After the create_region function returns, reinitialize the display for menu
-            pygame.display.set_mode((1280, 720))
         except Exception as e:
             print(f"Error launching Create_region: {e}")
-            # Ensure the display is reset if there's an error
-            pygame.display.set_mode((1280, 720))
         
         
     def handle_display_options(self, mouse_pos):
