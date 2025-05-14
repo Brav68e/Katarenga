@@ -364,7 +364,7 @@ class Menu:
         """Launch the Create_region module"""
         # Save volume state before quitting
         volume_level = self.volume
-        pygame.mixer.music.stop()
+        #pygame.mixer.music.stop()
 
         try:
             # Import the create_region function
@@ -379,9 +379,6 @@ class Menu:
             # Ensure the display is reset if there's an error
             pygame.display.set_mode((1280, 720))
         
-        # Restore music and volume after return
-        pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(volume_level)
         
     def handle_display_options(self, mouse_pos):
         """Handle clicks on display mode buttons"""
