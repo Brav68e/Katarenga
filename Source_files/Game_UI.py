@@ -8,14 +8,6 @@ class GamesUI():
 
     def __init__(self, screen, gamemode, usernames, grid = None, style = "solo", client = None):
 
-        print(f"Initializing GamesUI with:")
-        print(f"Screen: {screen}")
-        print(f"Grid: {grid}")
-        print(f"Gamemode: {gamemode}")
-        print(f"Usernames: {usernames}")
-        print(f"Style: {style}")
-        print(f"Client: {client}")
-
         if style != "online":
             self.game = Games(grid, usernames[0], usernames[1], gamemode)
             self.game.init_pawns()
@@ -260,9 +252,9 @@ class GamesUI():
             # Draw the pawns on the camps
             for i in range(2):
                 if camps["W"][i]:
-                    self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1]))
+                    self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + i * self.tiles_size*9, self.board_background_topleft[1]))
                 if camps["B"][i]:
-                    self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size, self.board_background_topleft[1] + 9 * self.tiles_size))
+                    self.screen.blit(self.pawns_img["black"], (self.board_background_topleft[0] + i * self.tiles_size*9, self.board_background_topleft[1] + 9 * self.tiles_size))
 
         except Exception as e:
             print(f"Error in draw_board: {e}")
