@@ -1,6 +1,7 @@
 from Source_files.Network.Server import Server
 from Source_files.Network.Client import Client
 from Source_files.Sub_class.button import *
+from Source_files.Game_UI import GamesUI
 from math import ceil
 from Source_files.Board_handling.Board_creation import *
 import pygame
