@@ -420,17 +420,32 @@ class Menu:
             self.handle_display_options(mouse_pos)
         
         if self.current_page == "Katarenga":
-            if self.buttons[0].checkInput(mouse_pos):  # Solo
-                if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
-                    username.append("AI")
-                    GamesUI(self.screen, "katarenga", username, grid)
-            elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
-                if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
-                    GamesUI(self.screen, "katarenga", username, grid, "multi")
-                # truc des username pour le jeu
-            elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
-                if (username := self.get_usernames("Online Multiplayer")):
-                    Online_hub(self.screen, username).run()
+            self.handle_game_lauch("katarenga")
+
+        elif self.current_page == "Congress":
+            self.handle_game_lauch("congress")
+
+        elif self.current_page == "Isolation":
+            self.handle_game_lauch("isolation")
+
+
+    def handle_game_lauch(self, mode):
+        '''Handle game launch based on the selected mode'''
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        if self.buttons[0].checkInput(mouse_pos):  # Solo
+            if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
+                username.append("AI")
+                GamesUI(self.screen, mode, username, grid)
+        elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
+            if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
+                GamesUI(self.screen, mode, username, grid, "multi")
+        elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
+            if (username := self.get_usernames("Online Multiplayer")):
+                Online_hub(self.screen, username).run()
+
+
             
     def handle_mouse_motion(self, event):
         """Handle mouse motion events"""
