@@ -106,7 +106,6 @@ class Online_hub():
             self.running = False
         elif self.buttons["join"].checkInput((x,y)) and self.selected_server is not None:
             if self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1]):           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
-                self.client.set_username("guest")
                 self.waiting_menu2()
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
             self.host_menu()
@@ -132,7 +131,6 @@ class Online_hub():
         # Start the server in a separate thread
         threading.Thread(target=self.server.start, daemon=True).start()
 
-        self.client.set_username("host")
         self.client.connect("127.0.0.1", 5555)
         self.hosting = True
 

@@ -377,6 +377,7 @@ class GamesUI():
         mouse_x, mouse_y = pygame.mouse.get_pos()
         grid = self.game.get_grid() if self.style != "online" else self.grid
         available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
+        available_tiles = [tuple(tile) for tile in available_tiles]
         current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
 
 
@@ -389,7 +390,7 @@ class GamesUI():
             # Now determine if the tile is available for placement
             if (row, column) in available_tiles: 
                 self.game.place_pawn(row, column, current_player) if self.style != "online" else self.client.send_msg(("place_pawn", [row, column, current_player]))
-                self.game.switch_player() if self.style != "online" else self.client.send_msg("switch_player, None")
+                self.game.switch_player() if self.style != "online" else self.client.send_msg(["switch_player", None])
 
 
 ###########################################################################################################
@@ -404,6 +405,7 @@ class GamesUI():
             if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner().get_username() == current_player:
                 pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
                 possible_moves = self.game.get_possible_moves(pawn_x, pawn_y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [pawn_x, pawn_y]))
+                possible_moves = [tuple(move) for move in possible_moves]
 
                 for row in range(8):
                     for column in range(8):
