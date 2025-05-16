@@ -35,6 +35,7 @@ class Client:
         self.ip = ip
         try:
             self.client_socket.connect((self.ip, self.port))
+            self.client_socket.send(self.username.encode('utf-8'))  # Send the username to the server
             self.connected = True
             self.listening = False
 

@@ -223,6 +223,9 @@ class Games:
         :param player: The player placing the pawn.
         """
 
+        if type(player) != Player:
+            player = self.players[0] if player["username"] == self.players[0].get_username() else self.players[1]
+
         # Place the pawn on the board
         self.board[x][y].place_pawn(Pawn(player, (x, y)))
         player.set_pawns(player.pawns_nbr() + 1)
@@ -401,7 +404,7 @@ class Games:
         Return the set of available tiles.
         :return: Set of available tiles.
         """
-        return self.available_tiles if self.gamemode == "isolation" else None
+        return list(self.available_tiles) if self.gamemode == "isolation" else None
     
 
     def reset(self):

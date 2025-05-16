@@ -15,7 +15,8 @@ class Server:
         self.broadcast_port = broadcast_port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.clients = {}                                                                   # Key : Socket / Value : Name
+        self.clients = {}                                                                   # Key : Socket / Value : Client ID
+        self.usernames = []                                                                 # List of usernames
         self.running = False
         self.thread = None
         self.lock = threading.Lock()
@@ -71,7 +72,8 @@ class Server:
     def accept_connections(self):
         while self.running:
             try:
-                client_socket, ip_port = self.server_socket.accept()                            # Just need the socket itself                             
+                client_socket, ip_port = self.server_socket.accept()                            # Just need the socket itself       
+                self.usernames.append(client_socket.recv(1024).decode('utf-8'))                 # Get the username from the client         
                 threading.Thread(target=self.handle_client, args=(client_socket,)).start()      # Weird notation cuz args needs tuple (and tuple need atleast a comma)                
             except:
                 break
@@ -212,7 +214,7 @@ class Server:
     def start_game(self, grid):
         '''Start the game on the server and communicates it to client'''
 
-        self.game = Games(grid, "host", "guest", self.gamemode)
+        self.game = Games(grid, self.usernames[0], self.usernames[1], self.gamemode)
         self.game.init_pawns()
         self.game_started = True
 
@@ -221,7 +223,7 @@ class Server:
             start_message = {
                 "message": "start",
                 "gamemode": self.gamemode,
-                "usernames": ["host", "guest"],
+                "usernames": self.usernames,
                 "current_player": 0
             }
         

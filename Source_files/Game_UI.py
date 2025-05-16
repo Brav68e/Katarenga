@@ -164,7 +164,7 @@ class GamesUI():
             # Refresh the screen
             self.draw_board()
             self.draw_pawns()
-            self.show_possible_moves()
+            self.show_possible_moves_isolation()
             self.draw_current_player()
 
             pygame.display.flip()
@@ -410,37 +410,46 @@ class GamesUI():
                         if (row, column) not in possible_moves:
                             self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
-        # Handle the case for isolation mode
-        else:
-            x, y = pygame.mouse.get_pos()
-            column = int((x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
-            row = int((y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
-            # Make darker the tiles that are not available
-            available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
-            for r in range(8):
-                for c in range(8):
-                    if (r, c) not in available_tiles:
-                        self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (c + 1) * self.tiles_size, self.board_background_topleft[1] + (r + 1) * self.tiles_size))
+##############################################################################################################
 
-            if 0 <= row < 8 and 0 <= column < 8:
-                # Acquire useful information
-                current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
-                grid = self.game.get_grid() if self.style != "online" else self.grid
-                player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))
 
-                if grid[row][column].get_pawn() == None and (row, column) in available_tiles:
-                    # Since this is an empty tile, we can show the possible move
-                    if current_player == player0:
-                        self.screen.blit(self.pawns_img["ghost_white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
-                    else:
-                        self.screen.blit(self.pawns_img["ghost_black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
-                    
-                    # Display every tile covered by the pawn
-                    possible_moves = self.game.get_possible_moves(row, column) if self.style != "online" else self.client.send_msg(("get_possible_moves", [row, column]))
-                    for move in possible_moves:
-                        row, column = move
-                        self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+    def show_possible_moves_isolation(self):
+        '''Show the possible moves for the selected tile'''
+
+        # Acquire useful information
+        current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
+        grid = self.game.get_grid() if self.style != "online" else self.grid
+        player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))
+
+        x, y = pygame.mouse.get_pos()
+        column = int((x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
+        row = int((y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
+
+        # Make darker the tiles that are not available
+        available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
+        available_tiles = [tuple(tile) for tile in available_tiles]
+
+        for r in range(8):
+            for c in range(8):
+                if (r, c) not in available_tiles:
+                    self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (c + 1) * self.tiles_size, self.board_background_topleft[1] + (r + 1) * self.tiles_size))
+
+
+        if 0 <= row < 8 and 0 <= column < 8 and self.client.get_username() == current_player["username"]:               # Either doing object or string comparison
+            if grid[row][column].get_pawn() == None and (row, column) in available_tiles:
+                # Since this is an empty tile, we can show the possible move
+                if current_player == player0:
+                    self.screen.blit(self.pawns_img["ghost_white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+                else:
+                    self.screen.blit(self.pawns_img["ghost_black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+                
+                # Display every tile covered by the pawn
+                possible_moves = self.game.get_possible_moves(row, column) if self.style != "online" else self.client.send_msg(("get_possible_moves", [row, column]))
+                for move in possible_moves:
+                    row, column = move
+                    self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
 
 
 ##############################################################################################################

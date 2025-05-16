@@ -443,7 +443,7 @@ class Menu:
                 GamesUI(self.screen, mode, username, grid, "multi")
         elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
             if (username := self.get_usernames("Online Multiplayer")):
-                Online_hub(self.screen, username).run()
+                Online_hub(self.screen, username[0]).run()
 
 
             
