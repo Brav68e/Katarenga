@@ -7,18 +7,24 @@ from random import choice, random
 
 class Games:
     
-    def __init__(self, grille, username1: str, username2: str, gamemode):
+    def __init__(self, grille, player1, player2, gamemode, current_player=0):
         """
         Initialize a board using an existing grid of Tile objects.
         """
 
+        # Player can be either a Player object or a string (username)
+        if type(player1) == str and type(player2) == str:
+            username1 = player1
+            username2 = player2
+            self.players = [Player(username1), Player(username2)]
+        else:
+            self.players = [player1, player2]
+
         self.gamemode = gamemode
-        self.players = [Player(username1), Player(username2)]
-        self.current_player = self.players[0]  # Start with player 1
+        self.current_player = self.players[current_player]  # Start with player 1
 
         self.board = grille
         self.taille = 8
-        self.init_pawns()
         self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
     
 

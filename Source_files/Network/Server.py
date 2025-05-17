@@ -99,55 +99,22 @@ class Server:
                     
                         data = json.loads(message)  # Parse the JSON message
 
-                        response = None
                         match data["request"]:
-                            case "katarenga_winner":
-                                response = self.game.katarenga_winner()
+                            case "update":
+                                # Handle the update request
+                                if "board" in data:
+                                    board = data["board"]
+                                    current_player = data["current_player"]
+                                    players = data["players"]
+                                    self.broadcast_board(board, players, current_player)
 
-                            case "congress_winner":
-                                response = self.game.congress_winner()
+                            case "start":
+                                # Handle the start request
+                                grid = data["board"]
+                                self.start_game(grid)
 
-                            case "isolation_winner":
-                                response = self.game.isolation_winner()
-
-                            case "get_grid":
-                                response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-
-                            case "get_camps":
-                                response = self.game.get_camps()
-
-                            case "current_player":
-                                response = self.game.get_current_player().to_dict()
-    
-                            case "get_player":
-                                response = self.game.get_player(data["params"][0]).to_dict()
-
-                            case "get_possible_moves":
-                                x = data["params"][0]
-                                y = data["params"][1]
-                                response = self.game.get_possible_moves(x, y)
-
-                            case "move_pawn":
-                                x, new_x = data["params"][0], data["params"][2]
-                                y, new_y = data["params"][1], data["params"][3]
-                                response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
-                                self.broadcast_board()
-
-                            case "place_pawn":
-                                self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
-                                self.broadcast_board()
                                 
-                            case "switch_player":
-                                response = self.game.switch_player()
-
-                            case "get_available_tiles":
-                                response = self.game.get_available_tiles()
-
-                        # Send the response
-                        message = {"response":response}
-                        message = json.dumps(message) + '\n'
-
-                        client_socket.send(message.encode('utf-8'))
+                            
 
                 except Exception as e:
                     print(f"Error handling client request: {e}")
@@ -214,17 +181,12 @@ class Server:
     def start_game(self, grid):
         '''Start the game on the server and communicates it to client'''
 
-        self.game = Games(grid, self.usernames[0], self.usernames[1], self.gamemode)
-        self.game.init_pawns()
-        self.game_started = True
-
-
         for client_socket in self.clients.keys():
             start_message = {
-                "message": "start",
+                "start": "game",
                 "gamemode": self.gamemode,
                 "usernames": self.usernames,
-                "current_player": 0
+                "board": grid
             }
         
             start_message = json.dumps(start_message) + '\n'
@@ -235,13 +197,16 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_board(self):
-        '''Broadcast the current board to all clients'''
+    def broadcast_board(self, board, players, current_player):
+        '''Broadcast the current game state to all clients'''
 
         for client_socket in self.clients.keys():
             try:
                 message = {
-                    "update": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+                    "update": "board",
+                    "board": board,
+                    "current_player": current_player,
+                    "players": players
                 }
                 
                 message = json.dumps(message) + '\n'

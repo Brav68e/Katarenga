@@ -2,7 +2,6 @@ import socket
 import threading
 import json
 import time
-import queue
 import Source_files.Network.Server as Server
 from Source_files.Game_UI import *
 
@@ -25,7 +24,6 @@ class Client:
         self.screen = screen
 
         self.timeout = 5      # Timeout of 5s for server request
-        self.response_queue = queue.Queue()
         self.thread = None
         self.lock = threading.Lock()
 
@@ -79,19 +77,17 @@ class Client:
                         message_data = json.loads(message)  # Parse the JSON message
 
                         # Handle responses
-                        if "response" in message_data:
-                            self.response_queue.put(message_data["response"])
+                        if "update" in message_data:
+                            players = message_data["players"]
+                            board, owners = read_board(message_data["board"])
+                            # Add the player if he is not found on the board (isolation case)
+                            if players[0] not in owners:
+                                owners[players[0]] = Player(players[0], 0)
+                            self.game_ui.update_game(board, owners)
 
-                        # Handle other types of messages (e.g., "start")
-                        elif "message" in message_data and message_data["message"] == "start":
-                            gamemode = message_data["gamemode"]
-                            usernames = message_data["usernames"]
-                            print("Game initialization message received.")
+                        elif "start" in message_data:
+                            self.game_ui.start_game(message_data["board"], message_data["usernames"], message_data["gamemode"])
                             self.online_hub.set_waiting(False)
-                            self.online_hub.start_game(gamemode, usernames)
-
-                        elif "update" in message_data:
-                            self.game_ui.set_board(read_board(message_data["update"]))
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")
@@ -158,23 +154,14 @@ class Client:
         self.game_ui = game_ui
 
         
-    def send_msg(self, msg):
-        '''Send a msg to the server that basically returns the request's response
-        param: msg is a tuple with a string and a list of parameters (msg[0] is the request type)
+    def send_game_state(self, board, players, current_player):
+        '''Send a msg to the server that basically spread the game state to all the players
+        param board: list of list of Tile object
+        param current_player: index of the current player
         '''
 
-        request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
+        request = {"update": "board", "board": board, "current_player": current_player, "players": players}
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
-
-        # Wait for the response
-        try:
-            response = self.response_queue.get(timeout=self.timeout)
-            return response
-        except queue.Empty:
-            print("Error: Response timeout.")
-            return None
-        finally:
-            time.sleep(0.1)  # Add a small delay to prevent spamming
 
 
     def get_username(self):
