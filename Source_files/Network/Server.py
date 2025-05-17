@@ -100,19 +100,18 @@ class Server:
                     
                         data = json.loads(message)  # Parse the JSON message
 
-                        match data["request"]:
-                            case "update":
-                                # Handle the update request
-                                if "board" in data:
-                                    board = data["board"]
-                                    current_player = data["current_player"]
-                                    players = data["players"]
-                                    self.broadcast_board(board, players, current_player)
+                        if "update" in data:
+                            # Handle the update request
+                            if "board" in data:
+                                board = data["board"]
+                                current_player = data["current_player"]
+                                players = data["players"]
+                                self.broadcast_board(board, players, current_player)
 
-                            case "start":
-                                # Handle the start request
-                                grid = data["board"]
-                                self.start_game(grid)
+                        elif "start" in data:
+                            # Handle the start request
+                            grid = data["board"]
+                            self.start_game(grid)
 
                                 
                             
