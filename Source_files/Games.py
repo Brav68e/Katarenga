@@ -301,10 +301,11 @@ class Games:
         Check if there is a winner.
         :return: The winner (his username) or None if there is no winner yet.
         """
+
         if all(self.camps['W']) or (self.players[1].pawns_nbr() + self.camps["B"][0] + self.camps["B"][1]) < 2:
             return self.players[0].get_username()
         
-        elif all(self.camps['B']) or (self.players[1].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
+        elif all(self.camps['B']) or (self.players[0].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
             return self.players[1].get_username()
         
         else:
