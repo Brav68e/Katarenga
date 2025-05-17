@@ -81,10 +81,16 @@ class Client:
                             players = message_data["players"]
                             board, owners = read_board(message_data["board"])
                             current_player = message_data["current_player"]
+                            camps = message_data["camps"]
+                            available_moves = message_data["available_moves"]
+
                             # Add the player if he is not found on the board (isolation case)
                             if players[0] not in owners:
                                 owners[players[0]] = Player(players[0], 0)
-                            self.game_ui.update_game(board, owners, current_player)
+                            if players[1] not in owners:
+                                owners[players[1]] = Player(players[1], 0)
+
+                            self.game_ui.update_game(board, owners, current_player, camps, available_moves)
 
                         elif "start" in message_data:
                             self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])
@@ -155,7 +161,7 @@ class Client:
         self.game_ui = game_ui
 
         
-    def send_game_state(self, board, players, current_player):
+    def send_game_state(self, board, players, current_player, camps, available_moves):
         '''Send a msg to the server that basically spread the game state to all the players
         param board: list of list of Tile object
         param current_player: index of the current player
@@ -163,7 +169,7 @@ class Client:
 
         board = [[tile.to_dict() for tile in row] for row in board]
 
-        request = {"update": "board", "board": board, "current_player": current_player, "players": players}
+        request = {"update": "board", "board": board, "current_player": current_player, "players": players, "camps": camps, "available_moves": available_moves}
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
 
 

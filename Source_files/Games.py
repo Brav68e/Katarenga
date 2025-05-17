@@ -7,7 +7,7 @@ from random import choice, random
 
 class Games:
     
-    def __init__(self, grille, player1, player2, gamemode, current_player=0):
+    def __init__(self, grille, player1, player2, gamemode, current_player=0, camps={"W": [False, False], "B": [False, False]}, available_tiles=None):
         """
         Initialize a board using an existing grid of Tile objects.
         """
@@ -31,7 +31,14 @@ class Games:
 
         self.board = grille
         self.taille = 8
-        self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
+        self.camps = camps  # Track if camps are occupied
+    
+        if available_tiles is None:
+            # For Isolation, create a special set that contain every tile of the board
+            self.available_tiles = set()
+            for i in range(self.taille):
+                for j in range(self.taille):
+                    self.available_tiles.add((i, j)) 
     
 
     def init_pawns(self):
@@ -53,14 +60,7 @@ class Games:
 
             for i in range(8):
                 self.board[white_positions[i][0]][white_positions[i][1]].place_pawn(Pawn(self.players[0], (white_positions[i][0], white_positions[i][1])))
-                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))
-
-        else:
-            # For Isolation, create a special set that contain every tile of the board
-            self.available_tiles = set()
-            for i in range(self.taille):
-                for j in range(self.taille):
-                    self.available_tiles.add((i, j))        
+                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))       
 
 
 
@@ -331,6 +331,8 @@ class Games:
         Check if there is a winner.
         :return: The winner (his username) or None if there is no winner yet.
         """
+        self.available_tiles = self.get_available_tiles()
+
         if self.current_player == self.players[0] and not self.available_tiles:
             return self.players[1].get_username()
         

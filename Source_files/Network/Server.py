@@ -106,7 +106,9 @@ class Server:
                                 board = data["board"]
                                 current_player = data["current_player"]
                                 players = data["players"]
-                                self.broadcast_board(board, players, current_player)
+                                camps = data["camps"]
+                                available_moves = data["available_moves"]
+                                self.broadcast_board(board, players, current_player, camps, available_moves)
 
                         elif "start" in data:
                             # Handle the start request
@@ -197,7 +199,7 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_board(self, board, players, current_player):
+    def broadcast_board(self, board, players, current_player, camps, available_moves):
         '''Broadcast the current game state to all clients'''
 
         for client_socket in self.clients.keys():
@@ -206,7 +208,9 @@ class Server:
                     "update": "board",
                     "board": board,
                     "current_player": current_player,
-                    "players": players
+                    "players": players,
+                    "camps": camps,
+                    "available_moves": available_moves
                 }
                 
                 message = json.dumps(message) + '\n'

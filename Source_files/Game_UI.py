@@ -64,7 +64,7 @@ class GamesUI():
                     current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
                     player1 = self.game.get_player(0).get_username()
                     player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index)
+                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
             if self.style == "solo" :
                 self.bot_move()
@@ -117,7 +117,7 @@ class GamesUI():
                     current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
                     player1 = self.game.get_player(0).get_username()
                     player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index)
+                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
             if self.style == "solo" :
                 self.bot_move()
@@ -168,7 +168,7 @@ class GamesUI():
                     current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
                     player1 = self.game.get_player(0).get_username()
                     player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index)
+                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
             if self.style == "solo" :
                 self.bot_move()
@@ -367,7 +367,7 @@ class GamesUI():
                 current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
                 player1 = self.game.get_player(0).get_username()
                 player2 = self.game.get_player(1).get_username()
-                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index)
+                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
         else:
             self.selected_tile = None
@@ -405,7 +405,7 @@ class GamesUI():
                 current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
                 player1 = self.game.get_player(0).get_username()
                 player2 = self.game.get_player(1).get_username()
-                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index)
+                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
 
 ###########################################################################################################
@@ -612,7 +612,7 @@ class GamesUI():
 ###############################################################################################################
 
 
-    def update_game(self, grid, owners, current_player):
+    def update_game(self, grid, owners, current_player, camps, available_moves):
         '''Usefull to update the game state in online mode'''
         
-        self.game = Games(grid, owners[self.usernames[0]], owners[self.usernames[1]], self.gamemode, current_player)
+        self.game = Games(grid, owners[self.usernames[0]], owners[self.usernames[1]], self.gamemode, current_player, camps, available_moves)
