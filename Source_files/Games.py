@@ -12,6 +12,12 @@ class Games:
         Initialize a board using an existing grid of Tile objects.
         """
 
+        print("Game initialized")
+        print(f"Gamemode: {gamemode}")
+        print(f"Player 1: {player1}")
+        print(f"Player 2: {player2}")
+        print(f"Current player: {current_player}")
+
         # Player can be either a Player object or a string (username)
         if type(player1) == str and type(player2) == str:
             username1 = player1

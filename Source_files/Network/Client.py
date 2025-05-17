@@ -80,10 +80,11 @@ class Client:
                         if "update" in message_data:
                             players = message_data["players"]
                             board, owners = read_board(message_data["board"])
+                            current_player = message_data["current_player"]
                             # Add the player if he is not found on the board (isolation case)
                             if players[0] not in owners:
                                 owners[players[0]] = Player(players[0], 0)
-                            self.game_ui.update_game(board, owners)
+                            self.game_ui.update_game(board, owners, current_player)
 
                         elif "start" in message_data:
                             self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])

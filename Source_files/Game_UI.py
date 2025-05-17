@@ -418,7 +418,7 @@ class GamesUI():
 
         if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner().get_username() == current_player:
             pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
-            possible_moves = self.game.get_possible_moves(pawn_x, pawn_y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [pawn_x, pawn_y]))
+            possible_moves = self.game.get_possible_moves(pawn_x, pawn_y)
             possible_moves = [tuple(move) for move in possible_moves]
 
             for row in range(8):
@@ -612,7 +612,7 @@ class GamesUI():
 ###############################################################################################################
 
 
-    def update_game(self, grid, owners):
+    def update_game(self, grid, owners, current_player):
         '''Usefull to update the game state in online mode'''
         
-        self.game = Games(grid, owners[self.usernames[0]], owners[self.usernames[1]], self.gamemode)
+        self.game = Games(grid, owners[self.usernames[0]], owners[self.usernames[1]], self.gamemode, current_player)
