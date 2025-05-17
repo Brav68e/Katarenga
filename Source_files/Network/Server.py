@@ -3,6 +3,7 @@ import threading
 import json
 import time
 from Source_files.Games import Games
+from Source_files.Sub_class.tile import Tile
 
 
 class Server:
@@ -186,7 +187,7 @@ class Server:
                 "start": "game",
                 "gamemode": self.gamemode,
                 "usernames": self.usernames,
-                "board": grid
+                "board": [[tile.to_dict() for tile in row] for row in grid]
             }
         
             start_message = json.dumps(start_message) + '\n'

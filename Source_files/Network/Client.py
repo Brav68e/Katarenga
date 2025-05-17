@@ -160,6 +160,8 @@ class Client:
         param current_player: index of the current player
         '''
 
+        board = [[tile.to_dict() for tile in row] for row in board]
+
         request = {"update": "board", "board": board, "current_player": current_player, "players": players}
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
 
