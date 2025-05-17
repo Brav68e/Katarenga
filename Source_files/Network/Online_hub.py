@@ -556,6 +556,11 @@ class Online_hub():
 
 
     def start_game(self, grid, usernames, gamemode):
+        '''Start the game with the given grid and usernames
+        param grid: list of list of Tile object
+        param usernames: list of usernames
+        param gamemode: string of the gamemode
+        '''
 
         self.start = True
         self.grid = grid

@@ -86,7 +86,7 @@ class Client:
                             self.game_ui.update_game(board, owners)
 
                         elif "start" in message_data:
-                            self.game_ui.start_game(message_data["board"], message_data["usernames"], message_data["gamemode"])
+                            self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])
                             self.online_hub.set_waiting(False)
 
                     except json.JSONDecodeError as e:
