@@ -51,7 +51,7 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if player := self.game.katarenga_winner() != None:
+            if (player := self.game.katarenga_winner()) != None:
                 self.running = False
                 self.show_winner(player)
                 print(f"{player} wins !")
