@@ -630,12 +630,3 @@ class GamesUI():
             yes_button.update(self.screen)
             no_button.update(self.screen)
             pygame.display.flip()
-
-
-###############################################################################################################
-
-
-    def update_game(self, grid, owners, current_player, camps, available_moves):
-        '''Usefull to update the game state in online mode'''
-        
-        self.game = Games(grid, owners[self.usernames[0]], owners[self.usernames[1]], self.gamemode, current_player, camps, available_moves)

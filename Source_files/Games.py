@@ -7,16 +7,10 @@ from random import choice, random
 
 class Games:
     
-    def __init__(self, grille, player1, player2, gamemode, current_player=0, camps={"W": [False, False], "B": [False, False]}, available_tiles=None):
+    def __init__(self, grille, player1, player2, gamemode):
         """
         Initialize a board using an existing grid of Tile objects.
         """
-
-        print("Game initialized")
-        print(f"Gamemode: {gamemode}")
-        print(f"Player 1: {player1}")
-        print(f"Player 2: {player2}")
-        print(f"Current player: {current_player}")
 
         # Player can be either a Player object or a string (username)
         if type(player1) == str and type(player2) == str:
@@ -27,18 +21,17 @@ class Games:
             self.players = [player1, player2]
 
         self.gamemode = gamemode
-        self.current_player = self.players[current_player]  # Start with player 1
+        self.current_player = 0
 
         self.board = grille
         self.taille = 8
-        self.camps = camps  # Track if camps are occupied
+        self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
     
-        if available_tiles is None:
-            # For Isolation, create a special set that contain every tile of the board
-            self.available_tiles = set()
-            for i in range(self.taille):
-                for j in range(self.taille):
-                    self.available_tiles.add((i, j)) 
+        # For Isolation, create a special set that contain every tile of the board
+        self.available_tiles = set()
+        for i in range(self.taille):
+            for j in range(self.taille):
+                self.available_tiles.add((i, j)) 
     
 
     def init_pawns(self):
