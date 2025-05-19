@@ -406,7 +406,7 @@ class Games:
         Return the set of available tiles.
         :return: Set of available tiles.
         """
-        return list(self.available_tiles) if self.gamemode == "isolation" else None
+        return self.available_tiles if self.gamemode == "isolation" else None
     
 
     def reset(self):
