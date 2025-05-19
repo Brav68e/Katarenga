@@ -100,24 +100,10 @@ class Server:
                     
                         data = json.loads(message)  # Parse the JSON message
 
-                        if "update" in data:
-                            # Handle the update request
-                            if "board" in data:
-                                board = data["board"]
-                                current_player = data["current_player"]
-                                players = data["players"]
-                                camps = data["camps"]
-                                available_moves = data["available_moves"]
-                                self.broadcast_board(board, players, current_player, camps, available_moves)
-
-                        elif "start" in data:
-                            # Handle the start request
-                            grid = data["board"]
-                            self.start_game(grid)
-
-                                
-                            
-
+                        if data["type"] == "deplacement" or data["type"] == "placement":
+                                self.broadcast_board_update(data["type"], data["params"])
+          
+                        
                 except Exception as e:
                     print(f"Error handling client request: {e}")
                     import traceback
@@ -199,18 +185,14 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_board(self, board, players, current_player, camps, available_moves):
+    def broadcast_board_update(self, type, params):
         '''Broadcast the current game state to all clients'''
 
         for client_socket in self.clients.keys():
             try:
                 message = {
-                    "update": "board",
-                    "board": board,
-                    "current_player": current_player,
-                    "players": players,
-                    "camps": camps,
-                    "available_moves": available_moves
+                    "type": type,
+                    "params": params
                 }
                 
                 message = json.dumps(message) + '\n'

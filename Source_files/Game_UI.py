@@ -363,13 +363,27 @@ class GamesUI():
 
             if self.style == "online":
                 # Send a message to update game state
-                # Determine the current player's index
-                current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
-                player1 = self.game.get_player(0).get_username()
-                player2 = self.game.get_player(1).get_username()
-                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
+                self.client.send_move("deplacement", [x, y, selected_row, selected_column, self.game.get_current_player().get_username()])
 
         else:
+            self.selected_tile = None
+
+
+###########################################################################################################
+
+
+    def online_deplacement(self, x, y, new_x, new_y, current_player):
+        '''Handle pawn deplacement on the board in online mode'''
+
+        # Get the current pawn's position and possible moves
+        moves = self.game.get_possible_moves(x, y)
+
+        # Check if the clicked tile is a valid move
+        if (new_x, new_y) in moves and current_player == self.game.get_current_player().get_username():
+
+            self.move_animation(x, y, new_x, new_y)
+            self.game.move_pawn(x, y, new_x, new_y)
+            self.game.switch_player()
             self.selected_tile = None
 
 
@@ -401,11 +415,22 @@ class GamesUI():
 
             if self.style == "online":
                 # Send a message to update game state
-                # Determine the current player's index
-                current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
-                player1 = self.game.get_player(0).get_username()
-                player2 = self.game.get_player(1).get_username()
-                self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
+                self.client.send_move("placement", [row, column, current_player.get_username()])
+
+
+###########################################################################################################
+
+
+    def online_placement(self, x, y, current_player):
+        '''Handle pawn deplacement on the board in online mode'''
+
+        moves = self.game.get_available_tiles()
+
+        if (x, y) in moves and current_player == self.game.get_current_player().get_username():
+
+            current_player = self.game.get_current_player()
+            self.game.place_pawn(x, y, current_player)
+            self.game.switch_player()
 
 
 ###########################################################################################################
