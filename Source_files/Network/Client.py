@@ -2,7 +2,6 @@ import socket
 import threading
 import json
 import time
-import queue
 import Source_files.Network.Server as Server
 from Source_files.Game_UI import *
 
@@ -25,7 +24,6 @@ class Client:
         self.screen = screen
 
         self.timeout = 5      # Timeout of 5s for server request
-        self.response_queue = queue.Queue()
         self.thread = None
         self.lock = threading.Lock()
 
@@ -77,21 +75,18 @@ class Client:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
+                        print(f"Received message: {message_data}")
 
                         # Handle responses
-                        if "response" in message_data:
-                            self.response_queue.put(message_data["response"])
+                        if "type" in message_data and message_data["type"] == "deplacement":
+                            self.game_ui.online_deplacement(message_data["params"][0], message_data["params"][1], message_data["params"][2], message_data["params"][3], message_data["params"][4])
 
-                        # Handle other types of messages (e.g., "start")
-                        elif "message" in message_data and message_data["message"] == "start":
-                            gamemode = message_data["gamemode"]
-                            usernames = message_data["usernames"]
-                            print("Game initialization message received.")
+                        elif "type" in message_data and message_data["type"] == "placement":
+                            self.game_ui.online_placement(message_data["params"][0], message_data["params"][1], message_data["params"][2])
+
+                        elif "start" in message_data:
+                            self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])
                             self.online_hub.set_waiting(False)
-                            self.online_hub.start_game(gamemode, usernames)
-
-                        elif "update" in message_data:
-                            self.game_ui.set_board(read_board(message_data["update"]))
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")
@@ -158,23 +153,14 @@ class Client:
         self.game_ui = game_ui
 
         
-    def send_msg(self, msg):
-        '''Send a msg to the server that basically returns the request's response
-        param: msg is a tuple with a string and a list of parameters (msg[0] is the request type)
+    def send_move(self, type, params):
+        '''Send a msg to the server that basically spread the game state to all the players
+        param type: a string to qualify the type of move (placement / deplacement)
+        param params: a list of parameters to send to the server
         '''
 
-        request = {"request": msg[0], "params": msg[1] if len(msg) > 1 else None}
+        request = {"type": type, "params": params}
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
-
-        # Wait for the response
-        try:
-            response = self.response_queue.get(timeout=self.timeout)
-            return response
-        except queue.Empty:
-            print("Error: Response timeout.")
-            return None
-        finally:
-            time.sleep(0.1)  # Add a small delay to prevent spamming
 
 
     def get_username(self):

@@ -8,17 +8,19 @@ class GamesUI():
 
     def __init__(self, screen, gamemode, usernames, grid = None, style = "solo", client = None):
 
-        if style != "online":
-            self.game = Games(grid, usernames[0], usernames[1], gamemode)
-            self.game.init_pawns()
+
+        self.game = Games(grid, usernames[0], usernames[1], gamemode)
+        self.game.init_pawns()
 
         self.style = style
         self.gamemode = gamemode
+        self.usernames = usernames
         self.client = client
+        self.move_pawn = False                      # Used to check if the pawn is moving in online mode
+
         if client:
             # Make a relation between client and game_ui
             self.client.set_game_ui(self)
-            self.grid = read_board(self.client.send_msg(("get_grid", None)))
             
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -51,10 +53,10 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := (self.game.katarenga_winner() if not self.client else self.client.send_msg(("katarenga_winner", None)))) != None:
+            if (player := self.game.katarenga_winner()) != None:
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
@@ -80,6 +82,14 @@ class GamesUI():
             self.show_possible_moves()
             self.draw_current_player()
 
+            # Check for online animation
+            if self.style == "online" and self.move_pawn:
+
+                self.move_animation(self.x, self.y, self.new_x, self.new_y)
+                self.game.move_pawn(self.x, self.y, self.new_x, self.new_y)
+                self.game.switch_player()
+                self.selected_tile = None
+                self.move_pawn = False
 
             pygame.display.flip()
             self.clock.tick(self.fps)
@@ -97,13 +107,14 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := (self.game.congress_winner() if not self.client else self.client.send_msg(("congress_winner", None)))) != None:
+            if player := self.game.congress_winner():
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
+                
 
             if self.style == "solo" :
                 self.bot_move()
@@ -126,6 +137,15 @@ class GamesUI():
             self.show_possible_moves()
             self.draw_current_player()
 
+            # Check for online animation
+            if self.style == "online" and self.move_pawn:
+
+                self.move_animation(self.x, self.y, self.new_x, self.new_y)
+                self.game.move_pawn(self.x, self.y, self.new_x, self.new_y)
+                self.game.switch_player()
+                self.selected_tile = None
+                self.move_pawn = False
+
             pygame.display.flip()
             self.clock.tick(self.fps)
 
@@ -141,13 +161,14 @@ class GamesUI():
         while self.running:
 
             # Check for game over
-            if (player := (self.game.isolation_winner() if not self.client else self.client.send_msg(("isolation_winner", None)))) != None:
+            if player := self.game.isolation_winner():
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
+
 
             if self.style == "solo" :
                 self.bot_move()
@@ -232,12 +253,8 @@ class GamesUI():
         '''Draw the board and its tiles'''
         try:
             # Acquire the board itself
-            if self.style == "online":
-                grid = self.grid
-                camps = self.client.send_msg(("get_camps", []))
-            else:
-                grid = self.game.get_grid()
-                camps = self.game.get_camps()
+            grid = self.game.get_grid()
+            camps = self.game.get_camps()
 
             # Drawing the background
             self.screen.blit(self.background_img, (0, 0))
@@ -268,12 +285,8 @@ class GamesUI():
     def draw_pawns(self):
         '''Draw the pawns on the board'''
 
-        if self.style == "online":
-            grid = self.grid
-            player0 = self.client.send_msg(("get_player", [0]))["username"]
-        else:
-            grid = self.game.get_grid()
-            player0 = self.game.get_player(0).get_username()
+        grid = self.game.get_grid()
+        player0 = self.game.get_player(0).get_username()
         
         for row in range(8):
             for column in range(8):
@@ -292,10 +305,7 @@ class GamesUI():
         '''Draw the current player on the board'''
 
         # Get the current player and create the formatted string
-        if self.style == "online":
-            current_player = self.client.send_msg(("current_player", None))["username"]
-        else:
-            current_player = self.game.get_current_player().get_username()
+        current_player = self.game.get_current_player().get_username()
         lines = [f"Turn of {current_player}", "Choose Wisely !"]
 
         for i, line in enumerate(lines):
@@ -312,15 +322,12 @@ class GamesUI():
         
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        if self.style == "online":
-            grid = self.grid
-            current_player = self.client.send_msg(("current_player", None))["username"]
-            # Check if the current player is me
-            if current_player != self.client.get_username():
-                return
-        else:
-            grid = self.game.get_grid()
-            current_player = self.game.get_current_player().get_username()
+        grid = self.game.get_grid()
+        current_player = self.game.get_current_player().get_username()
+
+        # Check if it's the player's turn
+        if self.style == "online" and current_player != self.client.get_username():
+            return
 
         # Calculate the tile clicked based on mouse position
         column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
@@ -341,23 +348,22 @@ class GamesUI():
 
         # Get the current pawn's position and possible moves
         x, y = self.selected_tile.get_pawn().get_coordinates()
-        moves = (self.game.get_possible_moves(x, y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [x, y])))
+        moves = self.game.get_possible_moves(x, y)
 
         selected_column = int((mouse_x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
         selected_row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
         
         # Check if the clicked tile is a valid move
-        if self.style == "online" and [selected_row, selected_column] in moves:
-
-            self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
-            self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
-            self.selected_tile = None
-
-        elif (selected_row, selected_column) in moves:
+        if (selected_row, selected_column) in moves:
 
             self.move_animation(x, y, selected_row, selected_column)
-            self.game.move_pawn(x, y, selected_row, selected_column) if self.style != "online" else self.client.send_msg(("move_pawn", [x, y, selected_row, selected_column]))
-            self.game.switch_player() if self.style != "online" else self.client.send_msg(("switch_player", None))
+            self.game.move_pawn(x, y, selected_row, selected_column)
+
+            if self.style == "online":
+                # Send a message to update game state
+                self.client.send_move("deplacement", [x, y, selected_row, selected_column, self.game.get_current_player().get_username()])
+
+            self.game.switch_player()
             self.selected_tile = None
 
         else:
@@ -367,18 +373,33 @@ class GamesUI():
 ###########################################################################################################
 
 
+    def online_deplacement(self, x, y, new_x, new_y, current_player):
+        '''Handle pawn deplacement on the board in online mode'''
+
+        # Check if the clicked tile is a valid move
+        if current_player == self.game.get_current_player().get_username():
+
+            self.x = x
+            self.y = y
+            self.new_x = new_x
+            self.new_y = new_y
+            self.move_pawn = True
+
+
+###########################################################################################################
+
+
     def handle_placement(self):
         '''Handle tile placement on the board'''
         
-        if self.style == "online" and self.client.send_msg(("current_player", None))["username"] != self.client.get_username():
+        if self.style == "online" and self.game.get_current_player().get_username() != self.client.get_username():
             # If it's not the player's turn, do nothing
             return
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        grid = self.game.get_grid() if self.style != "online" else self.grid
-        available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
+        available_tiles = self.game.get_available_tiles()
         available_tiles = [tuple(tile) for tile in available_tiles]
-        current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
+        current_player = self.game.get_current_player()
 
 
         # Calculate the tile clicked based on mouse position
@@ -386,60 +407,76 @@ class GamesUI():
         row = int((mouse_y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
         # Check if the click is within the board boundaries
-        if 0 <= row < 8 and 0 <= column < 8 and not grid[row][column].get_pawn():
-            # Now determine if the tile is available for placement
-            if (row, column) in available_tiles: 
-                self.game.place_pawn(row, column, current_player) if self.style != "online" else self.client.send_msg(("place_pawn", [row, column, current_player]))
-                self.game.switch_player() if self.style != "online" else self.client.send_msg(["switch_player", None])
+        if 0 <= row < 8 and 0 <= column < 8 and (row, column) in available_tiles :
+
+            self.game.place_pawn(row, column, current_player)
+
+            if self.style == "online":
+                # Send a message to update game state
+                self.client.send_move("placement", [row, column, current_player.get_username()])
+
+            self.game.switch_player()
+
+
+###########################################################################################################
+
+
+    def online_placement(self, x, y, current_player):
+        '''Handle pawn deplacement on the board in online mode'''
+
+        if current_player == self.game.get_current_player().get_username():
+
+            current_player = self.game.get_current_player()
+            self.game.place_pawn(x, y, current_player)
+            self.game.switch_player()
 
 
 ###########################################################################################################
 
 
     def show_possible_moves(self):
-        '''Show the possible moves for the selected tile'''
+        '''Show the possible moves for the selected tile, used for congress and katarenga'''
 
-        if self.gamemode == "katarenga" or self.gamemode == "congress":
-            current_player = self.game.get_current_player().get_username() if self.style != "online" else self.client.send_msg(("current_player", None))["username"]
+        current_player = self.game.get_current_player().get_username()
 
-            if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner().get_username() == current_player:
-                pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
-                possible_moves = self.game.get_possible_moves(pawn_x, pawn_y) if self.style != "online" else self.client.send_msg(("get_possible_moves", [pawn_x, pawn_y]))
-                possible_moves = [tuple(move) for move in possible_moves]
+        if self.selected_tile and self.selected_tile.get_pawn() != None and self.selected_tile.get_pawn().get_owner().get_username() == current_player:
+            pawn_x, pawn_y = self.selected_tile.get_pawn().get_coordinates()
+            possible_moves = self.game.get_possible_moves(pawn_x, pawn_y)
+            possible_moves = [tuple(move) for move in possible_moves]
 
-                for row in range(8):
-                    for column in range(8):
-                        if (row, column) not in possible_moves:
-                            self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+            for row in range(8):
+                for column in range(8):
+                    if (row, column) not in possible_moves:
+                        self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
 
 
 ##############################################################################################################
 
 
     def show_possible_moves_isolation(self):
-        '''Show the possible moves for the selected tile'''
+        '''Show the possible moves for the selected tile, used for isolation'''
 
         # Acquire useful information
-        current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
-        grid = self.game.get_grid() if self.style != "online" else self.grid
-        player0 = self.game.get_player(0) if self.style != "online" else self.client.send_msg(("get_player", [0]))
-
+        current_player = self.game.get_current_player()
+        player0 = self.game.get_player(0)
         x, y = pygame.mouse.get_pos()
         column = int((x - (self.board_background_topleft[0])) // (self.tiles_size) - 1)
         row = int((y - (self.board_background_topleft[1])) // (self.tiles_size) - 1)
 
         # Make darker the tiles that are not available
-        available_tiles = self.game.get_available_tiles() if self.style != "online" else self.client.send_msg(("get_available_tiles", None))
+        available_tiles = self.game.get_available_tiles()
         available_tiles = [tuple(tile) for tile in available_tiles]
-
         for r in range(8):
             for c in range(8):
                 if (r, c) not in available_tiles:
                     self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (c + 1) * self.tiles_size, self.board_background_topleft[1] + (r + 1) * self.tiles_size))
 
+        # If this is online, check if the player is the current player
+        if self.style == "online" and current_player.get_username() != self.client.get_username():
+            return
 
-        if 0 <= row < 8 and 0 <= column < 8 and self.client.get_username() == current_player["username"]:               # Either doing object or string comparison
-            if grid[row][column].get_pawn() == None and (row, column) in available_tiles:
+        if 0 <= row < 8 and 0 <= column < 8:
+            if (row, column) in available_tiles:
                 # Since this is an empty tile, we can show the possible move
                 if current_player == player0:
                     self.screen.blit(self.pawns_img["ghost_white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
@@ -447,7 +484,7 @@ class GamesUI():
                     self.screen.blit(self.pawns_img["ghost_black"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                 
                 # Display every tile covered by the pawn
-                possible_moves = self.game.get_possible_moves(row, column) if self.style != "online" else self.client.send_msg(("get_possible_moves", [row, column]))
+                possible_moves = self.game.get_possible_moves(row, column)
                 for move in possible_moves:
                     row, column = move
                     self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
@@ -593,12 +630,3 @@ class GamesUI():
             yes_button.update(self.screen)
             no_button.update(self.screen)
             pygame.display.flip()
-
-
-###############################################################################################################
-
-
-    def set_board(self, grid):
-        '''Set the board to a new grid'''
-        
-        self.grid = grid

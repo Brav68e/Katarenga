@@ -21,8 +21,7 @@ class Online_hub():
         self.server = None                  # Current hosting server
         self.hosting = False
         self.start = False
-        self.username = None                # Username of the player
-        self.gamemode = None                # Gamemode of the player
+        self.gamemode = None
 
         self.servers = []                   # List all servers available
         self.servers_amount = 0
@@ -61,7 +60,7 @@ class Online_hub():
             self.handle_event()
             self.clock.tick(self.fps)
             if self.start:
-                self.running = GamesUI(self.screen, self.username, self.gamemode, style='online', client=self.client)
+                self.running = GamesUI(self.screen, self.gamemode, self.usernames, style='online', client=self.client, grid=self.grid)
                 self.start = False
 
         self.client.stop()
@@ -556,10 +555,16 @@ class Online_hub():
 ###################################################################################################
 
 
-    def start_game(self, username, gamemode):
+    def start_game(self, grid, usernames, gamemode):
+        '''Start the game with the given grid and usernames
+        param grid: list of list of Tile object
+        param usernames: list of usernames
+        param gamemode: string of the gamemode
+        '''
 
         self.start = True
-        self.username = username
+        self.grid = grid
+        self.usernames = usernames
         self.gamemode = gamemode
 
 
