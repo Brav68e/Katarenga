@@ -16,6 +16,8 @@ class GamesUI():
         self.gamemode = gamemode
         self.usernames = usernames
         self.client = client
+        self.move_pawn = False                      # Used to check if the pawn is moving in online mode
+
         if client:
             # Make a relation between client and game_ui
             self.client.set_game_ui(self)
@@ -54,17 +56,10 @@ class GamesUI():
             if (player := self.game.katarenga_winner()) != None:
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
-                elif self.style == "online":
-                    # Send a message to update game state
-                    # Determine the current player's index
-                    current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
-                    player1 = self.game.get_player(0).get_username()
-                    player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
 
             if self.style == "solo" :
                 self.bot_move()
@@ -87,6 +82,14 @@ class GamesUI():
             self.show_possible_moves()
             self.draw_current_player()
 
+            # Check for online animation
+            if self.style == "online" and self.move_pawn:
+
+                self.move_animation(self.x, self.y, self.new_x, self.new_y)
+                self.game.move_pawn(self.x, self.y, self.new_x, self.new_y)
+                self.game.switch_player()
+                self.selected_tile = None
+                self.move_pawn = False
 
             pygame.display.flip()
             self.clock.tick(self.fps)
@@ -107,17 +110,11 @@ class GamesUI():
             if player := self.game.congress_winner():
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
-                elif self.style == "online":
-                    # Send a message to update game state
-                    # Determine the current player's index
-                    current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
-                    player1 = self.game.get_player(0).get_username()
-                    player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
+                
 
             if self.style == "solo" :
                 self.bot_move()
@@ -140,6 +137,15 @@ class GamesUI():
             self.show_possible_moves()
             self.draw_current_player()
 
+            # Check for online animation
+            if self.style == "online" and self.move_pawn:
+
+                self.move_animation(self.x, self.y, self.new_x, self.new_y)
+                self.game.move_pawn(self.x, self.y, self.new_x, self.new_y)
+                self.game.switch_player()
+                self.selected_tile = None
+                self.move_pawn = False
+
             pygame.display.flip()
             self.clock.tick(self.fps)
 
@@ -158,17 +164,11 @@ class GamesUI():
             if player := self.game.isolation_winner():
                 self.running = False
                 self.show_winner(player)
-                print(f"{player} wins !")
+
                 if self.style != "online" and self.rematch():
                     self.game.reset()
                     self.running = True
-                elif self.style == "online":
-                    # Send a message to update game state
-                    # Determine the current player's index
-                    current_player_index = 0 if self.game.get_player(0) == self.game.get_current_player() else 1
-                    player1 = self.game.get_player(0).get_username()
-                    player2 = self.game.get_player(1).get_username()
-                    self.client.send_game_state(self.game.get_grid(), [player1, player2], current_player_index, self.game.get_camps(), self.game.get_available_tiles())
+
 
             if self.style == "solo" :
                 self.bot_move()
@@ -358,12 +358,13 @@ class GamesUI():
 
             self.move_animation(x, y, selected_row, selected_column)
             self.game.move_pawn(x, y, selected_row, selected_column)
-            self.game.switch_player()
-            self.selected_tile = None
 
             if self.style == "online":
                 # Send a message to update game state
                 self.client.send_move("deplacement", [x, y, selected_row, selected_column, self.game.get_current_player().get_username()])
+
+            self.game.switch_player()
+            self.selected_tile = None
 
         else:
             self.selected_tile = None
@@ -375,16 +376,14 @@ class GamesUI():
     def online_deplacement(self, x, y, new_x, new_y, current_player):
         '''Handle pawn deplacement on the board in online mode'''
 
-        # Get the current pawn's position and possible moves
-        moves = self.game.get_possible_moves(x, y)
-
         # Check if the clicked tile is a valid move
-        if (new_x, new_y) in moves and current_player == self.game.get_current_player().get_username():
+        if current_player == self.game.get_current_player().get_username():
 
-            self.move_animation(x, y, new_x, new_y)
-            self.game.move_pawn(x, y, new_x, new_y)
-            self.game.switch_player()
-            self.selected_tile = None
+            self.x = x
+            self.y = y
+            self.new_x = new_x
+            self.new_y = new_y
+            self.move_pawn = True
 
 
 ###########################################################################################################
@@ -411,11 +410,12 @@ class GamesUI():
         if 0 <= row < 8 and 0 <= column < 8 and (row, column) in available_tiles :
 
             self.game.place_pawn(row, column, current_player)
-            self.game.switch_player()
 
             if self.style == "online":
                 # Send a message to update game state
                 self.client.send_move("placement", [row, column, current_player.get_username()])
+
+            self.game.switch_player()
 
 
 ###########################################################################################################
@@ -424,9 +424,7 @@ class GamesUI():
     def online_placement(self, x, y, current_player):
         '''Handle pawn deplacement on the board in online mode'''
 
-        moves = self.game.get_available_tiles()
-
-        if (x, y) in moves and current_player == self.game.get_current_player().get_username():
+        if current_player == self.game.get_current_player().get_username():
 
             current_player = self.game.get_current_player()
             self.game.place_pawn(x, y, current_player)

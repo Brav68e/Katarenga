@@ -75,13 +75,14 @@ class Client:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
+                        print(f"Received message: {message_data}")
 
                         # Handle responses
-                        if message_data["type"] == "deplacement":
-                            self.online_hub.online_deplacement(message_data["params"][0], message_data["params"][1], message_data["params"][2], message_data["params"][3], message_data["params"][4])
+                        if "type" in message_data and message_data["type"] == "deplacement":
+                            self.game_ui.online_deplacement(message_data["params"][0], message_data["params"][1], message_data["params"][2], message_data["params"][3], message_data["params"][4])
 
-                        elif message_data["type"] == "placement":
-                            self.online_hub.online_placement(message_data["params"][0], message_data["params"][1], message_data["params"][2])
+                        elif "type" in message_data and message_data["type"] == "placement":
+                            self.game_ui.online_placement(message_data["params"][0], message_data["params"][1], message_data["params"][2])
 
                         elif "start" in message_data:
                             self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])
@@ -158,7 +159,7 @@ class Client:
         param params: a list of parameters to send to the server
         '''
 
-        request = {"type": type, params: params}
+        request = {"type": type, "params": params}
         self.client_socket.send((json.dumps(request) + '\n').encode('utf-8'))
 
 
