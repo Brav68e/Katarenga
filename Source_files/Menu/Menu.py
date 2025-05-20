@@ -276,7 +276,7 @@ class Menu:
             y_offset += 35
         
         # Add back button
-        back_button = Button(pos=(50, 650), image=None, text="Retour", base_color="black", 
+        back_button = Button(pos=(70, 620), image=None, text="Retour", base_color="black", 
                             font_size=int(self.screen_height/720 * 50))
         
         # Check if mouse is hovering over back button
