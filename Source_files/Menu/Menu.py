@@ -39,6 +39,8 @@ class Menu:
         
         self.setup_buttons()
 
+        self.close_button_rect = pygame.Rect(self.screen_width - 80, 40, 40, 40)
+
         # Init audio
         pygame.mixer.init()
         
@@ -220,6 +222,7 @@ class Menu:
 
         # Display bottom menu icons
         self.menu_buttons()
+        self.draw_close_button()
 
     def handle_icon_clicks(self, mouse_pos):
         """Handle clicks on the menu icon buttons"""
@@ -409,6 +412,10 @@ class Menu:
     def handle_mouse_button_down(self, event):
         """Handle mouse button down events"""
         mouse_pos = pygame.mouse.get_pos()
+        if self.close_button_rect.collidepoint(mouse_pos):
+            pygame.quit()
+            sys.exit()
+            return
         
         # Check for clicks on the icons
         if self.handle_icon_clicks(mouse_pos):
@@ -470,6 +477,14 @@ class Menu:
         
         pygame.quit()
         sys.exit()
+
+    def draw_close_button(self):
+        """Button to exit in the menu"""
+        pygame.draw.rect(self.screen, (220, 60, 60), self.close_button_rect, border_radius=8)
+        cx, cy = self.close_button_rect.center
+        size = 12
+        pygame.draw.line(self.screen, (255,255,255), (cx-size, cy-size), (cx+size, cy+size), 4)
+        pygame.draw.line(self.screen, (255,255,255), (cx-size, cy+size), (cx+size, cy-size), 4)
 
 class IconButton():
     def __init__(self, pos, text_input, font, base_color, hovering_color, icon_image=None, expanded=False):
