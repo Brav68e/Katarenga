@@ -72,8 +72,6 @@ class Client:
             pass
 
         self.socket_open = False
-        
-        print("Client stopped successfully")
 
 
     def receive_messages(self):
