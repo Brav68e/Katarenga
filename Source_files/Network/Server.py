@@ -148,10 +148,7 @@ class Server:
                     
                         data = json.loads(message)  # Parse the JSON message
 
-                        if data["type"] == "disconnect":
-                            print(f"Client {client_id} requested disconnect")
-                            break
-                        elif data["type"] in ["deplacement", "placement"]:
+                        if data["type"] in ["deplacement", "placement"]:
                             self.broadcast_board_update(data["type"], data["params"])
                         
                 except socket.timeout:

@@ -33,6 +33,7 @@ class Client:
         self.ip = ip
         try:
             self.client_socket.connect((self.ip, self.port))
+            self.socket_open = True
             self.client_socket.send(self.username.encode('utf-8'))  # Send the username to the server
             self.connected = True
             self.listening = False
@@ -53,30 +54,24 @@ class Client:
         
         # Set flags first to stop any ongoing operations
         self.listening = False
-        self.connected = False
         
         # Clear available servers
         with self.lock:
+            self.connected = False
             self.available_server = []
         
-        # Send disconnect message to server if connected
-        if hasattr(self, 'client_socket') and self.client_socket:
-            try:
-                # Try to send a disconnect message to the server
-                if self.connected:
-                    try:
-                        disconnect_message = json.dumps({"type": "disconnect"}) + "\n"
-                        self.client_socket.send(disconnect_message.encode('utf-8'))
-                    except:
-                        pass  # If sending fails, continue with closure
-                
-                # Close the socket
-                self.client_socket.close()
-            except Exception as e:
-                print(f"Error closing client socket: {e}")
-            finally:
-                # Reset socket
-                self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connected = False  # <- move this up BEFORE socket closure
+        try:
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
+
+        try:
+            self.client_socket.close()
+        except:
+            pass
+
+        self.socket_open = False
         
         print("Client stopped successfully")
 
@@ -90,8 +85,14 @@ class Client:
                 # Set a timeout to detect server disconnections
                 self.client_socket.settimeout(5.0)
                 
-                # Read data from the socket
-                data = self.client_socket.recv(8192).decode('utf-8')
+                if self.client_socket and self.socket_open:
+                    try:
+                        data = self.client_socket.recv(8192).decode('utf-8')
+                    except OSError as e:
+                        print(f"Socket recv error: {e}")
+                        break
+                else:
+                    break
                 
                 # Empty data means the server closed the connection
                 if not data:
