@@ -414,6 +414,7 @@ class Online_hub():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.waiting = False
+                    self.client.stop()
                     
 
             pygame.display.flip()

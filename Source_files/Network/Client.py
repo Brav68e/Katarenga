@@ -72,6 +72,7 @@ class Client:
             pass
 
         self.socket_open = False
+        self.online_hub.set_waiting(False)  # Set waiting to true to stop the game
         
         print("Client stopped successfully")
 
