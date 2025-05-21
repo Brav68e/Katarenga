@@ -107,11 +107,9 @@ class Client:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        print(f"Received message: {message_data}")
 
                         # Handle server shutdown
                         if "type" in message_data and message_data["type"] == "server_shutdown":
-                            print("Server is shutting down")
                             self.connected = False
                             self.reset()
                             self.online_hub.set_waiting(False)
@@ -161,7 +159,6 @@ class Client:
 
         # Make sure we clean up when the loop exits
         self.connected = False
-        print("Message receiving thread terminated")
 
 
     def discover_server(self):
@@ -174,7 +171,6 @@ class Client:
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow to reuse a port if alr used
         udp_socket.bind(("0.0.0.0", self.broadcast_port))
 
-        print("Listening for server broadcasts...")
         while self.listening:
             data, addr = udp_socket.recvfrom(1024)
             server_info = json.loads(data.decode("utf-8"))
@@ -183,7 +179,7 @@ class Client:
             with self.lock:
                 if (server_host, server_port, server_name, gamemode) not in self.available_server and hosting:
                     self.available_server.append((server_host, server_port, server_name, gamemode))
-                    print(f"Discovered server at {server_host}:{server_port}")
+                    #print(f"Discovered server at {server_host}:{server_port}")
 
                 elif not hosting:
                     # Delete the specific server info
@@ -215,8 +211,7 @@ class Client:
         # Reset state flags
         self.connected = False
         self.listening = True
-        
-        print("Client reset complete")
+
     
     def set_game_ui(self, game_ui):
         '''Set the game UI to the current client'''

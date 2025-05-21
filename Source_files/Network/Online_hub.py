@@ -73,32 +73,26 @@ class Online_hub():
     def cleanup(self):
         """Clean up resources before exiting Online_hub"""
         
-        print("Cleaning up Online_hub resources...")
-        
         # Stop client
         if self.client:
             try:
-                print("Stopping client...")
                 self.client.reset()
-                print("Client stopped")
             except Exception as e:
                 print(f"Error stopping client: {e}")
         
         # Stop server if hosting
         if self.server:
             try:
-                print("Stopping server...")
                 self.server.stop()
                 self.server = None
                 self.hosting = False
-                print("Server stopped")
             except Exception as e:
                 print(f"Error stopping server: {e}")
         
         # Allow background threads to terminate
         time.sleep(0.25)
         
-        print("Online_hub cleanup complete")
+
 
 
 ###################################################################################################
@@ -547,7 +541,7 @@ class Online_hub():
                 self.page_amount = ceil(self.servers_amount/4)
 
             time.sleep(5)
-            print(self.servers)
+
 
 
 ###################################################################################################

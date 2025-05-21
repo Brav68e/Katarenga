@@ -89,14 +89,12 @@ class Server:
                 
                 # Close the socket
                 client_socket.close()
-                print(f"Client socket closed successfully")
             except Exception as e:
                 print(f"Error closing client socket: {e}")
 
         # Finally close the server socket
         try:
             self.server_socket.close()
-            print("Server socket closed successfully")
         except Exception as e:
             print(f"Error closing server socket: {e}")
         
@@ -104,7 +102,6 @@ class Server:
         self.clients = {}
         self.client_amount = 0
         
-        print("Server stopped successfully")
 
 
     def accept_connections(self):
@@ -128,14 +125,12 @@ class Server:
                 
             buffer = ""
             client_id = self.clients[client_socket]
-            print(f"Client {client_id} connected")
             
             while self.running:
                 try:
                     
                     message_data = client_socket.recv(1024).decode('utf-8')
                     if not message_data:
-                        print(f"Client {client_id} disconnected")
                         break
                     
                     buffer += message_data
@@ -154,19 +149,16 @@ class Server:
                     try:
                         client_socket.send(json.dumps({"type": "ping"}).encode('utf-8') + b'\n')
                     except:
-                        print(f"Client {client_id} timed out")
                         break
                 except ConnectionResetError:
                     print(f"Connection with client {client_id} was reset")
                     break
                 except Exception as e:
-                    print(f"Error handling client {client_id} request: {e}")
                     import traceback
                     traceback.print_exc()
                     break
                 
         except Exception as e:
-            print(f"Error in handle_client: {e}")
             import traceback
             traceback.print_exc()
         finally:
@@ -176,11 +168,9 @@ class Server:
                     client_id = self.clients[client_socket]
                     del self.clients[client_socket]
                     self.client_amount -= 1
-                    print(f"Client {client_id} removed from active clients")
                     
             try:
                 client_socket.close()
-                print(f"Client socket closed in finally block")
             except:
                 pass
 
