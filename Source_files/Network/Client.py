@@ -82,8 +82,6 @@ class Client:
         buffer = ""
         while self.connected:
             try:
-                # Set a timeout to detect server disconnections
-                self.client_socket.settimeout(5.0)
                 
                 if self.client_socket and self.socket_open:
                     try:
