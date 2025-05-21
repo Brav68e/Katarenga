@@ -157,6 +157,14 @@ class Online_hub():
             self.buttons["back"].update(self.screen)
             self.buttons["next"].update(self.screen)
 
+            # Draw input box
+            pygame.draw.rect(self.screen, color, input_box, border_radius=5)
+
+            # Render text + blitting
+            text_surface = self.font.render(host_name, True, (255, 0, 0))
+            input_width, input_height = text_surface.get_size()
+            self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
+
             # Handle Event
             x,y = pygame.mouse.get_pos()
 
@@ -192,15 +200,7 @@ class Online_hub():
             if self.buttons["create"].checkInput((x,y)) and host_name:
                 self.buttons_img["create"].set_alpha(250)
             else:
-                self.buttons_img["create"].set_alpha(150)
-
-            # Draw input box
-            pygame.draw.rect(self.screen, color, input_box, border_radius=5)
-
-            # Render text + blitting
-            text_surface = self.font.render(host_name, True, (255, 0, 0))
-            input_width, input_height = text_surface.get_size()
-            self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
+                self.buttons_img["create"].set_alpha(150)            
 
             pygame.display.flip()
 
