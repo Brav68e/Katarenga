@@ -45,29 +45,66 @@ class Server:
 
 
     def stop(self):
+        """Properly stop the server and clean up resources"""
+        
+        # Set flag to stop accepting new connections and processing
         self.running = False
         
-        with self.lock:  # Lock before modifying or closing the socket
-            if self.udp_socket:
-                try:
-                    message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port, "name": self.name})
-                    self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-                    self.udp_socket.sendto(message.encode("utf-8"), (self.broadcast_ip, self.broadcast_port))
-                    self.udp_socket.close()
-                    self.udp_socket = None
-                except Exception as e:
-                    print(f"Error closing UDP socket: {e}")
+        # Send a final broadcast announcing the server is no longer available
+        try:
+            with self.lock:
+                if hasattr(self, 'udp_socket') and self.udp_socket:
+                    try:
+                        message = json.dumps({
+                            "hosting": 0, 
+                            "private_ip": self.get_private_ip(), 
+                            "port": self.port, 
+                            "name": self.name,
+                            "gamemode": self.gamemode
+                        })
+                        # Send to both broadcast addresses to ensure coverage
+                        self.udp_socket.sendto(message.encode("utf-8"), ("255.255.255.255", self.broadcast_port))
+                        
+                        # Only try specific broadcast if we have a valid IP
+                        if hasattr(self, 'broadcast_ip'):
+                            self.udp_socket.sendto(message.encode("utf-8"), (self.broadcast_ip, self.broadcast_port))
+                        
+                        # Close the UDP socket
+                        self.udp_socket.close()
+                    except Exception as e:
+                        print(f"Error sending final broadcast: {e}")
+        except Exception as e:
+            print(f"Error during broadcast shutdown: {e}")
 
-        for client in list(self.clients.keys()):
+        # Close all client connections gracefully
+        client_sockets = list(self.clients.keys())  # Make a copy to avoid modification during iteration
+        for client_socket in client_sockets:
             try:
-                client.close()
-                print("client close")
-            except:
-                pass
+                # Try to send a disconnect message
+                try:
+                    disconnect_message = json.dumps({"type": "server_shutdown"}) + "\n"
+                    client_socket.send(disconnect_message.encode('utf-8'))
+                except:
+                    pass  # Continue with closure even if sending fails
+                
+                # Close the socket
+                client_socket.close()
+                print(f"Client socket closed successfully")
+            except Exception as e:
+                print(f"Error closing client socket: {e}")
+
+        # Finally close the server socket
         try:
             self.server_socket.close()
-        except:
-            pass
+            print("Server socket closed successfully")
+        except Exception as e:
+            print(f"Error closing server socket: {e}")
+        
+        # Clear client tracking
+        self.clients = {}
+        self.client_amount = 0
+        
+        print("Server stopped successfully")
 
 
     def accept_connections(self):
@@ -80,16 +117,27 @@ class Server:
                 break
 
 
+        
     def handle_client(self, client_socket: socket.socket):
+        """Handle client connection and gracefully manage disconnections"""
+        
         try: 
-            self.client_amount += 1
-            self.clients[client_socket] = self.client_amount
+            with self.lock:
+                self.client_amount += 1
+                self.clients[client_socket] = self.client_amount
+                
             buffer = ""
+            client_id = self.clients[client_socket]
+            print(f"Client {client_id} connected")
             
             while self.running:
                 try:
+                    # Set a timeout to detect dead connections
+                    client_socket.settimeout(30.0)  # 30 second timeout
+                    
                     message_data = client_socket.recv(1024).decode('utf-8')
                     if not message_data:
+                        print(f"Client {client_id} disconnected")
                         break
                     
                     buffer += message_data
@@ -100,12 +148,24 @@ class Server:
                     
                         data = json.loads(message)  # Parse the JSON message
 
-                        if data["type"] == "deplacement" or data["type"] == "placement":
-                                self.broadcast_board_update(data["type"], data["params"])
-          
+                        if data["type"] == "disconnect":
+                            print(f"Client {client_id} requested disconnect")
+                            break
+                        elif data["type"] in ["deplacement", "placement"]:
+                            self.broadcast_board_update(data["type"], data["params"])
                         
+                except socket.timeout:
+                    # Check if client is still connected with a ping
+                    try:
+                        client_socket.send(json.dumps({"type": "ping"}).encode('utf-8') + b'\n')
+                    except:
+                        print(f"Client {client_id} timed out")
+                        break
+                except ConnectionResetError:
+                    print(f"Connection with client {client_id} was reset")
+                    break
                 except Exception as e:
-                    print(f"Error handling client request: {e}")
+                    print(f"Error handling client {client_id} request: {e}")
                     import traceback
                     traceback.print_exc()
                     break
@@ -115,9 +175,19 @@ class Server:
             import traceback
             traceback.print_exc()
         finally:
-            if client_socket in self.clients:
-                del self.clients[client_socket]
+            # Clean up client resources regardless of how we got here
+            with self.lock:
+                if client_socket in self.clients:
+                    client_id = self.clients[client_socket]
+                    del self.clients[client_socket]
+                    self.client_amount -= 1
+                    print(f"Client {client_id} removed from active clients")
+                    
+            try:
                 client_socket.close()
+                print(f"Client socket closed in finally block")
+            except:
+                pass
 
 
     def broadcast_presence(self):

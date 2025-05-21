@@ -49,24 +49,56 @@ class Client:
 
 
     def stop(self):
-
+        """Properly stop the client and clean up resources"""
+        
+        # Set flags first to stop any ongoing operations
         self.listening = False
         self.connected = False
+        
+        # Clear available servers
         with self.lock:
             self.available_server = []
-        try:
-            self.client_socket.close()
-        except:
-            pass
+        
+        # Send disconnect message to server if connected
+        if hasattr(self, 'client_socket') and self.client_socket:
+            try:
+                # Try to send a disconnect message to the server
+                if self.connected:
+                    try:
+                        disconnect_message = json.dumps({"type": "disconnect"}) + "\n"
+                        self.client_socket.send(disconnect_message.encode('utf-8'))
+                    except:
+                        pass  # If sending fails, continue with closure
+                
+                # Close the socket
+                self.client_socket.close()
+            except Exception as e:
+                print(f"Error closing client socket: {e}")
+            finally:
+                # Reset socket
+                self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        print("Client stopped successfully")
 
 
     def receive_messages(self):
+        """Handle server messages with improved error handling and disconnection detection"""
+        
         buffer = ""
         while self.connected:
             try:
+                # Set a timeout to detect server disconnections
+                self.client_socket.settimeout(5.0)
+                
                 # Read data from the socket
                 data = self.client_socket.recv(8192).decode('utf-8')
-
+                
+                # Empty data means the server closed the connection
+                if not data:
+                    print("Server closed the connection")
+                    self.connected = False
+                    break
+                    
                 # Accumulate data in the buffer
                 buffer += data
 
@@ -77,7 +109,22 @@ class Client:
                         message_data = json.loads(message)  # Parse the JSON message
                         print(f"Received message: {message_data}")
 
-                        # Handle responses
+                        # Handle server shutdown
+                        if "type" in message_data and message_data["type"] == "server_shutdown":
+                            print("Server is shutting down")
+                            self.connected = False
+                            break
+                            
+                        # Handle ping messages
+                        elif "type" in message_data and message_data["type"] == "ping":
+                            # Send pong response
+                            try:
+                                self.client_socket.send(json.dumps({"type": "pong"}).encode('utf-8') + b'\n')
+                            except:
+                                pass
+                            continue
+
+                        # Handle regular game messages
                         if "type" in message_data and message_data["type"] == "deplacement":
                             self.game_ui.online_deplacement(message_data["params"][0], message_data["params"][1], message_data["params"][2], message_data["params"][3], message_data["params"][4])
 
@@ -92,12 +139,28 @@ class Client:
                         print(f"JSON decoding error: {e}")
                         continue
 
+            except socket.timeout:
+                # Try a ping to check if server is still connected
+                try:
+                    self.client_socket.send(json.dumps({"type": "ping"}).encode('utf-8') + b'\n')
+                except:
+                    print("Server connection lost (timeout)")
+                    self.connected = False
+                    break
+            except ConnectionResetError:
+                print("Connection was reset by the server")
+                self.connected = False
+                break
             except Exception as e:
                 print(f"Error receiving message: {e}")
                 import traceback
                 traceback.print_exc()
+                self.connected = False
+                break
 
+        # Make sure we clean up when the loop exits
         self.connected = False
+        print("Message receiving thread terminated")
 
 
     def discover_server(self):
@@ -140,12 +203,19 @@ class Client:
         
 
     def reset(self):
-        '''Reset all important information about the current Client, useful we leaving a server'''
+        '''Reset all important information about the current Client, useful when leaving a server'''
 
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
+        # Stop any active connections and clear resources
+        self.stop()
+        
+        # Create a fresh socket
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Reset state flags
         self.connected = False
         self.listening = True
-
+        
+        print("Client reset complete")
     
     def set_game_ui(self, game_ui):
         '''Set the game UI to the current client'''

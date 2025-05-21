@@ -63,10 +63,43 @@ class Online_hub():
                 self.running = GamesUI(self.screen, self.gamemode, self.usernames, style='online', client=self.client, grid=self.grid)
                 self.start = False
 
-        self.client.stop()
-        if self.server:
-            self.server.stop()
+        self.cleanup()
 
+
+
+    def cleanup(self):
+        """Clean up resources before exiting Online_hub"""
+        
+        print("Cleaning up Online_hub resources...")
+        
+        # Set flags to stop background threads
+        self.running = False
+        self.listening = False
+        
+        # Stop client
+        if self.client:
+            try:
+                print("Stopping client...")
+                self.client.reset()
+                print("Client stopped")
+            except Exception as e:
+                print(f"Error stopping client: {e}")
+        
+        # Stop server if hosting
+        if self.server:
+            try:
+                print("Stopping server...")
+                self.server.stop()
+                self.server = None
+                self.hosting = False
+                print("Server stopped")
+            except Exception as e:
+                print(f"Error stopping server: {e}")
+        
+        # Allow background threads to terminate
+        time.sleep(0.5)
+        
+        print("Online_hub cleanup complete")
 
 ###################################################################################################
 
@@ -315,10 +348,7 @@ class Online_hub():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["back"].checkInput((x,y)):
-                        self.server.stop()
-                        self.client.reset()
-                        self.server = None
-                        self.hosting = False
+                        self.cleanup()
                         waiting = False
 
             # Check if the server is full
