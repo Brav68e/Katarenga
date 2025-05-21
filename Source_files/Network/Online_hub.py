@@ -67,6 +67,8 @@ class Online_hub():
         self.cleanup()
 
 
+###################################################################################################
+
 
     def cleanup(self):
         """Clean up resources before exiting Online_hub"""
@@ -97,6 +99,7 @@ class Online_hub():
         time.sleep(0.5)
         
         print("Online_hub cleanup complete")
+
 
 ###################################################################################################
 
@@ -354,9 +357,11 @@ class Online_hub():
                 if self.server and self.server.get_client_amount() >= 2:
                     waiting = False
                     board = Board_creation(self.screen).run()
-                    self.server.start_game(board)
+                    if board:
+                        self.server.start_game(board)
+                    else:
+                        self.cleanup()
 
-                    
 
             pygame.display.flip()
 
