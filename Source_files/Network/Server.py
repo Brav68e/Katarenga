@@ -132,8 +132,6 @@ class Server:
             
             while self.running:
                 try:
-                    # Set a timeout to detect dead connections
-                    client_socket.settimeout(30.0)  # 30 second timeout
                     
                     message_data = client_socket.recv(1024).decode('utf-8')
                     if not message_data:

@@ -97,6 +97,7 @@ class Client:
                 if not data:
                     print("Server closed the connection")
                     self.connected = False
+                    self.online_hub.cleanup()
                     break
                     
                 # Accumulate data in the buffer
