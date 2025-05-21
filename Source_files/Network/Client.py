@@ -72,7 +72,6 @@ class Client:
             pass
 
         self.socket_open = False
-        self.online_hub.set_waiting(False)  # Set waiting to true to stop the game
         
         print("Client stopped successfully")
 
@@ -114,7 +113,8 @@ class Client:
                         if "type" in message_data and message_data["type"] == "server_shutdown":
                             print("Server is shutting down")
                             self.connected = False
-                            break
+                            self.reset()
+                            self.online_hub.set_waiting(False)
                             
                         # Handle ping messages
                         elif "type" in message_data and message_data["type"] == "ping":

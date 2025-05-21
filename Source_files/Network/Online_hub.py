@@ -96,7 +96,7 @@ class Online_hub():
                 print(f"Error stopping server: {e}")
         
         # Allow background threads to terminate
-        time.sleep(0.5)
+        time.sleep(0.25)
         
         print("Online_hub cleanup complete")
 
@@ -414,7 +414,6 @@ class Online_hub():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.waiting = False
-                    self.client.stop()
                     
 
             pygame.display.flip()
