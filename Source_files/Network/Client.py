@@ -60,18 +60,13 @@ class Client:
             self.connected = False
             self.available_server = []
         
-        self.connected = False  # <- move this up BEFORE socket closure
-        try:
-            self.client_socket.shutdown(socket.SHUT_RDWR)
-        except:
-            pass
+        self.connected = False
+        self.socket_open = False
 
         try:
             self.client_socket.close()
         except:
             pass
-
-        self.socket_open = False
 
 
     def receive_messages(self):
@@ -108,7 +103,6 @@ class Client:
 
                         # Handle server shutdown
                         if "type" in message_data and message_data["type"] == "server_shutdown":
-                            self.connected = False
                             self.reset()
                             self.online_hub.set_waiting(False)
                             

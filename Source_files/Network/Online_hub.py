@@ -73,13 +73,6 @@ class Online_hub():
     def cleanup(self):
         """Clean up resources before exiting Online_hub"""
         
-        # Stop client
-        if self.client:
-            try:
-                self.client.reset()
-            except Exception as e:
-                print(f"Error stopping client: {e}")
-        
         # Stop server if hosting
         if self.server:
             try:

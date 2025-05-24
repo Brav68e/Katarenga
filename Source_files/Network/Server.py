@@ -47,7 +47,7 @@ class Server:
     def stop(self):
         """Properly stop the server and clean up resources"""
         
-        # Set flag to stop accepting new connections and processing
+        # Set flag to stop accepting new connections and processing client requests
         self.running = False
         
         # Send a final broadcast announcing the server is no longer available
@@ -105,7 +105,7 @@ class Server:
 
 
     def accept_connections(self):
-        while self.running:
+        while self.running and self.client_amount < 2:
             try:
                 client_socket, ip_port = self.server_socket.accept()                            # Just need the socket itself       
                 self.usernames.append(client_socket.recv(1024).decode('utf-8'))                 # Get the username from the client         
@@ -118,61 +118,39 @@ class Server:
     def handle_client(self, client_socket: socket.socket):
         """Handle client connection and gracefully manage disconnections"""
         
-        try: 
-            with self.lock:
-                self.client_amount += 1
-                self.clients[client_socket] = self.client_amount
-                
-            buffer = ""
-            client_id = self.clients[client_socket]
+        with self.lock:
+            self.client_amount += 1
+            self.clients[client_socket] = self.client_amount
             
-            while self.running:
-                try:
-                    
-                    message_data = client_socket.recv(1024).decode('utf-8')
-                    if not message_data:
-                        break
-                    
-                    buffer += message_data
-
-                    while "\n" in buffer:
-                        # Handle the request
-                        message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
-                    
-                        data = json.loads(message)  # Parse the JSON message
-
-                        if data["type"] in ["deplacement", "placement"]:
-                            self.broadcast_board_update(data["type"], data["params"])
-                        
-                except socket.timeout:
-                    # Check if client is still connected with a ping
-                    try:
-                        client_socket.send(json.dumps({"type": "ping"}).encode('utf-8') + b'\n')
-                    except:
-                        break
-                except ConnectionResetError:
-                    print(f"Connection with client {client_id} was reset")
-                    break
-                except Exception as e:
-                    import traceback
-                    traceback.print_exc()
+        buffer = ""
+        client_id = self.clients[client_socket]
+        
+        while self.running:
+            try:
+                
+                message_data = client_socket.recv(1024).decode('utf-8')
+                if not message_data:
                     break
                 
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-        finally:
-            # Clean up client resources regardless of how we got here
-            with self.lock:
-                if client_socket in self.clients:
-                    client_id = self.clients[client_socket]
-                    del self.clients[client_socket]
-                    self.client_amount -= 1
+                buffer += message_data
+
+                while "\n" in buffer:
+                    # Handle the request
+                    message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
+                
+                    data = json.loads(message)  # Parse the JSON message
+
+                    if data["type"] in ["deplacement", "placement"]:
+                        self.broadcast_board_update(data["type"], data["params"])
                     
-            try:
-                client_socket.close()
-            except:
-                pass
+            except ConnectionResetError:
+                print(f"Connection with client {client_id} was reset")
+                break
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                break
+            
 
 
     def broadcast_presence(self):
