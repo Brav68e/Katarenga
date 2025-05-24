@@ -33,6 +33,7 @@ class Client:
         self.ip = ip
         try:
             self.client_socket.connect((self.ip, self.port))
+            self.socket_open = True
             self.client_socket.send(self.username.encode('utf-8'))  # Send the username to the server
             self.connected = True
             self.listening = False
@@ -49,11 +50,19 @@ class Client:
 
 
     def stop(self):
-
+        """Properly stop the client and clean up resources"""
+        
+        # Set flags first to stop any ongoing operations
         self.listening = False
-        self.connected = False
+        
+        # Clear available servers
         with self.lock:
+            self.connected = False
             self.available_server = []
+        
+        self.connected = False
+        self.socket_open = False
+
         try:
             self.client_socket.close()
         except:
@@ -61,12 +70,28 @@ class Client:
 
 
     def receive_messages(self):
+        """Handle server messages with improved error handling and disconnection detection"""
+        
         buffer = ""
         while self.connected:
             try:
-                # Read data from the socket
-                data = self.client_socket.recv(8192).decode('utf-8')
-
+                
+                if self.client_socket and self.socket_open:
+                    try:
+                        data = self.client_socket.recv(8192).decode('utf-8')
+                    except OSError as e:
+                        print(f"Socket recv error: {e}")
+                        break
+                else:
+                    break
+                
+                # Empty data means the server closed the connection
+                if not data:
+                    print("Server closed the connection")
+                    self.connected = False
+                    self.online_hub.cleanup()
+                    break
+                    
                 # Accumulate data in the buffer
                 buffer += data
 
@@ -75,9 +100,22 @@ class Client:
                     message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
                     try:
                         message_data = json.loads(message)  # Parse the JSON message
-                        print(f"Received message: {message_data}")
 
-                        # Handle responses
+                        # Handle server shutdown
+                        if "type" in message_data and message_data["type"] == "server_shutdown":
+                            self.reset()
+                            self.online_hub.set_waiting(False)
+                            
+                        # Handle ping messages
+                        elif "type" in message_data and message_data["type"] == "ping":
+                            # Send pong response
+                            try:
+                                self.client_socket.send(json.dumps({"type": "pong"}).encode('utf-8') + b'\n')
+                            except:
+                                pass
+                            continue
+
+                        # Handle regular game messages
                         if "type" in message_data and message_data["type"] == "deplacement":
                             self.game_ui.online_deplacement(message_data["params"][0], message_data["params"][1], message_data["params"][2], message_data["params"][3], message_data["params"][4])
 
@@ -92,11 +130,26 @@ class Client:
                         print(f"JSON decoding error: {e}")
                         continue
 
+            except socket.timeout:
+                # Try a ping to check if server is still connected
+                try:
+                    self.client_socket.send(json.dumps({"type": "ping"}).encode('utf-8') + b'\n')
+                except:
+                    print("Server connection lost (timeout)")
+                    self.connected = False
+                    break
+            except ConnectionResetError:
+                print("Connection was reset by the server")
+                self.connected = False
+                break
             except Exception as e:
                 print(f"Error receiving message: {e}")
                 import traceback
                 traceback.print_exc()
+                self.connected = False
+                break
 
+        # Make sure we clean up when the loop exits
         self.connected = False
 
 
@@ -110,7 +163,6 @@ class Client:
         udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow to reuse a port if alr used
         udp_socket.bind(("0.0.0.0", self.broadcast_port))
 
-        print("Listening for server broadcasts...")
         while self.listening:
             data, addr = udp_socket.recvfrom(1024)
             server_info = json.loads(data.decode("utf-8"))
@@ -119,7 +171,7 @@ class Client:
             with self.lock:
                 if (server_host, server_port, server_name, gamemode) not in self.available_server and hosting:
                     self.available_server.append((server_host, server_port, server_name, gamemode))
-                    print(f"Discovered server at {server_host}:{server_port}")
+                    #print(f"Discovered server at {server_host}:{server_port}")
 
                 elif not hosting:
                     # Delete the specific server info
@@ -140,9 +192,15 @@ class Client:
         
 
     def reset(self):
-        '''Reset all important information about the current Client, useful we leaving a server'''
+        '''Reset all important information about the current Client, useful when leaving a server'''
 
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)      # Socket de lien avec le server
+        # Stop any active connections and clear resources
+        self.stop()
+        
+        # Create a fresh socket
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Reset state flags
         self.connected = False
         self.listening = True
 

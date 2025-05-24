@@ -75,8 +75,6 @@ def read_board(grid):
 
             board.append(new_row)
 
-        print(f"Processed board: {board}")
-        print(f"Owners: {owner}")
         return (board, owner)
     except Exception as e:
         print(f"Error in read_board: {e}")

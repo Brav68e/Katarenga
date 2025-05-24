@@ -61,11 +61,31 @@ class Online_hub():
             self.clock.tick(self.fps)
             if self.start:
                 self.running = GamesUI(self.screen, self.gamemode, self.usernames, style='online', client=self.client, grid=self.grid)
+                self.cleanup()
                 self.start = False
 
-        self.client.stop()
+        self.cleanup()
+
+
+###################################################################################################
+
+
+    def cleanup(self):
+        """Clean up resources before exiting Online_hub"""
+        
+        # Stop server if hosting
         if self.server:
-            self.server.stop()
+            try:
+                self.server.stop()
+                self.server = None
+                self.hosting = False
+            except Exception as e:
+                print(f"Error stopping server: {e}")
+        
+        # Allow background threads to terminate
+        time.sleep(0.25)
+        
+
 
 
 ###################################################################################################
@@ -200,7 +220,8 @@ class Online_hub():
             if self.buttons["create"].checkInput((x,y)) and host_name:
                 self.buttons_img["create"].set_alpha(250)
             else:
-                self.buttons_img["create"].set_alpha(150)            
+                self.buttons_img["create"].set_alpha(150)
+
 
             pygame.display.flip()
 
@@ -315,10 +336,7 @@ class Online_hub():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["back"].checkInput((x,y)):
-                        self.server.stop()
-                        self.client.reset()
-                        self.server = None
-                        self.hosting = False
+                        self.cleanup()
                         waiting = False
 
             # Check if the server is full
@@ -326,9 +344,11 @@ class Online_hub():
                 if self.server and self.server.get_client_amount() >= 2:
                     waiting = False
                     board = Board_creation(self.screen).run()
-                    self.server.start_game(board)
+                    if board:
+                        self.server.start_game(board)
+                    else:
+                        self.cleanup()
 
-                    
 
             pygame.display.flip()
 
@@ -514,7 +534,7 @@ class Online_hub():
                 self.page_amount = ceil(self.servers_amount/4)
 
             time.sleep(5)
-            print(self.servers)
+
 
 
 ###################################################################################################
