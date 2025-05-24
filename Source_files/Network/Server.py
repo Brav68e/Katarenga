@@ -143,11 +143,12 @@ class Server:
                     if data["type"] in ["deplacement", "placement"]:
                         self.broadcast_board_update(data["type"], data["params"])
                     
-            except ConnectionResetError:
-                print(f"Connection with client {client_id} was reset")
+            except (ConnectionResetError, ConnectionAbortedError):
+                print(f"Connection with client {client_id} was closed.")
                 break
             except Exception as e:
                 import traceback
+                print(f"Unexpected server error with client {client_id}: {e}")
                 traceback.print_exc()
                 break
             
