@@ -36,7 +36,6 @@ class Client:
             self.socket_open = True
             self.client_socket.send(self.username.encode('utf-8'))  # Send the username to the server
             self.connected = True
-            self.listening = False
 
             # Seperate Thread to handle communication
             self.thread = threading.Thread(target=self.receive_messages)
@@ -51,9 +50,6 @@ class Client:
 
     def stop(self):
         """Properly stop the client and clean up resources"""
-        
-        # Set flags first to stop any ongoing operations
-        self.listening = False
         
         # Clear available servers
         with self.lock:
@@ -103,6 +99,7 @@ class Client:
 
                         # Handle server shutdown
                         if "type" in message_data and message_data["type"] == "server_shutdown":
+                            print("Server is shutting down")
                             self.reset()
                             self.online_hub.set_waiting(False)
                             
