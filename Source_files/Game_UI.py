@@ -512,6 +512,9 @@ class GamesUI():
         current_player = self.game.get_current_player() if self.style != "online" else self.client.send_msg(("current_player", None))
         bot = self.game.get_player(1) if self.style != "online" else self.client.send_msg(("get_player", [1]))
 
+        if current_player == bot and self.running:
+            pygame.time.delay(1700)
+
         if self.gamemode == "katarenga" or self.gamemode == "congress":
             if current_player == bot and self.running:                      # Player 2 (index 1) is the bot
                 # Get the bot move

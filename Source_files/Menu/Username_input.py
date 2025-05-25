@@ -8,11 +8,11 @@ class UsernameInput:
         self.screen = screen
         self.prompt = prompt
         self.num_fields = num_fields
-        self.font = pygame.font.Font("Source_files/Assets/fonts/font.ttf", 40)
-        self.label_font = pygame.font.Font("Source_files/Assets/fonts/font.ttf", 30)
+        self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 28)
+        self.label_font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 22)
         self.input_boxes = [pygame.Rect(440, 300 + i * 100, 500, 70) for i in range(num_fields)]  # Adjusted for multiple fields
         self.labels = ["Player 1", "Player 2"][:num_fields]  # Labels for the input boxes
-        self.max_characters = 20  # Maximum number of characters allowed for usernames
+        self.max_characters = 20
         self.usernames = [f"Player {i + 1}" for i in range(num_fields)]  # Default usernames
         self.active = [False] * num_fields
         self.back_arrow = Button(pos=(70, 600), image=pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha(), text="")
@@ -24,7 +24,7 @@ class UsernameInput:
             ),
             text="Next",
             base_color="black",
-            font_size=40
+            font_size=32
         )
         self.background = pygame.image.load("Source_files/Assets/Images/Menu/Background.png").convert()
         self.background = pygame.transform.smoothscale(self.background, screen.get_size())
@@ -52,8 +52,8 @@ class UsernameInput:
             self.back_arrow.update(self.screen)
             self.next_button.update(self.screen)
 
-            # Apply a rounded gray overlay if not all usernames are filled
-            if not all(self.usernames):
+            # Apply a rounded gray overlay if not all usernames are valides (non-empty and not just spaces)
+            if not all(name.strip() for name in self.usernames):
                 overlay = pygame.Surface(self.next_button.image.get_size(), pygame.SRCALPHA)
                 overlay.fill((0, 0, 0, 0))  # Transparent background
                 pygame.draw.rect(overlay, (150, 150, 150, 100), overlay.get_rect(), border_radius=15)  # Semi-transparent gray
@@ -66,17 +66,22 @@ class UsernameInput:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.back_arrow.checkInput(event.pos):
                         return "back"  # Return "back" to indicate going back to the main menu
-                    if self.next_button.checkInput(event.pos) and all(self.usernames):
+                    # Only allow next if all usernames are non-empty and not just spaces
+                    if self.next_button.checkInput(event.pos) and all(name.strip() for name in self.usernames):
                         running = False
                     for i, box in enumerate(self.input_boxes):
                         self.active[i] = box.collidepoint(event.pos)
                 elif event.type == pygame.KEYDOWN:
-                    for i, active in enumerate(self.active):
-                        if active:
-                            if event.key == pygame.K_BACKSPACE:
-                                self.usernames[i] = self.usernames[i][:-1]
-                            elif len(self.usernames[i]) < self.max_characters:  # Limit by character count
-                                self.usernames[i] += event.unicode
+                    # Only allow next if all usernames are non-empty and not just spaces
+                    if event.key == pygame.K_RETURN and all(name.strip() for name in self.usernames):
+                        running = False
+                    else:
+                        for i, active in enumerate(self.active):
+                            if active:
+                                if event.key == pygame.K_BACKSPACE:
+                                    self.usernames[i] = self.usernames[i][:-1]
+                                elif len(self.usernames[i]) < self.max_characters:  # Limit by character count
+                                    self.usernames[i] += event.unicode
 
             pygame.display.flip()
 

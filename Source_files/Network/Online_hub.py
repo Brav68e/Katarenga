@@ -150,10 +150,9 @@ class Online_hub():
         color_active = (200, 200, 200)
         color_inactive = (175, 175, 175)
         color = color_inactive
-        max_chars = 20
+        max_chars = 12
 
         while running:
-            
             # Display Background + Button
             self.screen.blit(self.background_img, (0,0))
             self.buttons["back"].update(self.screen)
@@ -177,14 +176,15 @@ class Online_hub():
                     # Check for button selection
                     if self.buttons["back"].checkInput((x,y)):
                         running = False
-                    elif self.buttons["next"].checkInput((x,y)):      
+                    elif self.buttons["next"].checkInput((x,y)) and host_name:      
                         # Go on the next interface to choose gamemode
                         running = self.gamemode_menu(host_name)
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        # Act as create button (Enter key)
-                        running = self.gamemode_menu(host_name)
+                        # Act as create button (Enter key), only if host_name is not empty
+                        if host_name:
+                            running = self.gamemode_menu(host_name)
                     elif event.key == pygame.K_BACKSPACE:
                         host_name = host_name[:-1]
                     elif len(host_name) < max_chars and active:
@@ -218,7 +218,6 @@ class Online_hub():
             rect = pygame.Rect(0, 0, self.screen_width * 0.42, self.screen_height * 0.14)
 
             while running:
-                
                 # Display Background + Button
                 self.screen.blit(self.background_img, (0,0))
                 self.buttons["back"].update(self.screen)
@@ -258,13 +257,12 @@ class Online_hub():
                             gamemode = "isolation"
                         else:
                             gamemode = None
-
-
-
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN and gamemode:
+                            self.host_server(host_name, gamemode)
+                            running = self.waiting_menu(host_name)
 
                 pygame.display.flip()
-
-
 ###################################################################################################
 
 
