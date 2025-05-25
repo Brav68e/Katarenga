@@ -446,7 +446,6 @@ class Menu:
             elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
                 if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
                     GamesUI(self.screen, "katarenga", username, grid, "multi")
-                # truc des username pour le jeu
             elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
                 if (username := self.get_usernames("Online Multiplayer")):
                     Online_hub(self.screen, username).run()
