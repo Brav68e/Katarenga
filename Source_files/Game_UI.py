@@ -315,10 +315,7 @@ class GamesUI():
         '''Draw the current player on the board, always well placed'''
 
         # Get the current player and create the formatted string
-        if self.style == "online":
-            current_player = self.client.send_msg(("current_player", None))["username"]
-        else:
-            current_player = self.game.get_current_player().get_username()
+        current_player = self.game.get_current_player().get_username()
         
         # Prepare lines
         lines = ["Turn of", f"{current_player}", "Choose Wisely !"]
