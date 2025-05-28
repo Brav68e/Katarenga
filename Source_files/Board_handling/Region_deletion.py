@@ -18,8 +18,8 @@ class Delete_region():
         self.fps = 60
         running = True
 
-        self.region_amount = region_amount()
-        self.current_page = 0
+        self.region_amount = region_amount() - 4            # Subtracting 4 because we don't want to delete the 4 default regions
+        self.current_page = 1
         self.selected_region = None                         # Store an integer that correspond to the region_index in the currently loaded regions
         self.current_regions = []                           # List of the Region object actually represented
         self.max_page = ceil(self.region_amount / 4)        # Displaying 4 by 4, if region_amount % 4 != 0 we got an extra page for up to 3 regions
@@ -27,7 +27,7 @@ class Delete_region():
         self.load_assets()
         self.resize_assets()
         self.initialize_regions_pos()
-        self.load_regions(0)                                # Load first regions
+        self.load_regions(self.current_page)                                # Load first regions
 
         self.create_buttons()
 
@@ -69,18 +69,18 @@ class Delete_region():
                     # Check for deletion
                     elif self.button_delete.checkInput((x, y)) and self.selected_region is not None:
                         delete_region(self.current_page * 4 + self.selected_region)
-                        self.region_amount = region_amount()
-                        self.max_page = ceil(self.region_amount / 4)
+                        self.region_amount = region_amount() - 4
+                        self.max_page = ceil((self.region_amount) / 4)
                         self.load_regions(self.current_page)
 
                     # Check for Up/Down buttons
-                    elif self.button_up.checkInput((x, y)) and self.current_page > 0:
+                    elif self.button_up.checkInput((x, y)) and self.current_page > 1:
                         old_regions = self.current_regions
                         self.current_page -= 1
                         self.load_regions(self.current_page)  
                         self.animate_page_switch(old_regions, self.current_regions, direction=-1)
 
-                    elif self.button_down.checkInput((x, y)) and self.current_page < self.max_page - 1:
+                    elif self.button_down.checkInput((x, y)) and self.current_page < self.max_page:
                         old_regions = self.current_regions
                         self.current_page += 1
                         self.load_regions(self.current_page)  
@@ -187,7 +187,7 @@ class Delete_region():
 
         # Load new regions
         start_idx = new_page * 4
-        end_idx = min(start_idx + 4, self.region_amount)
+        end_idx = min(start_idx + 4, self.region_amount + 4)
         for i in range(start_idx, end_idx):
             self.current_regions.append(load_region(i))
 

@@ -365,26 +365,14 @@ class Menu:
         
     def launch_create_region(self):
         """Launch the Create_region module"""
-        # Save volume state before quitting
-        volume_level = self.volume
-        pygame.mixer.music.stop()
 
         try:
-            # Import the create_region function
-            screen = pygame.display.set_mode((1280, 720))
-            # Run the create_region function
-            Create_region(screen)
+            # Create a Create_region instance
+            Create_region(self.screen)
             
-            # After the create_region function returns, reinitialize the display for menu
-            pygame.display.set_mode((1280, 720))
         except Exception as e:
             print(f"Error launching Create_region: {e}")
-            # Ensure the display is reset if there's an error
-            pygame.display.set_mode((1280, 720))
         
-        # Restore music and volume after return
-        pygame.mixer.music.play(-1)
-        pygame.mixer.music.set_volume(volume_level)
         
     def handle_display_options(self, mouse_pos):
         """Handle clicks on display mode buttons"""
@@ -439,17 +427,33 @@ class Menu:
             self.handle_display_options(mouse_pos)
         
         if self.current_page == "Katarenga":
-            if self.buttons[0].checkInput(mouse_pos):  # Solo
-                if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
-                    username.append("AI")
-                    GamesUI(self.screen, "katarenga", username, grid)
-            elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
-                if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
-                    GamesUI(self.screen, "katarenga", username, grid, "multi")
-            elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
-                if (username := self.get_usernames("Online Multiplayer")):
-                    Online_hub(self.screen, username).run()
-            
+            self.handle_game_lauch("katarenga")
+
+        elif self.current_page == "Congress":
+            self.handle_game_lauch("congress")
+
+        elif self.current_page == "Isolation":
+            self.handle_game_lauch("isolation")
+
+
+    def handle_game_lauch(self, mode):
+        '''Handle game launch based on the selected mode'''
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        if self.buttons[0].checkInput(mouse_pos):  # Solo
+            if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
+                username.append("AI")
+                GamesUI(self.screen, mode, username, grid)
+        elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
+            if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
+                GamesUI(self.screen, mode, username, grid, "multi")
+        elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
+            if (username := self.get_usernames("Online Multiplayer")):
+                Online_hub(self.screen, username[0]).run()
+
+
+
     def handle_mouse_motion(self, event):
         """Handle mouse motion events"""
         # Update volume if adjusting the volume bar

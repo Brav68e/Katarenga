@@ -7,19 +7,25 @@ from random import choice, random
 
 class Games:
     
-    def __init__(self, grille, username1: str, username2: str, gamemode):
+    def __init__(self, grille, username1, username2, gamemode):
         """
         Initialize a board using an existing grid of Tile objects.
         """
 
-        self.gamemode = gamemode
         self.players = [Player(username1), Player(username2)]
+
+        self.gamemode = gamemode
         self.current_player = self.players[0]  # Start with player 1
 
         self.board = grille
         self.taille = 8
-        self.init_pawns()
         self.camps = {"W": [False, False], "B": [False, False]}  # Track if camps are occupied
+    
+        # For Isolation, create a special set that contain every tile of the board
+        self.available_tiles = set()
+        for i in range(self.taille):
+            for j in range(self.taille):
+                self.available_tiles.add((i, j)) 
     
 
     def init_pawns(self):
@@ -41,14 +47,7 @@ class Games:
 
             for i in range(8):
                 self.board[white_positions[i][0]][white_positions[i][1]].place_pawn(Pawn(self.players[0], (white_positions[i][0], white_positions[i][1])))
-                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))
-
-        else:
-            # For Isolation, create a special set that contain every tile of the board
-            self.available_tiles = set()
-            for i in range(self.taille):
-                for j in range(self.taille):
-                    self.available_tiles.add((i, j))        
+                self.board[black_positions[i][0]][black_positions[i][1]].place_pawn(Pawn(self.players[1], (black_positions[i][0], black_positions[i][1])))       
 
 
 
@@ -223,6 +222,9 @@ class Games:
         :param player: The player placing the pawn.
         """
 
+        if type(player) != Player:
+            player = self.players[0] if player["username"] == self.players[0].get_username() else self.players[1]
+
         # Place the pawn on the board
         self.board[x][y].place_pawn(Pawn(player, (x, y)))
         player.set_pawns(player.pawns_nbr() + 1)
@@ -286,10 +288,11 @@ class Games:
         Check if there is a winner.
         :return: The winner (his username) or None if there is no winner yet.
         """
+
         if all(self.camps['W']) or (self.players[1].pawns_nbr() + self.camps["B"][0] + self.camps["B"][1]) < 2:
             return self.players[0].get_username()
         
-        elif all(self.camps['B']) or (self.players[1].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
+        elif all(self.camps['B']) or (self.players[0].pawns_nbr() + self.camps["W"][0] + self.camps["W"][1]) < 2:
             return self.players[1].get_username()
         
         else:
@@ -316,6 +319,8 @@ class Games:
         Check if there is a winner.
         :return: The winner (his username) or None if there is no winner yet.
         """
+        self.available_tiles = self.get_available_tiles()
+
         if self.current_player == self.players[0] and not self.available_tiles:
             return self.players[1].get_username()
         

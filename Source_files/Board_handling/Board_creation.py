@@ -134,10 +134,10 @@ class Board_creation():
         if self.buttons["back"].checkInput((x,y)):
             self.running = False
 
-        elif self.buttons["up"].checkInput((x, y)) and self.current_region_index > 0:
+        elif self.buttons["up"].checkInput((x, y)):
             self.switch_region(-1)
 
-        elif self.buttons["down"].checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
+        elif self.buttons["down"].checkInput((x, y)):
             self.switch_region(1)
 
         elif self.region_collision.collidepoint((x, y)):
@@ -175,7 +175,13 @@ class Board_creation():
 
         self.selected_region = None
         old_region = self.current_region
+        # Ensure the index stays within bounds and looping with a modulo
         self.current_region_index += direction
+        if self.current_region_index < 0:
+            self.current_region_index = self.region_amount - 1
+        elif self.current_region_index >= self.region_amount:
+            self.current_region_index = 0
+
         self.current_region = load_region(self.current_region_index)
         self.animate_slide(old_region, direction)
 

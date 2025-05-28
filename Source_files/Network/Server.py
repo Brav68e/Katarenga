@@ -3,6 +3,7 @@ import threading
 import json
 import time
 from Source_files.Games import Games
+from Source_files.Sub_class.tile import Tile
 
 
 class Server:
@@ -15,7 +16,8 @@ class Server:
         self.broadcast_port = broadcast_port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.clients = {}                                                                   # Key : Socket / Value : Name
+        self.clients = {}                                                                   # Key : Socket / Value : Client ID
+        self.usernames = []                                                                 # List of usernames
         self.running = False
         self.thread = None
         self.lock = threading.Lock()
@@ -43,124 +45,113 @@ class Server:
 
 
     def stop(self):
+        """Properly stop the server and clean up resources"""
+        
+        # Set flag to stop accepting new connections and processing client requests
         self.running = False
         
-        with self.lock:  # Lock before modifying or closing the socket
-            if self.udp_socket:
-                try:
-                    message = json.dumps({"hosting": 0, "private_ip": self.get_private_ip(), "port": self.port, "name": self.name})
-                    self.udp_socket.sendto(message.encode("utf-8"), ("<broadcast>", self.broadcast_port))
-                    self.udp_socket.sendto(message.encode("utf-8"), (self.broadcast_ip, self.broadcast_port))
-                    self.udp_socket.close()
-                    self.udp_socket = None
-                except Exception as e:
-                    print(f"Error closing UDP socket: {e}")
+        # Send a final broadcast announcing the server is no longer available
+        try:
+            with self.lock:
+                if hasattr(self, 'udp_socket') and self.udp_socket:
+                    try:
+                        message = json.dumps({
+                            "hosting": 0, 
+                            "private_ip": self.get_private_ip(), 
+                            "port": self.port, 
+                            "name": self.name,
+                            "gamemode": self.gamemode
+                        })
+                        # Send to both broadcast addresses to ensure coverage
+                        self.udp_socket.sendto(message.encode("utf-8"), ("255.255.255.255", self.broadcast_port))
+                        
+                        # Only try specific broadcast if we have a valid IP
+                        if hasattr(self, 'broadcast_ip'):
+                            self.udp_socket.sendto(message.encode("utf-8"), (self.broadcast_ip, self.broadcast_port))
+                        
+                        # Close the UDP socket
+                        self.udp_socket.close()
+                    except Exception as e:
+                        print(f"Error sending final broadcast: {e}")
+        except Exception as e:
+            print(f"Error during broadcast shutdown: {e}")
 
-        for client in list(self.clients.keys()):
+        # Close all client connections gracefully
+        client_sockets = list(self.clients.keys())  # Make a copy to avoid modification during iteration
+        for client_socket in client_sockets:
             try:
-                client.close()
-                print("client close")
-            except:
-                pass
+                # Try to send a disconnect message
+                try:
+                    disconnect_message = json.dumps({"type": "server_shutdown"}) + "\n"
+                    client_socket.send(disconnect_message.encode('utf-8'))
+                except:
+                    pass  # Continue with closure even if sending fails
+                
+                # Close the socket
+                client_socket.close()
+            except Exception as e:
+                print(f"Error closing client socket: {e}")
+
+        # Finally close the server socket
         try:
             self.server_socket.close()
-        except:
-            pass
+        except Exception as e:
+            print(f"Error closing server socket: {e}")
+        
+        # Clear client tracking
+        self.clients = {}
+        self.client_amount = 0
+        
 
 
     def accept_connections(self):
-        while self.running:
+        while self.running and self.client_amount < 2:
             try:
-                client_socket, ip_port = self.server_socket.accept()                            # Just need the socket itself                             
+                client_socket, ip_port = self.server_socket.accept()                            # Just need the socket itself       
+                self.usernames.append(client_socket.recv(1024).decode('utf-8'))                 # Get the username from the client         
                 threading.Thread(target=self.handle_client, args=(client_socket,)).start()      # Weird notation cuz args needs tuple (and tuple need atleast a comma)                
             except:
                 break
 
 
+        
     def handle_client(self, client_socket: socket.socket):
-        try: 
+        """Handle client connection and gracefully manage disconnections"""
+        
+        with self.lock:
             self.client_amount += 1
             self.clients[client_socket] = self.client_amount
-            buffer = ""
             
-            while self.running:
-                try:
-                    message_data = client_socket.recv(1024).decode('utf-8')
-                    if not message_data:
-                        break
-                    
-                    buffer += message_data
-
-                    while "\n" in buffer:
-                        # Handle the request
-                        message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
-                    
-                        data = json.loads(message)  # Parse the JSON message
-
-                        response = None
-                        match data["request"]:
-                            case "katarenga_winner":
-                                response = self.game.katarenga_winner()
-
-                            case "congress_winner":
-                                response = self.game.congress_winner()
-
-                            case "isolation_winner":
-                                response = self.game.isolation_winner()
-
-                            case "get_grid":
-                                response = [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
-
-                            case "get_camps":
-                                response = self.game.get_camps()
-
-                            case "current_player":
-                                response = self.game.get_current_player().to_dict()
-    
-                            case "get_player":
-                                response = self.game.get_player(data["params"][0]).to_dict()
-
-                            case "get_possible_moves":
-                                x = data["params"][0]
-                                y = data["params"][1]
-                                response = self.game.get_possible_moves(x, y)
-
-                            case "move_pawn":
-                                x, new_x = data["params"][0], data["params"][2]
-                                y, new_y = data["params"][1], data["params"][3]
-                                response = self.game.move_pawn(x, y, new_x, new_y)          # This kind of request doesn't return anything but we need to setup a response eventhougth it's useless
-                                self.broadcast_board()
-
-                            case "place_pawn":
-                                self.game.place_pawn(data["params"][0], data["params"][1], data["params"][2])
-                                self.broadcast_board()
-                                
-                            case "switch_player":
-                                response = self.game.switch_player()
-
-                            case "get_available_tiles":
-                                response = self.game.get_available_tiles()
-
-                        # Send the response
-                        message = {"response":response}
-                        message = json.dumps(message) + '\n'
-
-                        client_socket.send(message.encode('utf-8'))
-
-                except Exception as e:
-                    print(f"Error handling client request: {e}")
-                    import traceback
-                    traceback.print_exc()
+        buffer = ""
+        client_id = self.clients[client_socket]
+        
+        while self.running:
+            try:
+                
+                message_data = client_socket.recv(1024).decode('utf-8')
+                if not message_data:
                     break
                 
-        except Exception as e:
-            print(f"Error in handle_client: {e}")
-            import traceback
-            traceback.print_exc()
-        finally:
-            if client_socket in self.clients:
-                del self.clients[client_socket]
-                client_socket.close()
+                buffer += message_data
+
+                while "\n" in buffer:
+                    # Handle the request
+                    message, buffer = buffer.split("\n", 1)  # Split the buffer into one message and the rest
+                
+                    data = json.loads(message)  # Parse the JSON message
+
+                    if data["type"] in ["deplacement", "placement"]:
+                        self.broadcast_board_update(data["type"], data["params"])
+                    
+            except (ConnectionResetError, ConnectionAbortedError):
+                print(f"Connection with client {client_id} was closed.")
+                break
+            except Exception as e:
+                import traceback
+                print(f"Unexpected server error with client {client_id}: {e}")
+                traceback.print_exc()
+                break
+            
 
 
     def broadcast_presence(self):
@@ -212,17 +203,12 @@ class Server:
     def start_game(self, grid):
         '''Start the game on the server and communicates it to client'''
 
-        self.game = Games(grid, "host", "guest", self.gamemode)
-        self.game.init_pawns()
-        self.game_started = True
-
-
         for client_socket in self.clients.keys():
             start_message = {
-                "message": "start",
+                "start": "game",
                 "gamemode": self.gamemode,
-                "usernames": ["host", "guest"],
-                "current_player": 0
+                "usernames": self.usernames,
+                "board": [[tile.to_dict() for tile in row] for row in grid]
             }
         
             start_message = json.dumps(start_message) + '\n'
@@ -233,13 +219,14 @@ class Server:
                 print(f"Error sending start message: {e}")
 
 
-    def broadcast_board(self):
-        '''Broadcast the current board to all clients'''
+    def broadcast_board_update(self, type, params):
+        '''Broadcast the current game state to all clients'''
 
         for client_socket in self.clients.keys():
             try:
                 message = {
-                    "update": [[tile.to_dict() for tile in row] for row in self.game.get_grid()]
+                    "type": type,
+                    "params": params
                 }
                 
                 message = json.dumps(message) + '\n'
