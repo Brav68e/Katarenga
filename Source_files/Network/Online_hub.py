@@ -1,6 +1,7 @@
 from Source_files.Network.Server import Server
 from Source_files.Network.Client import Client
 from Source_files.Sub_class.button import *
+from Source_files.Game_UI import GamesUI
 from math import ceil
 from Source_files.Board_handling.Board_creation import *
 import pygame
@@ -20,8 +21,7 @@ class Online_hub():
         self.server = None                  # Current hosting server
         self.hosting = False
         self.start = False
-        self.username = None                # Username of the player
-        self.gamemode = None                # Gamemode of the player
+        self.gamemode = None
 
         self.servers = []                   # List all servers available
         self.servers_amount = 0
@@ -60,12 +60,32 @@ class Online_hub():
             self.handle_event()
             self.clock.tick(self.fps)
             if self.start:
-                self.running = GamesUI(self.screen, self.username, self.gamemode, style='online', client=self.client)
+                self.running = GamesUI(self.screen, self.gamemode, self.usernames, style='online', client=self.client, grid=self.grid)
+                self.cleanup()
                 self.start = False
 
-        self.client.stop()
+        self.cleanup()
+
+
+###################################################################################################
+
+
+    def cleanup(self):
+        """Clean up resources before exiting Online_hub"""
+        
+        # Stop server if hosting
         if self.server:
-            self.server.stop()
+            try:
+                self.server.stop()
+                self.server = None
+                self.hosting = False
+            except Exception as e:
+                print(f"Error stopping server: {e}")
+        
+        # Allow background threads to terminate
+        time.sleep(0.25)
+        
+
 
 
 ###################################################################################################
@@ -105,7 +125,6 @@ class Online_hub():
             self.running = False
         elif self.buttons["join"].checkInput((x,y)) and self.selected_server is not None:
             if self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1]):           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
-                self.client.set_username("guest")
                 self.waiting_menu2()
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
             self.host_menu()
@@ -131,7 +150,6 @@ class Online_hub():
         # Start the server in a separate thread
         threading.Thread(target=self.server.start, daemon=True).start()
 
-        self.client.set_username("host")
         self.client.connect("127.0.0.1", 5555)
         self.hosting = True
 
@@ -150,14 +168,21 @@ class Online_hub():
         color_active = (200, 200, 200)
         color_inactive = (175, 175, 175)
         color = color_inactive
-        max_chars = 20
+        max_chars = 12
 
         while running:
-            
             # Display Background + Button
             self.screen.blit(self.background_img, (0,0))
             self.buttons["back"].update(self.screen)
             self.buttons["next"].update(self.screen)
+
+            # Draw input box
+            pygame.draw.rect(self.screen, color, input_box, border_radius=5)
+
+            # Render text + blitting
+            text_surface = self.font.render(host_name, True, (255, 0, 0))
+            input_width, input_height = text_surface.get_size()
+            self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
 
             # Handle Event
             x,y = pygame.mouse.get_pos()
@@ -177,14 +202,15 @@ class Online_hub():
                     # Check for button selection
                     if self.buttons["back"].checkInput((x,y)):
                         running = False
-                    elif self.buttons["next"].checkInput((x,y)):      
+                    elif self.buttons["next"].checkInput((x,y)) and host_name:      
                         # Go on the next interface to choose gamemode
                         running = self.gamemode_menu(host_name)
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        # Act as create button (Enter key)
-                        running = self.gamemode_menu(host_name)
+                        # Act as create button (Enter key), only if host_name is not empty
+                        if host_name:
+                            running = self.gamemode_menu(host_name)
                     elif event.key == pygame.K_BACKSPACE:
                         host_name = host_name[:-1]
                     elif len(host_name) < max_chars and active:
@@ -196,13 +222,6 @@ class Online_hub():
             else:
                 self.buttons_img["create"].set_alpha(150)
 
-            # Draw input box
-            pygame.draw.rect(self.screen, color, input_box, border_radius=5)
-
-            # Render text + blitting
-            text_surface = self.font.render(host_name, True, (255, 0, 0))
-            input_width, input_height = text_surface.get_size()
-            self.screen.blit(text_surface, (input_box.x + (input_box.width - input_width) // 2, input_box.y + (input_box.height - input_height) // 2))
 
             pygame.display.flip()
 
@@ -218,7 +237,6 @@ class Online_hub():
             rect = pygame.Rect(0, 0, self.screen_width * 0.42, self.screen_height * 0.14)
 
             while running:
-                
                 # Display Background + Button
                 self.screen.blit(self.background_img, (0,0))
                 self.buttons["back"].update(self.screen)
@@ -258,13 +276,12 @@ class Online_hub():
                             gamemode = "isolation"
                         else:
                             gamemode = None
-
-
-
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN and gamemode:
+                            self.host_server(host_name, gamemode)
+                            running = self.waiting_menu(host_name)
 
                 pygame.display.flip()
-
-
 ###################################################################################################
 
 
@@ -317,10 +334,7 @@ class Online_hub():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.buttons["back"].checkInput((x,y)):
-                        self.server.stop()
-                        self.client.reset()
-                        self.server = None
-                        self.hosting = False
+                        self.cleanup()
                         waiting = False
 
             # Check if the server is full
@@ -328,9 +342,11 @@ class Online_hub():
                 if self.server and self.server.get_client_amount() >= 2:
                     waiting = False
                     board = Board_creation(self.screen).run()
-                    self.server.start_game(board)
+                    if board:
+                        self.server.start_game(board)
+                    else:
+                        self.cleanup()
 
-                    
 
             pygame.display.flip()
 
@@ -516,7 +532,7 @@ class Online_hub():
                 self.page_amount = ceil(self.servers_amount/4)
 
             time.sleep(5)
-            print(self.servers)
+
 
 
 ###################################################################################################
@@ -557,10 +573,16 @@ class Online_hub():
 ###################################################################################################
 
 
-    def start_game(self, username, gamemode):
+    def start_game(self, grid, usernames, gamemode):
+        '''Start the game with the given grid and usernames
+        param grid: list of list of Tile object
+        param usernames: list of usernames
+        param gamemode: string of the gamemode
+        '''
 
         self.start = True
-        self.username = username
+        self.grid = grid
+        self.usernames = usernames
         self.gamemode = gamemode
 
 

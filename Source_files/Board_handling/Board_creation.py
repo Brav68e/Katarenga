@@ -73,8 +73,14 @@ class Board_creation():
         self.display_selected_region(pygame.mouse.get_pos())
 
         # Update buttons
-        for button in self.buttons.values():
+        for name, button in self.buttons.items():
             button.update(self.screen)
+        if not self.board_full():
+            btn = self.buttons["next"]
+            overlay = pygame.Surface((btn.rect.width, btn.rect.height), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 0))
+            pygame.draw.rect(overlay, (150, 150, 150, 120), overlay.get_rect(), border_radius=18)
+            self.screen.blit(overlay, btn.rect.topleft)
 
 
 ###################################################################################################
@@ -128,10 +134,10 @@ class Board_creation():
         if self.buttons["back"].checkInput((x,y)):
             self.running = False
 
-        elif self.buttons["up"].checkInput((x, y)) and self.current_region_index > 0:
+        elif self.buttons["up"].checkInput((x, y)):
             self.switch_region(-1)
 
-        elif self.buttons["down"].checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
+        elif self.buttons["down"].checkInput((x, y)):
             self.switch_region(1)
 
         elif self.region_collision.collidepoint((x, y)):
@@ -169,7 +175,13 @@ class Board_creation():
 
         self.selected_region = None
         old_region = self.current_region
+        # Ensure the index stays within bounds and looping with a modulo
         self.current_region_index += direction
+        if self.current_region_index < 0:
+            self.current_region_index = self.region_amount - 1
+        elif self.current_region_index >= self.region_amount:
+            self.current_region_index = 0
+
         self.current_region = load_region(self.current_region_index)
         self.animate_slide(old_region, direction)
 
@@ -238,7 +250,7 @@ class Board_creation():
             "back": Button((self.screen_width * 0.03, self.screen_height * 0.80), self.back_img),
             "up": Button((self.screen_width * 0.72, self.screen_height * 0.19), self.up_img),
             "down": Button((self.screen_width * 0.72, self.screen_height * 0.67), self.down_img),
-            "next": Button((self.screen_width * 0.3, self.screen_height * 0.80), self.next_img, "Next", base_color="black", font_size=int(self.screen_height/720 * 64)),
+            "next": Button((self.screen_width * 0.3, self.screen_height * 0.77), self.next_img, "Next", base_color="black", font_size=int(self.screen_height/720 * 64)),
         }
 
 

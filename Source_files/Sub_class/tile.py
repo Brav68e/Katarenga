@@ -47,7 +47,14 @@ class Tile:
 
 
 def read_board(grid):
-    '''Return a board with Object using a json-like formatted board'''
+    '''Return a Board and Player using Object using a json-like formatted board
+    param grid: list of list of Tile object (json-like format)
+    return : tuple of (board, owner)
+    board: list of list of Tile object
+    owner: dictionary of Player object (key : username, value : Player object)
+    '''
+
+
     try:
         board = []
         owner = {}  # Track players to prevent duplication
@@ -68,9 +75,7 @@ def read_board(grid):
 
             board.append(new_row)
 
-        print(f"Processed board: {board}")
-        print(f"Owners: {owner}")
-        return board
+        return (board, owner)
     except Exception as e:
         print(f"Error in read_board: {e}")
         import traceback

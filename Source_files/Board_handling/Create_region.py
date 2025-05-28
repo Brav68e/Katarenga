@@ -11,7 +11,7 @@ import json
 
 class Create_region():
 
-    def __init__(self, screen, controller = None):
+    def __init__(self, screen):
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
@@ -74,6 +74,7 @@ class Create_region():
                             # Check if the region isn't already register
                             if not search_region(region):
                                 save_region(region)
+                                self.region = Region([[0 for i in range(4)] for j in range(4)])  # Reset the region
 
                     # Place a Tile on the editor
                     elif self.region_collision.collidepoint(x,y):
@@ -178,7 +179,7 @@ class Create_region():
 
         self.tiles_aside = []
         patterns = ["horse", "rook", "bishop", "king", "queen"]
-        tile_x = int(self.screen_width * 0.55)                          # Tiles first "row axe"
+        tile_x = int(self.screen_width * 0.52)                          # Tiles first "row axe"
         tile_y = int(self.screen_height * 0.083)                        # Starting Y
 
         for i in range(3):
