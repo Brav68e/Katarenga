@@ -11,7 +11,7 @@ import json
 
 class Create_region():
 
-    def __init__(self, screen, controller = None):
+    def __init__(self, screen):
 
         self.screen = screen
         self.screen_width, self.screen_height = screen.get_size()
