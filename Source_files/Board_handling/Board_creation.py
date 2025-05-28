@@ -6,6 +6,7 @@ from Source_files.Game_UI import *
 import json
 from math import ceil, pow, cos, pi, sin
 import copy
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 
 
 
@@ -132,12 +133,15 @@ class Board_creation():
         x, y = pygame.mouse.get_pos()
 
         if self.buttons["back"].checkInput((x,y)):
+            ButtonSound.play()
             self.running = False
 
-        elif self.buttons["up"].checkInput((x, y)):
+        elif self.buttons["up"].checkInput((x, y)) and self.current_region_index > 0:
+            ButtonSound.play()
             self.switch_region(-1)
 
-        elif self.buttons["down"].checkInput((x, y)):
+        elif self.buttons["down"].checkInput((x, y)) and self.current_region_index < self.region_amount - 1:
+            ButtonSound.play()
             self.switch_region(1)
 
         elif self.region_collision.collidepoint((x, y)):
@@ -148,6 +152,7 @@ class Board_creation():
             self.selected_region = None
 
         elif self.buttons["next"].checkInput(pygame.mouse.get_pos()) and self.board_full():
+            ButtonSound.play()
             # USE THE COMBINATION METHOD HERE, RETURN THE LIST WITH ALL TILES (NO MORE REGIONS)
             self.running = 0
             self.response = self.combine_regions()
@@ -247,7 +252,7 @@ class Board_creation():
         '''Initialize all buttons needed with their respective coordinates'''
 
         self.buttons = {
-            "back": Button((self.screen_width * 0.03, self.screen_height * 0.80), self.back_img),
+            "back": Button(pos=(50, 570), image = self.back_img),
             "up": Button((self.screen_width * 0.72, self.screen_height * 0.19), self.up_img),
             "down": Button((self.screen_width * 0.72, self.screen_height * 0.67), self.down_img),
             "next": Button((self.screen_width * 0.3, self.screen_height * 0.77), self.next_img, "Next", base_color="black", font_size=int(self.screen_height/720 * 64)),

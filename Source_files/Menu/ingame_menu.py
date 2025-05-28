@@ -1,5 +1,6 @@
 import pygame
 from Source_files.Sub_class.button import Button
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 
 class InGameMenu:
     def __init__(self, screen, screen_width, screen_height, clock, fps):
@@ -45,8 +46,13 @@ class InGameMenu:
                     exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if btn_quit.checkInput(event.pos):
+                        ButtonSound.play()
                         return True
                     if btn_resume.checkInput(event.pos):
+                        ButtonSound.play()
+                        return False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
                         return False
             self.screen.blit(popup, rect.topleft)
             popup.blit(title, title_rect)

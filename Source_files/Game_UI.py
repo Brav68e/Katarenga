@@ -2,6 +2,7 @@ from Source_files.Sub_class.button import *
 from Source_files.Games import *
 from Source_files.Menu.ingame_menu import InGameMenu
 import pygame
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 
 
 
@@ -617,6 +618,9 @@ class GamesUI():
         # Creating a popup window
         popup = pygame.Surface((self.screen_width * 0.75, self.screen_height * 0.75))
         popup.fill((255, 255, 255))
+        # Play the win sound
+        win_sound = pygame.mixer.Sound("Source_files/Assets/Sounds/win.mp3")
+        win_sound.play()
 
         # Adding text to the popup
         self.title = self.font.render(f"{winner} won the game !", True, "black")
@@ -646,20 +650,21 @@ class GamesUI():
         self.title_pos = self.title.get_rect(center=(self.screen_width * 0.5, self.screen_height * 0.35))
 
         # Adding buttons to the popup
-        yes_button = Button((self.screen_width * 0.25, self.screen_height * 0.45), image=self.buttons_img["yes"], text="Yes", font_size= int(self.screen_height/720 * 64))
-        no_button = Button((self.screen_width * 0.55, self.screen_height * 0.45), image=self.buttons_img["no"],text="No", font_size= int(self.screen_height/720 * 64))
+        yes_button = Button((self.screen_width * 0.25, self.screen_height * 0.45), self.buttons_img["yes"], text="Yes", font_size= int(self.screen_height/720 * 64))
+        no_button = Button((self.screen_width * 0.55, self.screen_height * 0.45), self.buttons_img["no"],text="No", font_size= int(self.screen_height/720 * 64))
         
         # Main loop for the popup
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return
-
+                    exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if yes_button.checkInput(event.pos):
+                        ButtonSound.play()
                         return True
-                    elif no_button.checkInput(event.pos):
+                    if no_button.checkInput(event.pos):
+                        ButtonSound.play()
                         return False
 
             # Draw the popup and buttons

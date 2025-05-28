@@ -5,6 +5,7 @@ from Source_files.Board_handling.Create_region import *
 from Source_files.Board_handling.Create_region import Create_region
 from Source_files.Game_UI import *
 from Source_files.Network.Online_hub import Online_hub
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 
 class Menu:
     def __init__(self, root):
@@ -279,7 +280,7 @@ class Menu:
             y_offset += 35
         
         # Add back button
-        back_button = Button(pos=(70, 620), image=None, text="Retour", base_color="black", 
+        back_button = Button(pos=(70, 620), image=None, text="Back", base_color="black", 
                             font_size=int(self.screen_height/720 * 50))
         
         # Check if mouse is hovering over back button
@@ -401,58 +402,60 @@ class Menu:
         """Handle mouse button down events"""
         mouse_pos = pygame.mouse.get_pos()
         if self.close_button_rect.collidepoint(mouse_pos):
+            ButtonSound.play()
             pygame.quit()
             sys.exit()
             return
-        
         # Check for clicks on the icons
         if self.handle_icon_clicks(mouse_pos):
+            ButtonSound.play()
             return
-        
         # Check for clicks on the main buttons in Settings page
         if self.current_page == "Settings":
             if self.handle_settings_buttons(mouse_pos):
+                ButtonSound.play()
                 return
-                
         # Check for clicks on the rules buttons
         if self.current_page == "Rules":
             if self.handle_rules_buttons(mouse_pos):
+                ButtonSound.play()
                 return
-        
         # Handle clicks on the volume bar
         if self.current_page == "Options":
+            if self.slider_rect.collidepoint(mouse_pos):
+                ButtonSound.play()
             self.handle_volume_input(mouse_pos, True)
-            
             # Handle clicks on display mode buttons
-            self.handle_display_options(mouse_pos)
-        
+            if self.handle_display_options(mouse_pos):
+                ButtonSound.play()
         if self.current_page == "Katarenga":
-            self.handle_game_lauch("katarenga")
+            self.handle_game_launch("katarenga")
 
         elif self.current_page == "Congress":
-            self.handle_game_lauch("congress")
+            self.handle_game_launch("congress")
 
         elif self.current_page == "Isolation":
-            self.handle_game_lauch("isolation")
+            self.handle_game_launch("isolation")
 
 
-    def handle_game_lauch(self, mode):
+    def handle_game_launch(self, mode):
         '''Handle game launch based on the selected mode'''
 
         mouse_pos = pygame.mouse.get_pos()
 
         if self.buttons[0].checkInput(mouse_pos):  # Solo
+            ButtonSound.play()
             if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
                 username.append("AI")
                 GamesUI(self.screen, mode, username, grid)
         elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
+            ButtonSound.play()
             if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
                 GamesUI(self.screen, mode, username, grid, "multi")
         elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
+            ButtonSound.play()
             if (username := self.get_usernames("Online Multiplayer")):
                 Online_hub(self.screen, username[0]).run()
-
-
 
     def handle_mouse_motion(self, event):
         """Handle mouse motion events"""

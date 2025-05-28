@@ -4,6 +4,7 @@ from Source_files.Sub_class.region import *
 from Source_files.Board_handling.Region_deletion import Delete_region
 import pygame
 import json
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 
 
 
@@ -59,14 +60,17 @@ class Create_region():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # Leave this menu
                     if self.button_back_menu.checkInput((x,y)):
+                        ButtonSound.play()
                         running = False
 
                     # Go check the available regions
                     elif self.button_database.checkInput((x,y)):
+                        ButtonSound.play()
                         Delete_region(self.screen)
 
                     # State if the current region can be saved
                     elif self.button_save.checkInput((x,y)):
+                        ButtonSound.play()
                         # Check if the current region is fulfilled with Tile
                         if self.region.complete():
                             region = Region.to_dict(self.region)

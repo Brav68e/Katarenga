@@ -1,6 +1,7 @@
 import sys
 import pygame
 from Source_files.Sub_class.button import Button
+from Source_files.Assets.Sounds.button_sound import ButtonSound
 from Source_files.Sub_class.player import Player
 
 class UsernameInput:
@@ -8,14 +9,14 @@ class UsernameInput:
         self.screen = screen
         self.prompt = prompt
         self.num_fields = num_fields
-        self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 28)
-        self.label_font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 22)
+        self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 40)
+        self.label_font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 32)
         self.input_boxes = [pygame.Rect(440, 300 + i * 100, 500, 70) for i in range(num_fields)]  # Adjusted for multiple fields
         self.labels = ["Player 1", "Player 2"][:num_fields]  # Labels for the input boxes
         self.max_characters = 12
         self.usernames = [f"Player {i + 1}" for i in range(num_fields)]  # Default usernames
         self.active = [False] * num_fields
-        self.back_arrow = Button(pos=(70, 600), image=pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha(), text="")
+        self.back_arrow = Button(pos=(50, 570), image=pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha(), text="")
         self.next_button = Button(
             pos=(self.screen.get_width() // 2 - 90, 500),  
             image=pygame.transform.smoothscale(
@@ -65,15 +66,20 @@ class UsernameInput:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.back_arrow.checkInput(event.pos):
+                        ButtonSound.play()
                         return "back"  # Return "back" to indicate going back to the main menu
                     # Only allow next if all usernames are non-empty and not just spaces
                     if self.next_button.checkInput(event.pos) and all(name.strip() for name in self.usernames):
+                        ButtonSound.play()
                         running = False
                     for i, box in enumerate(self.input_boxes):
+                        if box.collidepoint(event.pos):
+                            ButtonSound.play()
                         self.active[i] = box.collidepoint(event.pos)
                 elif event.type == pygame.KEYDOWN:
                     # Only allow next if all usernames are non-empty and not just spaces
                     if event.key == pygame.K_RETURN and all(name.strip() for name in self.usernames):
+                        ButtonSound.play()
                         running = False
                     else:
                         for i, active in enumerate(self.active):
