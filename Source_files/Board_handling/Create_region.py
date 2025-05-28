@@ -74,6 +74,7 @@ class Create_region():
                             # Check if the region isn't already register
                             if not search_region(region):
                                 save_region(region)
+                                self.region = Region([[0 for i in range(4)] for j in range(4)])  # Reset the region
 
                     # Place a Tile on the editor
                     elif self.region_collision.collidepoint(x,y):
