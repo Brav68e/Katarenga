@@ -222,6 +222,7 @@ class GamesUI():
         
         self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Game_Background.png").convert()
         self.board_background_img = pygame.image.load("Source_files/Assets/Images/Game/board_background.png").convert()
+        self.get_camps_img = pygame.image.load("Source_files/Assets/Images/Board/sun.png").convert_alpha()
         self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height * 0.1))
 
 
@@ -242,6 +243,7 @@ class GamesUI():
         for button in self.buttons_img.keys():
             self.buttons_img[button] = pygame.transform.smoothscale(self.buttons_img[button], (self.screen_width * 200/1280, self.screen_height * 120/780))
 
+        self.get_camps_img = pygame.transform.smoothscale(self.get_camps_img, (int(self.tiles_size), int(self.tiles_size)))
         self.board_background_topleft = (self.screen_width * 125/1280, self.screen_height * 30/720)
         self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.tiles_size * 10, self.tiles_size * 10))
 
@@ -448,6 +450,12 @@ class GamesUI():
                 for column in range(8):
                     if (row, column) not in possible_moves:
                         self.screen.blit(self.tiles_img["possible_move"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
+            for move in possible_moves:
+                row, column = move
+                if (row == -1 or row == 8):
+                    self.screen.blit(self.get_camps_img, (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
+
 
 
 ##############################################################################################################
