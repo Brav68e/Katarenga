@@ -179,7 +179,7 @@ class Create_region():
 
         self.tiles_aside = []
         patterns = ["horse", "rook", "bishop", "king", "queen"]
-        tile_x = int(self.screen_width * 0.55)                          # Tiles first "row axe"
+        tile_x = int(self.screen_width * 0.52)                          # Tiles first "row axe"
         tile_y = int(self.screen_height * 0.083)                        # Starting Y
 
         for i in range(3):
