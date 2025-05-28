@@ -3,586 +3,34 @@
         "region": [
             [
                 {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
-                    "deplacement_pattern": "horse",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "king",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "queen",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ]
-        ]
-    },
-    {
-        "region": [
-            [
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                },
-                {
-                    "deplacement_pattern": "rook",
-                    "pawn_on": null,
-                    "collision": null
-                }
-            ],
-            [
-                {
                     "deplacement_pattern": "bishop",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "bishop",
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
                     "pawn_on": null,
                     "collision": null
                 },
@@ -604,12 +52,82 @@
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "horse",
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
                     "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ]
+        ]
+    },
+    {
+        "region": [
+            [
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
                     "pawn_on": null,
                     "collision": null
                 },
@@ -621,22 +139,228 @@
             ],
             [
                 {
-                    "deplacement_pattern": "queen",
+                    "deplacement_pattern": "bishop",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "queen",
+                    "deplacement_pattern": "rook",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "queen",
+                    "deplacement_pattern": "horse",
                     "pawn_on": null,
                     "collision": null
                 },
                 {
-                    "deplacement_pattern": "queen",
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ]
+        ]
+    },
+    {
+        "region": [
+            [
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ]
+        ]
+    },
+    {
+        "region": [
+            [
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "king",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                }
+            ],
+            [
+                {
+                    "deplacement_pattern": "horse",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "rook",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "bishop",
+                    "pawn_on": null,
+                    "collision": null
+                },
+                {
+                    "deplacement_pattern": "king",
                     "pawn_on": null,
                     "collision": null
                 }

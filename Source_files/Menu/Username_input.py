@@ -12,7 +12,7 @@ class UsernameInput:
         self.label_font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", 22)
         self.input_boxes = [pygame.Rect(440, 300 + i * 100, 500, 70) for i in range(num_fields)]  # Adjusted for multiple fields
         self.labels = ["Player 1", "Player 2"][:num_fields]  # Labels for the input boxes
-        self.max_characters = 20
+        self.max_characters = 12
         self.usernames = [f"Player {i + 1}" for i in range(num_fields)]  # Default usernames
         self.active = [False] * num_fields
         self.back_arrow = Button(pos=(70, 600), image=pygame.image.load("Source_files/Assets/Images/Utility/left_arrow.png").convert_alpha(), text="")

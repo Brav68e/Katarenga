@@ -304,19 +304,36 @@ class GamesUI():
 
 
     def draw_current_player(self):
-        '''Draw the current player on the board'''
+        '''Draw the current player on the board, always well placed'''
 
         # Get the current player and create the formatted string
         if self.style == "online":
             current_player = self.client.send_msg(("current_player", None))["username"]
         else:
             current_player = self.game.get_current_player().get_username()
-        lines = [f"Turn of {current_player}", "Choose Wisely !"]
-
-        for i, line in enumerate(lines):
-            self.title = self.font.render(line, True, "black")
-            self.title_pos = self.title.get_rect(center=(self.screen.get_width() * 1025/1280, self.screen.get_height() * (300 + i*100) / 720))
-            self.screen.blit(self.title, self.title_pos)
+        
+        # Prepare lines
+        lines = ["Turn of", f"{current_player}", "Choose Wisely !"]
+        font_sizes = [48, 56, 40]  # Different font sizes for hierarchy
+        fonts = [pygame.font.Font("Source_files/Assets/Fonts/font.ttf", size) for size in font_sizes]
+        
+        # Define the area for the text (right panel)
+        panel_x = int(self.screen.get_width() * 0.64)
+        panel_y = int(self.screen.get_height() * 0.10)
+        panel_w = int(self.screen.get_width() * 0.32)
+        panel_h = int(self.screen.get_height() * 0.80)
+    
+        # Calculate total height of all lines
+        rendered_lines = [fonts[i].render(line, True, "black") for i, line in enumerate(lines)]
+        total_height = sum(text.get_height() for text in rendered_lines) + 20 * (len(lines) - 1)
+        start_y = panel_y + (panel_h - total_height) // 2
+        
+        # Blit each line centered in the panel
+        y = start_y
+        for i, text in enumerate(rendered_lines):
+            text_rect = text.get_rect(center=(panel_x + panel_w // 2, y + text.get_height() // 2))
+            self.screen.blit(text, text_rect)
+            y += text.get_height() + 20
 
 
 ####################################################################################################
