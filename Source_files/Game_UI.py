@@ -230,6 +230,7 @@ class GamesUI():
         
         self.background_img = pygame.image.load("Source_files/Assets/Images/Menu/Game_Background.png").convert()
         self.board_background_img = pygame.image.load("Source_files/Assets/Images/Game/board_background.png").convert()
+        self.popup_img = pygame.image.load("Source_files/Assets/Images/Menu/popup.png").convert_alpha()
         self.get_camps_img = pygame.image.load("Source_files/Assets/Images/Board/sun.png").convert_alpha()
         self.font = pygame.font.Font("Source_files/Assets/Fonts/font.ttf", int(self.screen_height * 0.1))
 
@@ -254,6 +255,7 @@ class GamesUI():
         self.get_camps_img = pygame.transform.smoothscale(self.get_camps_img, (int(self.tiles_size), int(self.tiles_size)))
         self.board_background_topleft = (self.screen_width * 125/1280, self.screen_height * 30/720)
         self.board_background_img = pygame.transform.smoothscale(self.board_background_img, (self.tiles_size * 10, self.tiles_size * 10))
+        self.popup_img = pygame.transform.smoothscale(self.popup_img, (self.screen_width * 0.75, self.screen_height * 0.75))
 
 
 ###################################################################################################
@@ -612,9 +614,6 @@ class GamesUI():
     def show_winner(self, winner):
         '''Display the winner of the game'''
         
-        # Creating a popup window
-        popup = pygame.Surface((self.screen_width * 0.75, self.screen_height * 0.75))
-        popup.fill((255, 255, 255))
         # Play the win sound
         win_sound = pygame.mixer.Sound("Source_files/Assets/Sounds/win.mp3")
         win_sound.play()
@@ -624,7 +623,7 @@ class GamesUI():
         self.title_pos = self.title.get_rect(center=(self.screen_width * 0.5, self.screen_height * 0.35))
 
         # Display the image on the screen
-        self.screen.blit(popup, (self.screen_width * 0.125, self.screen_height * 0.125))
+        self.screen.blit(self.popup_img, (self.screen_width * 0.125, self.screen_height * 0.125))
         self.screen.blit(self.title, self.title_pos)
         pygame.display.flip()
 
@@ -637,10 +636,6 @@ class GamesUI():
 
     def rematch(self):
         '''Display a popup asking for a rematch'''
-
-        # Creating a popup window
-        popup = pygame.Surface((self.screen_width * 0.75, self.screen_height * 0.75))
-        popup.fill((255, 255, 255))
 
         # Adding text to the popup
         self.title = self.font.render("Do you want a rematch ?", True, "black")
@@ -665,7 +660,7 @@ class GamesUI():
                         return False
 
             # Draw the popup and buttons
-            self.screen.blit(popup, (self.screen_width * 0.125, self.screen_height * 0.125))
+            self.screen.blit(self.popup_img, (self.screen_width * 0.125, self.screen_height * 0.125))
             self.screen.blit(self.title, self.title_pos)
             yes_button.update(self.screen)
             no_button.update(self.screen)
