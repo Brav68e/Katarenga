@@ -122,20 +122,26 @@ class Online_hub():
         x,y = pygame.mouse.get_pos()
         
         if self.buttons["back"].checkInput((x,y)):
+            self.button_sound.play()
             self.running = False
         elif self.buttons["join"].checkInput((x,y)) and self.selected_server is not None:
+            self.button_sound.play()
             if self.client.connect(self.servers[self.selected_server][0], self.servers[self.selected_server][1]):           # 0 is ip, 1 is port, 2 is name, 3 is gamemode
                 self.waiting_menu2()
         elif self.buttons["host"].checkInput((x,y)) and not self.hosting:
+            self.button_sound.play()
             self.host_menu()
         elif self.buttons["up"].checkInput((x,y)) and self.current_page > 0:
+            self.button_sound.play()
             self.current_page -= 1
         elif self.buttons["down"].checkInput((x,y)) and self.current_page < self.page_amount-1:
+            self.button_sound.play()
             self.current_page += 1
         
         # Check for server selection
         index = self.check_server_selection((x,y))
         if index != -1:
+            self.button_sound.play()
             self.selected_server = self.current_page * 4 + index
 
 
@@ -176,6 +182,12 @@ class Online_hub():
             self.buttons["back"].update(self.screen)
             self.buttons["next"].update(self.screen)
 
+            if not host_name.strip():
+                next_rect = self.buttons["next"].rect
+                grey_surface = pygame.Surface((next_rect.width, next_rect.height), pygame.SRCALPHA)
+                pygame.draw.rect(grey_surface, (180, 180, 180, 180), grey_surface.get_rect(), border_radius=15)
+                self.screen.blit(grey_surface, next_rect.topleft)
+
             # Draw input box
             pygame.draw.rect(self.screen, color, input_box, border_radius=5)
 
@@ -201,15 +213,17 @@ class Online_hub():
 
                     # Check for button selection
                     if self.buttons["back"].checkInput((x,y)):
+                        self.button_sound.play()
                         running = False
                     elif self.buttons["next"].checkInput((x,y)) and host_name:      
+                        self.button_sound.play()
                         # Go on the next interface to choose gamemode
                         running = self.gamemode_menu(host_name)
-
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         # Act as create button (Enter key), only if host_name is not empty
                         if host_name:
+                            self.button_sound.play()
                             running = self.gamemode_menu(host_name)
                     elif event.key == pygame.K_BACKSPACE:
                         host_name = host_name[:-1]
@@ -245,6 +259,12 @@ class Online_hub():
                 self.buttons["congress"].update(self.screen)
                 self.buttons["isolation"].update(self.screen)
 
+                if not gamemode:
+                    create_rect = self.buttons["create"].rect
+                    grey_surface = pygame.Surface((create_rect.width, create_rect.height), pygame.SRCALPHA)
+                    pygame.draw.rect(grey_surface, (180, 180, 180, 180), grey_surface.get_rect(), border_radius=15)
+                    self.screen.blit(grey_surface, create_rect.topleft)
+
                 # Display a selection rectangle around the selected gamemode
                 if gamemode:
                     rect.center = self.buttons[gamemode].rect.center
@@ -269,15 +289,19 @@ class Online_hub():
                             self.host_server(host_name, gamemode)
                             running = self.waiting_menu(host_name)
                         elif self.buttons["katarenga"].checkInput((x,y)):
+                            self.button_sound.play()
                             gamemode = "katarenga"
                         elif self.buttons["congress"].checkInput((x,y)):
+                            self.button_sound.play()
                             gamemode = "congress"
                         elif self.buttons["isolation"].checkInput((x,y)):
+                            self.button_sound.play()
                             gamemode = "isolation"
                         else:
                             gamemode = None
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and gamemode:
+                            self.button_sound.play()
                             self.host_server(host_name, gamemode)
                             running = self.waiting_menu(host_name)
 
@@ -421,6 +445,8 @@ class Online_hub():
                             "create": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
                             "next": pygame.image.load("Source_files/Assets/Images/Utility/next.png"),
                             }
+        # Load button sound
+        self.button_sound = pygame.mixer.Sound("Source_files/Assets/Sounds/bouton.mp3")
 
 
 ###################################################################################################
@@ -444,10 +470,10 @@ class Online_hub():
         self.buttons = {"back" : Button((self.screen_width * 0.03, self.screen_height * 650/780), self.buttons_img["back"]),
                         "up" : Button((self.screen_width * 0.76 ,self.screen_height * 216/780), self.buttons_img["up"]),
                         "down" : Button((self.screen_width * 0.76, self.screen_height * 386/780), self.buttons_img["down"]),
-                        "join" : Button((self.screen_width * 0.3, self.screen_height * 625/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "host" : Button((self.screen_width * 0.51, self.screen_height * 625/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "join" : Button((self.screen_width * 0.3, self.screen_height * 600/780), self.buttons_img["join"], text="Join", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "host" : Button((self.screen_width * 0.51, self.screen_height * 600/780), self.buttons_img["host"], text="Host", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "next" : Button((self.screen_width * 0.42125, self.screen_height * 0.69), self.buttons_img["next"], text="Next", base_color="black", font_size= int(self.screen_height/720 * 64)),
-                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.79), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64)),
+                        "create" : Button((self.screen_width * 0.42125, self.screen_height * 0.74), self.buttons_img["create"], text="Create", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "katarenga" : Button((self.screen_width * 0.4125, self.screen_height * 0.25), text="Katarenga", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "congress" : Button((self.screen_width * 0.42, self.screen_height * 0.40), text="Congress", base_color="black", font_size= int(self.screen_height/720 * 64)),
                         "isolation" : Button((self.screen_width * 0.42, self.screen_height * 0.55), text="Isolation", base_color="black", font_size= int(self.screen_height/720 * 64))

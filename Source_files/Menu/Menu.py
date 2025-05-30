@@ -451,7 +451,10 @@ class Menu:
         elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
             ButtonSound.play()
             if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
-                GamesUI(self.screen, mode, username, grid, "multi")
+                if username[0] == username[1]:
+                    username[0] += " (1)"
+                    username[1] += " (2)"
+            GamesUI(self.screen, mode, username, grid, "multi")
         elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
             ButtonSound.play()
             if (username := self.get_usernames("Online Multiplayer")):

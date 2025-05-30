@@ -1,12 +1,12 @@
-RÈGLES DE BASE
-• Les joueurs jouent à tour de rôle en déplaçant un de leurs pions.
-• Les captures sont interdites durant toute la partie.
+BASIC RULES
+• Players take turns moving one of their pawns.
+• Captures are forbidden throughout the game.
 
-OBJECTIF
-Le but est de former un bloc connecté avec tous vos pions.
+OBJECTIVE
+The goal is to form a connected block with all your pawns.
 
-CONDITION DE VICTOIRE
-Un joueur gagne quand tous ses pions forment un groupe connecté où :
-• Chaque pion est adjacent orthogonalement (horizontalement ou verticalement)
-  à au moins un autre de ses propres pions.
-• Tous les pions sont ainsi reliés entre eux, formant un bloc compact.
+WIN CONDITION
+A player wins when all their pawns form a connected group where:
+• Each pawn is orthogonally adjacent (horizontally or vertically)
+  to at least one other of their own pawns.
+• All pawns are thus linked together, forming a compact block.

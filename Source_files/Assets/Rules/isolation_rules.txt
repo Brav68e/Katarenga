@@ -1,13 +1,13 @@
-RÈGLES DE BASE
-• Le plateau est initialement vide.
-• À tour de rôle, chaque joueur place un pion sur une case vide.
-• Un pion ne peut pas être placé en position où il pourrait être capturé
-  par un pion déjà sur le plateau (quelle que soit sa couleur).
-• Il n'y a ni déplacements ni captures dans ce jeu.
+BASIC RULES
+• The board is initially empty.
+• Players take turns placing a pawn on an empty square.
+• A pawn cannot be placed where it could be captured by a pawn
+  already on the board (regardless of color).
+• There are no moves or captures in this game.
 
-OBJECTIF
-Le dernier joueur capable de placer un pion légalement remporte la partie.
+OBJECTIVE
+The last player able to legally place a pawn wins the game.
 
-STRATÉGIE
-Planifiez vos placements pour limiter les options de votre adversaire
-tout en préservant vos propres possibilités de jeu.
+STRATEGY
+Plan your placements to limit your opponent's options while preserving 
+your own possibilities.

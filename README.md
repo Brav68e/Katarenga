@@ -35,7 +35,7 @@ cd Katarenga
 Make sure you have Python 3.x and Pygame installed. You can install Pygame with:
 
 ```bash
-pip install pygame
+pip install -r requirements.txt
 ```
 
 4. **Run the application**

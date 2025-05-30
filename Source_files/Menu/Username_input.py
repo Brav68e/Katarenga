@@ -57,7 +57,7 @@ class UsernameInput:
             if not all(name.strip() for name in self.usernames):
                 overlay = pygame.Surface(self.next_button.image.get_size(), pygame.SRCALPHA)
                 overlay.fill((0, 0, 0, 0))  # Transparent background
-                pygame.draw.rect(overlay, (150, 150, 150, 100), overlay.get_rect(), border_radius=15)  # Semi-transparent gray
+                pygame.draw.rect(overlay, (150, 150, 150, 100), overlay.get_rect(), border_radius=10)  # Semi-transparent gray
                 self.screen.blit(overlay, self.next_button.rect.topleft)
 
             for event in pygame.event.get():

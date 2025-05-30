@@ -80,7 +80,7 @@ class Board_creation():
             btn = self.buttons["next"]
             overlay = pygame.Surface((btn.rect.width, btn.rect.height), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 0))
-            pygame.draw.rect(overlay, (150, 150, 150, 120), overlay.get_rect(), border_radius=18)
+            pygame.draw.rect(overlay, (150, 150, 150, 120), overlay.get_rect(), border_radius=15)
             self.screen.blit(overlay, btn.rect.topleft)
 
 
