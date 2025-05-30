@@ -29,21 +29,18 @@ The application is structured into several main modules, each responsible for a 
 
 ### 4.1 application.py
 
-This module manages the initialization of the application, the main loop, event handling, and coordination between the different modules (UI, game logic, network). It acts as the orchestrator for the entire project.
+This module manages the initialization of the application, it acts as a launcher to the first interfaces
 
 #### Main Functions:
+- Display the small introduction
 - Initialization of the main window
-- Asset loading
-- Game loop management
-- User event dispatching (clicks, key presses)
-- Calling board, UI, and network management modules
 
 ### 4.2 Game_UI.py
 
-This module manages the graphical interface: displaying menus, the board, buttons, and game information. It uses graphical assets to provide a pleasant and intuitive user experience.
+This module manages the graphical interface: the board, buttons, and game information. It uses graphical assets to provide a pleasant and intuitive user experience.
 
 #### Main Functions:
-- Display of different screens (main menu, game, settings, etc.)
+- Display of different screens (Is the extention of the Games class but handle the grapical part)
 - Placement and management of interactive buttons
 - Dynamic display of information (score, current player, etc.)
 - Management of animations and transitions
@@ -57,6 +54,7 @@ This module contains the logic for the different game modes (Katarenga, Isolatio
 - Application of game rules
 - Turn management
 - Detection of victory or draw conditions
+- Contain the overall logic of the games
 
 ---
 
@@ -71,6 +69,7 @@ This module manages the generation of the game board. It allows dynamic creation
 - Generation of the tile grid
 - Initial placement of regions and pawns
 - Initialization of each tile's properties (color, type, region)
+- Read all the available regions stored on our local JSON ressource file
 
 #### Usage Example:
 When starting a new game, the main function of this module is called to generate the board adapted to the chosen mode.
@@ -81,14 +80,14 @@ This module allows the creation and assignment of regions on the board. Regions 
 #### Main Functions:
 - Definition of regions by coordinates
 - Assignment of colors and properties to regions
-- Persistence management for regions (save/load)
+- Persistence management for regions (save/load using JSON)
 
 ### 5.3 Region_deletion.py
 This module manages the dynamic deletion or modification of regions on the board, useful for certain game modes or board editing.
 
 #### Main Functions:
-- Deletion of a region by its identifier
-- Update of affected tiles
+- Deletion of a region by its identifier (aka his position in an array)
+- Real-Time update of the region's deletion and dynamic visual
 - Reassignment of properties if necessary
 
 ---
@@ -96,73 +95,58 @@ This module manages the dynamic deletion or modification of regions on the board
 ## 6. Subclass Management (Sub_class)
 
 The `Sub_class` folder contains the definitions of the game's basic entities: buttons, pawns, players, regions, and tiles. Each subclass encapsulates the properties and behaviors associated with its entity.
+It contain the widely used button class for graphical purpose (Pygame doesn't provide button Object) and variety of in-game Object
 
 ### 6.1 button.py
-Manages the creation and behavior of interactive UI buttons.
+Manages the creation and behavior of interactive UI buttons. 
+It can be used with either text, image or both and allow easy hovering animation
 
 #### Main Properties:
 - Position (x, y)
 - Dimensions (width, height)
-- Displayed text or image
+- Displayed text and/or image
 - State (active, inactive, hovered)
 
 #### Main Methods:
-- `draw()`: Displays the button on screen
-- `is_clicked()`: Detects a click on the button
-- `update_state()`: Updates the visual state based on interaction
+- `update(screen)`: Displays the button on screen
+- `is_clicked(x,y)`: Detects a click on the button
+- `change_color(color)`: Updates the visual state based on interaction
 
 ### 6.2 pawn.py
 Defines the game pawns, their properties, and their movements.
 
 #### Main Properties:
 - Board position
-- Color/team
+- Owner
 - Pawn type (king, queen, etc.)
-- Associated region
-
-#### Main Methods:
-- `move()`: Moves the pawn according to the rules
-- `draw()`: Displays the pawn
-- `get_possible_moves()`: Calculates allowed moves
 
 ### 6.3 player.py
 Represents a player (human or AI).
 
 #### Main Properties:
-- Name or identifier
-- Color/team
-- List of controlled pawns
-- Status (active, winner, loser)
-
-#### Main Methods:
-- `play_turn()`: Manages the player's turn
-- `update_status()`: Updates the player's status
+- Name
+- Pawn_amount
 
 ### 6.4 region.py
 Defines a board region (set of tiles sharing a property).
 
 #### Main Properties:
-- Unique identifier
-- Color
-- List of associated tiles
+- region (basically a list of list with Tiles Object)
 
 #### Main Methods:
-- `add_tile()`: Adds a tile to the region
-- `remove_tile()`: Removes a tile
-- `draw()`: Displays the region
+- flip()
+- rotate()
+- display(screen, imgs, pos, tile_size) : Allow to blit the region on a surface, need a screen, a dict of imgs and initial top-left corner as well as tile-size
 
 ### 6.5 tile.py
 Defines an individual board tile.
 
 #### Main Properties:
-- Coordinates (x, y)
-- Associated region
-- Occupant (pawn or empty)
-- Graphic properties (color, highlight)
+- pawn_on (pawn or empty)
+- deplacement_pattern (king, bishop, knight, ...)
 
-#### Main Methods:
-- `draw()`: Displays the tile
-- `set_occupant()`: Sets the occupying pawn
+### Notes :
+- You have to know that all the object that might need to be transfert (mainly in-game Object) have a method to be either transform into dictionnary or transform back from it
 
 ---
 
@@ -181,6 +165,7 @@ The main menu is the application's entry point. It offers several buttons:
 - **Quit**: Closes the application.
 
 Each button is instantiated via the `button` class and provides visual (color or icon change on hover/click) and audio feedback (sound played on activation).
+The buttons used in the selection bar below are a special kind of buttons only used here, you can find more informations about them in this specific file
 
 #### Button Functionality:
 - **Event Handling**: Each button listens for mouse events (hover, click) and adapts its visual state.
@@ -194,27 +179,18 @@ In the menu allow the game selection with a bottom bar with games logo:
 - **Congress**
 
 Each mode is presented with a selection button. The choice configures the board and rules via the `Games.py` module.
+`Games.py` receive the informations he needs such as usernames and board configuration and handle the rest.
 
-### 7.3 Game Board
-The main game screen displays:
-- The dynamically generated board
-- Each player's pawns
-- Game information (current player)
-
-#### In-game Specific Buttons:
-- **Menu**: Opens the in-game menu (pause, quit or resume)
-
-Each button is ergonomically positioned around the board. Actions are confirmed by visual and audio feedback.
-
-### 7.4 In-game Menus
+### 7.3 In-game Menus
 The in-game menu allows:
 - Resuming the game
 - Quitting the game
 
-### 7.5 Victory/Defeat Screens
+### 7.4 Victory/Defeat Screens
 At the end of a game, a screen displays the result (win, loss, draw) with a summary of scores and buttons to replay or return to the main menu.
+This small pop-up is handle via a method in `Games_UI`
 
-### 7.6 Settings
+### 7.5 Settings
 The settings screen allows adjustment of:
 - Sound volume
 - Screen resolution (fullscreen, windowed)
@@ -224,11 +200,10 @@ The settings screen allows adjustment of:
 ## 8. Button and Interaction Details
 
 Each application button is an instance of the `button` class and has:
-- A unique identifier
+- A unique identifier (We're using his reference since we don't need much more)
 - Text or an icon
 - Position and size
 - State (normal, hovered, clicked, disabled)
-- An associated callback
 
 ### 8.1 Button Lifecycle
 1. **Creation**: Instantiated with its properties (label, position, callback)
@@ -256,7 +231,7 @@ Images are organized by usage:
 - `Images/Menu/`: Menu illustrations and backgrounds
 - `Images/Utility/`: Buttons, arrows, various icons
 
-Each image is loaded at startup via the UI module and referenced by its relative path. Images are used to:
+Each image is loaded at startup of a UI related Object and referenced by its relative path. Images are used to:
 - Display pawns and pieces on the board
 - Style buttons and menus
 - Illustrate regions and possible actions
@@ -291,6 +266,7 @@ They are displayed on demand in the UI, allowing quick consultation and possible
 
 ### 9.5 Data
 The `Assets/Data_files/` folder contains structured data files (e.g., `region.json`) for region configuration or board state saving.
+Those files are JSON formatted which means it's easy to read and modify. They contain an array of Region Object (for more information about the formatting check in the `/sub_class`
 
 ---
 
@@ -319,7 +295,9 @@ This module acts as a centralized lobby to find or create online games.
 #### Security and Robustness
 - Validates received actions
 - Handles network errors and connection losses
-- Logs for network debugging
+- Handling errors with try... catch
+
+All of the network is based on Socket concept and his associated library in python
 
 ---
 
@@ -351,8 +329,6 @@ To add a new game mode or modify a rule:
 - **Explicit Naming**: Use clear and consistent names for variables, functions, and files.
 - **Comments**: Document complex functions and key algorithms.
 - **Error Handling**: Provide explicit error messages and logs for debugging.
-- **Testing**: Add unit tests for critical functions (move validation, network sync).
-- **Follow PEP8 conventions** for Python code.
 - **UI/Logic Separation**: Do not mix game logic and display.
 - **Asset Management**: Centralize paths and avoid duplicates.
 - **Version Control**: Use a version control system (e.g., Git) and clear commits.
