@@ -99,7 +99,7 @@ class Client:
 
                         # Handle server shutdown
                         if "type" in message_data and message_data["type"] == "server_shutdown":
-                            print("Server is shutting down")
+                            #print("Server is shutting down")
                             self.reset()
                             self.online_hub.set_waiting(False)
                             
@@ -122,6 +122,9 @@ class Client:
                         elif "start" in message_data:
                             self.online_hub.start_game(read_board(message_data["board"])[0], message_data["usernames"], message_data["gamemode"])
                             self.online_hub.set_waiting(False)
+
+                        elif "type" in message_data and message_data["type"] == "stop_game":
+                            self.game_ui.stop()
 
                     except json.JSONDecodeError as e:
                         print(f"JSON decoding error: {e}")

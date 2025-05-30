@@ -84,6 +84,7 @@ class Server:
                 try:
                     disconnect_message = json.dumps({"type": "server_shutdown"}) + "\n"
                     client_socket.send(disconnect_message.encode('utf-8'))
+                    time.sleep(0.1)  # Give time for the message to be sent
                 except:
                     pass  # Continue with closure even if sending fails
                 
@@ -142,9 +143,12 @@ class Server:
 
                     if data["type"] in ["deplacement", "placement"]:
                         self.broadcast_board_update(data["type"], data["params"])
+
+                    elif data["type"] == "stop_game":
+                        self.broadcast_board_update("stop_game", None)
                     
             except (ConnectionResetError, ConnectionAbortedError):
-                print(f"Connection with client {client_id} was closed.")
+                #print(f"Connection with client {client_id} was closed.")
                 break
             except Exception as e:
                 import traceback
