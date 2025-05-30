@@ -448,13 +448,15 @@ class Menu:
             if (username := self.get_usernames("Solo")) and (grid := Board_creation(self.screen).run()):
                 username.append("AI")
                 GamesUI(self.screen, mode, username, grid)
+
         elif self.buttons[1].checkInput(mouse_pos):  # Local Multiplayer
             ButtonSound.play()
             if (username := self.get_usernames("multi")) and (grid := Board_creation(self.screen).run()):
                 if username[0] == username[1]:
                     username[0] += " (1)"
                     username[1] += " (2)"
-            GamesUI(self.screen, mode, username, grid, "multi")
+                GamesUI(self.screen, mode, username, grid, "multi")
+
         elif self.buttons[2].checkInput(mouse_pos):  # Online Multiplayer
             ButtonSound.play()
             if (username := self.get_usernames("Online Multiplayer")):

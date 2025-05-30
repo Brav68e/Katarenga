@@ -418,3 +418,4 @@ class Games:
                 self.board[i][j].place_pawn(None)
 
         self.__init__(self.board, self.players[0].get_username(), self.players[1].get_username(), self.gamemode)
+        self.init_pawns()
