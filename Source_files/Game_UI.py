@@ -134,13 +134,13 @@ class GamesUI():
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE and self.style in ("solo", "multi","online"):
-                   leave_game = self.pause_menu()
-                if leave_game and self.style != "online":
-                    self.running = False
-                elif leave_game and self.style == "online":
-                    # Stop the game and send a message to the server
-                    self.client.send_move("stop_game", None)
-                    self.running = False
+                    leave_game = self.pause_menu()
+                    if leave_game and self.style != "online":
+                        self.running = False
+                    elif leave_game and self.style == "online":
+                        # Stop the game and send a message to the server
+                        self.client.send_move("stop_game", None)
+                        self.running = False
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.selected_tile == None:
