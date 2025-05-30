@@ -8,6 +8,12 @@ Katarenga is a board game application inspired by chess, developed in Python. Th
 
 The application is structured into several main modules, each responsible for a specific part of the functionality: board management, user interface, game logic, network management, assets, and subclasses for game entities. The project follows a modular architecture to facilitate maintenance and extension.
 
+### 2.1 Class Diagram
+
+![alt text](<Class_Diagram/small_diagram.png>)
+
+If you want a more detailed version of this diagram, you can found one in documentations/Class_Diagram/class_diagram.svg
+
 ## 3. Folder and File Structure
 
 - `main.py`: Application entry point.
