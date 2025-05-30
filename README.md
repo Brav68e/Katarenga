@@ -9,104 +9,37 @@ Katarenga is a cross-platform board game application developed in Python, featur
 - Laureen Audin 
 - Gabriel Verschatse
 
-## Features
+## Documentation
+There are two different documentations available:
+- **User documentation**: Provides instructions and guidance for players on how to use and play Katarenga. (See `documentations/user_doc`)
+- **Technical documentation**: Contains technical details about the codebase, architecture, and development for contributors and developers. (See `documentations/technical_doc.md`)
 
-### Game Modes
-- **Katarenga**: A strategic board game with unique tile movement rules
-- **Congress**: Alternative game variant
-- **Isolation**: Additional game variant
+## Download & Run
 
-### Play Options
-- **Solo Play**: Play against AI
-- **Local Multiplayer**: Play with a friend on the same device
-- **Online Multiplayer**: Connect and play against other players over network
+To get started with Katarenga:
 
-### Board and Game Customization
-- **Region Creation Tool**: Design your own game regions with customizable tiles
-- **Board Creation**: Combine regions to create complete game boards
-
-## Project Structure
-
-### Main Components
-- `main.py`: Entry point of the application
-- `Assets/application.py`: Main application controller
-
-### Game Logic
-- `Assets/Source_files/Games.py`: Core game logic implementation
-- `Assets/Source_files/Game_template.py`: Template class for game implementations
-- `Assets/Source_files/Game_UI.py`: User interface for game interactions
-
-### Multiplayer Components
-- `Assets/Source_files/Server.py`: Server-side implementation for online play
-- `Assets/Source_files/Client.py`: Client-side networking
-- `Assets/Source_files/Online_hub.py`: Online lobby and matchmaking
-
-### Creation Tools
-- `Assets/Source_files/Create_region.py`: Tool for creating custom game regions
-- `Assets/Source_files/Board_creation.py`: Interface for building game boards
-- `Assets/Source_files/Region_deletion.py`: Management of created regions
-
-### User Interface
-- `Assets/Source_files/Menu.py`: Main menu and navigation
-
-### Game Resources
-- `Assets/Source_files/Data_files/`: Game data storage
-- `Assets/Source_files/Images/`: Game graphics
-- `Assets/Source_files/fonts/`: Text fonts
-- `Assets/Source_files/Sounds/`: Game audio
-- `Assets/Source_files/rules/`: Game rules documentation
-
-## Requirements
-- Python 3.x
-- Pygame
-- OpenCV (for video playback)
-- Socket library (for networking)
-
-## Installation and Setup
-
-1. Clone the repository:
+1. **Clone the repository**
 
 ```bash
-git clone https://github.com/brav68e/Katarenga.git
-
-
-2. Install the required dependencies:
-
-pip install pygame opencv-python
-
-3. Run the game:
-
-python main.py
+git clone https://github.com/Brav68e/Katarenga
 ```
 
-## How to Play
+2. **Navigate to the project directory**
 
-### Main Menu
-Navigate through the game modes using the bottom menu icons:
-- Katarenga
-- Congress
-- Isolation
-- Settings (includes options, rules, and tile creation)
+```bash
+cd Katarenga
+```
 
-### Game Controls
-- Click to select a piece
-- Click again on a valid tile to move
-- Game rules are accessible from the Settings menu
+3. **Install dependencies**
 
-### Online Play
-1. Choose "Online Multiplayer" from the main menu
-2. Host a game or join an existing server
-3. Select a game mode
-4. Wait for an opponent to connect
+Make sure you have Python 3.x and Pygame installed. You can install Pygame with:
 
-### Creating Custom Content
-1. Access "Create tiles" from the Settings menu
-2. Design your custom region layouts
-3. Save your designs to use them in games
-4. Use the Board Creation tool to combine regions into a full game board
+```bash
+pip install pygame
+```
 
-## Contributing
-This project was developed as an educational exercise. If you wish to contribute or report issues, please contact the original developers.
+4. **Run the application**
 
-## License
-All rights reserved. This project is provided for educational purposes only.
+```bash
+python main.py
+```
