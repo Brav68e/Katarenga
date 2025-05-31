@@ -203,7 +203,7 @@ The in-game menu allows:
 - Quitting the game
 
 ### 7.4 Victory/Defeat Screens
-At the end of a game, a screen displays the result (win, loss, draw) with a summary of scores and buttons to replay or return to the main menu.
+At the end of a game, a screen displays the result (player `x` won the game) with a summary of scores and buttons to replay or return to the main menu.
 This small pop-up is handle via a method in `Games_UI`
 
 ### 7.5 Settings
