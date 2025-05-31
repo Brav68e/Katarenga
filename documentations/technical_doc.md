@@ -6,13 +6,15 @@ Katarenga is a board game application inspired by chess, developed in Python. Th
 
 ## 2. Project Architecture
 
-The application is structured into several main modules, each responsible for a specific part of the functionality: board management, user interface, game logic, network management, assets, and subclasses for game entities. The project follows a modular architecture to facilitate maintenance and extension.
+The application is structured into several main modules, each responsible for a specific part of the functionality: board management, user interface, game logic, network management, assets, and subclasses for game entities. The project follows a modular architecture to facilitate maintenance and extension. It uses Python and his sets of library to allow more dynamic changes and ease to use. With Pygame used for the graphical part, we improve the overall possibilities for development and enhance greatly user experience.
 
 ### 2.1 Class Diagram
 
 ![alt text](<Class_Diagram/small_diagram.png>)
 
+Here is a diagram that shows the main class used for this project (thus we use OOP).
 If you want a more detailed version of this diagram, you can found one in documentations/Class_Diagram/class_diagram.svg
+The diagram above should be enough to understand the main ideas and below stand more explanation.
 
 ## 3. Folder and File Structure
 
@@ -61,6 +63,12 @@ This module contains the logic for the different game modes (Katarenga, Isolatio
 - Turn management
 - Detection of victory or draw conditions
 - Contain the overall logic of the games
+
+This is where belong each win condition method. Here is a glimpse of how they work :
+
+- Katarenga : This win condition keep track of the amount of pawn each player got (this info is stored in the player) and check if camps are occupied looping through a specific dictionnary.
+- Congress : The hardest one, need to keep track of each pawn and try to cross all nodes of a graph using Breadth First Search algorithm
+- Isolation : A special set is create and keep track of available tiles, once none are available, the game is over
 
 ---
 
@@ -152,7 +160,9 @@ Defines an individual board tile.
 - deplacement_pattern (king, bishop, knight, ...)
 
 ### Notes :
-- You have to know that all the object that might need to be transfert (mainly in-game Object) have a method to be either transform into dictionnary or transform back from it
+- You have to know that all the object that might need to be transfert (mainly in-game Object) have a method to be either transform into dictionnary or transform back from it.
+The main purpose of this is to allow registration in JSON files and to either read, delete or write in those files.
+- Those class are primarly used together, which means we use composition alot. For instance, a Region object contain a 2D list of Tiles Object which may contain a Pawn Object (who has his turn refer a Player Object)
 
 ---
 
@@ -229,6 +239,7 @@ Each button can be styled with an image (e.g., `Assets/Images/Utility/button.png
 ## 9. Asset Management (Images, Sounds, Fonts, Rules)
 
 The `Assets/` folder centralizes all multimedia resources used by the application. Good asset management ensures visual and audio consistency, as well as ease of maintenance and extension.
+You have to note that all of those assets are either hand-made or free to use. For more informations about sources, consider contacting us.
 
 ### 9.1 Images
 Images are organized by usage:
@@ -303,8 +314,11 @@ This module acts as a centralized lobby to find or create online games.
 - Handles network errors and connection losses
 - Handling errors with try... catch
 
-All of the network is based on Socket concept and his associated library in python
-
+All of the network is based on Socket and Thread concepts and associated libraries in Python. 
+Multiple Thread are used to handle :
+- Communication with the server
+- Send information to everyone
+- Receiving information and return response 
 ---
 
 ## 11. Game Rules Management and Implementation
