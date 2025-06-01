@@ -157,7 +157,7 @@ class Games:
 
                 if pawn := self.board[nx][ny].get_pawn():
                     # Check if the pawn is an opponent's pawn
-                    if pawn.get_owner().get_username() != self.current_player.get_username() and self.gamemode == "katarenga":
+                    if pawn.get_owner() != self.current_player and self.gamemode == "katarenga":
                         # Capture the opponent's pawn
                         moves.append((nx, ny))
                         break
@@ -343,7 +343,7 @@ class Games:
             for x in range(self.taille):
                 for y in range(self.taille):
                     tile = self.board[x][y]
-                    if (pawn := tile.get_pawn()) and pawn.get_owner().get_username() == self.players[1].get_username():
+                    if (pawn := tile.get_pawn()) and pawn.get_owner() == self.players[1]:
                         moves = self.get_possible_moves(x, y)
                         for move in moves:
                             possible_moves.append((x, y, move[0], move[1]))

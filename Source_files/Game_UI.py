@@ -316,12 +316,12 @@ class GamesUI():
         '''Draw the pawns on the board'''
 
         grid = self.game.get_grid()
-        player0 = self.game.get_player(0).get_username()
+        player0 = self.game.get_player(0)
         
         for row in range(8):
             for column in range(8):
                 if (pawn := grid[row][column].get_pawn()) != None:
-                    owner = pawn.get_owner().get_username()
+                    owner = pawn.get_owner()
                     if owner == player0:
                         self.screen.blit(self.pawns_img["white"], (self.board_background_topleft[0] + (column + 1) * self.tiles_size, self.board_background_topleft[1] + (row + 1) * self.tiles_size))
                     else:
